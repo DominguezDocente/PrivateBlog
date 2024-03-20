@@ -25,5 +25,10 @@ namespace PrivateBlog.Web.Controllers
 
             return View(response.Result);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
