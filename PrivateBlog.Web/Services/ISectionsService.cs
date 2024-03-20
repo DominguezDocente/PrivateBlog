@@ -8,6 +8,7 @@ namespace PrivateBlog.Web.Services
 {
     public interface ISectionsService
     {
+        public Task<Response<Section>> CreateSectionAsync(Section model);
         public Task<Response<List<Section>>> GetListAsync();
     }
 
@@ -18,6 +19,35 @@ namespace PrivateBlog.Web.Services
         public SectionsService(DataContext context)
         {
             _context = context;
+        }
+
+        public async Task<Response<Section>> CreateSectionAsync(Section model)
+        {
+            try
+            {
+                Section section = new Section
+                {
+                    Name = model.Name,
+                };
+
+                await _context.Sections.AddAsync(section);
+                await _context.SaveChangesAsync();
+
+                return new Response<Section>
+                {
+                    IsSuccess = true,
+                    Message = "Sección creada con éxito",
+                    Result = section
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<Section>
+                {
+                    IsSuccess = false,
+                    Message = ex.Message,
+                };
+            }
         }
 
         public async Task<Response<List<Section>>> GetListAsync()
@@ -42,8 +72,6 @@ namespace PrivateBlog.Web.Services
                     Message = ex.Message,
                 };
             }
-
-            throw new NotImplementedException();
         }
     }
 }

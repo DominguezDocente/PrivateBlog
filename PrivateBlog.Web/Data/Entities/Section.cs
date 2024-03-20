@@ -11,6 +11,8 @@ namespace PrivateBlog.Web.Data.Entities
         [MaxLength(64, ErrorMessage = "El campo '{0}' debe terner máximo {1} caractéres")]
         public string Name { get; set; }
 
+
+        [Display(Name = "¿Está oculta?")]
         public bool IsHidden { get; set; } = false;
     }
 }
