@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
@@ -8,7 +8,7 @@ namespace PrivateBlog.Web.Services
 {
     public interface ISectionsService
     {
-        public Task<Response<Section>> CreateSectionAsync(Section model);
+        public Task<Response<Section>> CreateAsync(Section model);
         public Task<Response<List<Section>>> GetListAsync();
     }
 
@@ -21,7 +21,7 @@ namespace PrivateBlog.Web.Services
             _context = context;
         }
 
-        public async Task<Response<Section>> CreateSectionAsync(Section model)
+        public async Task<Response<Section>> CreateAsync(Section model)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace PrivateBlog.Web.Services
                     Name = model.Name,
                 };
 
-                await _context.Sections.AddAsync(section);
+                await _context.AddAsync(section);
                 await _context.SaveChangesAsync();
 
                 return new Response<Section>
@@ -49,7 +49,7 @@ namespace PrivateBlog.Web.Services
                 };
             }
         }
-
+        
         public async Task<Response<List<Section>>> GetListAsync()
         {
             try
