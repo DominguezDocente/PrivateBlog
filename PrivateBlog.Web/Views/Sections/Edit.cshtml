@@ -1,17 +1,17 @@
-@model PrivateBlog.Web.Data.Entities.Section
+﻿@model PrivateBlog.Web.Data.Entities.Section
 
 @{
-    ViewData["Title"] = "Nueva Sección";
+    ViewData["Title"] = "Editar Sección";
     Layout = "~/Views/Shared/_MyLayout.cshtml";
 }
 
 <div class="pagetitle">
-    <h1>Nueva Sección</h1>
+    <h1>Editar Sección</h1>
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard">Dashboard</a></li>
             <li class="breadcrumb-item active"><a asp-action="Index">Secciones</a></li>
-            <li class="breadcrumb-item active">Nueva Sección</li>
+            <li class="breadcrumb-item active">Editar Sección</li>
         </ol>
     </nav>
 </div>
@@ -19,10 +19,11 @@
 <section class="section dashboard">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Nueva Sección</h5>
+            <h5 class="card-title">Editar Sección</h5>
 
-            <!-- Floating Labels Form -->
-            <form class="row g-3" asp-action="Create" method="POST">
+            <form class="row g-3" asp-action="Update" method="POST">
+                <input type="hidden" asp-for="Id" />
+
                 <div class="col-md-12">
                     <div class="form-floating">
                         <input asp-for="Name" class="form-control" placeholder="@Html.DisplayNameFor(model => model.Name)">
@@ -38,7 +39,7 @@
 
         </div>
     </div>
-    
+
 </section>
 
 @section Scripts {
