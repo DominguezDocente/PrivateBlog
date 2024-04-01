@@ -26,7 +26,7 @@
                 <div class="col-md-12">
                     <div class="form-floating">
                         <input asp-for="Name" class="form-control" placeholder="@Html.DisplayFor(model => model.Name)">
-                        <label>@(Html.DisplayFor(model => model.Name))</label>
+                        <label>@(Html.DisplayNameFor(model => model.Name))</label>
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
                 </div>
