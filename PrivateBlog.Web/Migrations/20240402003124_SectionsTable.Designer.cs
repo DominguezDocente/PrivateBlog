@@ -11,8 +11,8 @@ using PrivateBlog.Web.Data;
 namespace PrivateBlog.Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240319003116_AddSectionsTable")]
-    partial class AddSectionsTable
+    [Migration("20240402003124_SectionsTable")]
+    partial class SectionsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,6 +40,9 @@ namespace PrivateBlog.Web.Migrations
                         .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Sections");
                 });

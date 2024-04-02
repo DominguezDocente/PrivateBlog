@@ -39,6 +39,9 @@ namespace PrivateBlog.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Sections");
                 });
 #pragma warning restore 612, 618
