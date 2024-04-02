@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data.Entities;
+using PrivateBlog.Web.Requests;
 using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
@@ -52,12 +53,81 @@ namespace PrivateBlog.Web.Controllers
 
                 _notify.Error(response.Message);
                 return View(model);
-
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _notify.Error(ex.Message);
                 return View(model);
             }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Edit([FromRoute] int id)
+        {
+            Response<Section> response = await _sectionsService.GetOneAsync(id);
+
+            if (response.IsSuccess)
+            {
+                return View(response.Result);
+            }
+
+            _notify.Error(response.Errors.First());
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(Section model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _notify.Error("Debe ajustar los errores de validación.");
+                    return View(model);
+                }
+
+                Response<Section> response = await _sectionsService.EditAsync(model);
+
+                if (response.IsSuccess)
+                {
+                    _notify.Success(response.Message);
+                    return RedirectToAction(nameof(Index));
+                }
+
+                _notify.Error(response.Errors.First());
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _notify.Error(ex.Message);
+                return View(model);
+            }
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            Response<Section> response = await _sectionsService.DeleteAsync(id);
+
+            if (response.IsSuccess)
+            {
+                _notify.Success(response.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
+            _notify.Error(response.Errors.First());
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Toggle(int Id, bool Hide)
+        {
+            ToggleSectionRequest request = new ToggleSectionRequest { Id = Id, Hide = Hide };
+            Response<Section> response = await _sectionsService.ToggleSectionAsync(request);
+
+            _notify.Success("Sección actualizada con éxito");
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
