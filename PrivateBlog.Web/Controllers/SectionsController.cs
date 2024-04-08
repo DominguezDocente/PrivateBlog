@@ -77,7 +77,7 @@ namespace PrivateBlog.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Update(Section model)
         {
             try
@@ -122,7 +122,6 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
-        [HttpPut]
         public async Task<IActionResult> Toggle(int Id, bool Hide)
         {
             ToggleSectionRequest request = new ToggleSectionRequest { Id = Id, Hide = Hide };

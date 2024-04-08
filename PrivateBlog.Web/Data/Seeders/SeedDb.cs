@@ -1,4 +1,6 @@
-﻿namespace PrivateBlog.Web.Data.Seeders
+using System.Reflection.PortableExecutable;
+
+namespace PrivateBlog.Web.Data.Seeders
 {
     public class SeedDb
     {

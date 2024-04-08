@@ -4,6 +4,7 @@ using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Requests;
+using System.Collections.Generic;
 
 namespace PrivateBlog.Web.Services
 {
@@ -43,20 +44,11 @@ namespace PrivateBlog.Web.Services
                 await _context.AddAsync(section);
                 await _context.SaveChangesAsync();
 
-                return new Response<Section>
-                {
-                    IsSuccess = true,
-                    Message = "Sección creada con éxito",
-                    Result = section
-                };
+                return ResponseHelper<Section>.MakeResponseSuccess(section, "Sección creada con éxito");
             }
             catch (Exception ex)
             {
-                return new Response<Section>
-                {
-                    IsSuccess = false,
-                    Message = ex.Message,
-                };
+                return ResponseHelper<Section>.MakeResponseFail(ex);
             }
         }
 

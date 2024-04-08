@@ -1,4 +1,4 @@
-﻿@model PrivateBlog.Web.Data.Entities.Section
+@model PrivateBlog.Web.Data.Entities.Section
 
 @{
     ViewData["Title"] = "Editar Sección";
@@ -21,12 +21,14 @@
         <div class="card-body">
             <h5 class="card-title">Editar Sección</h5>
 
+            <!-- Floating Labels Form -->
             <form class="row g-3" asp-action="Update" method="POST">
                 <input type="hidden" asp-for="Id" />
 
+
                 <div class="col-md-12">
                     <div class="form-floating">
-                        <input asp-for="Name" class="form-control" placeholder="@Html.DisplayNameFor(model => model.Name)">
+                        <input asp-for="Name" class="form-control" placeholder="@Html.DisplayFor(model => model.Name)">
                         <label>@(Html.DisplayNameFor(model => model.Name))</label>
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>

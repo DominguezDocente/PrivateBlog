@@ -1,5 +1,4 @@
-﻿using PrivateBlog.Web.Core;
-using PrivateBlog.Web.Data.Entities;
+using PrivateBlog.Web.Core;
 
 namespace PrivateBlog.Web.Helpers
 {
@@ -22,6 +21,15 @@ namespace PrivateBlog.Web.Helpers
                 IsSuccess = true,
                 Message = message,
                 Result = model
+            };
+        }
+
+        public static Response<T> MakeResponseSuccess(string message)
+        {
+            return new Response<T>
+            {
+                IsSuccess = true,
+                Message = message
             };
         }
 
@@ -72,15 +80,6 @@ namespace PrivateBlog.Web.Helpers
                 IsSuccess = false,
                 Message = error,
                 Errors = errors
-            };
-        }
-
-        public static Response<T> MakeResponseSuccess(string message)
-        {
-            return new Response<T>
-            {
-                IsSuccess = true,
-                Message = message
             };
         }
     }

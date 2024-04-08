@@ -1,10 +1,9 @@
-﻿using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core.Middlewares;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Seeders;
-using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web
@@ -39,10 +38,9 @@ namespace PrivateBlog.Web
         {
             // Services
             builder.Services.AddScoped<ISectionsService, SectionsService>();
+            builder.Services.AddTransient<SeedDb>();
 
             // Helpers
-
-            builder.Services.AddTransient<SeedDb>();
         }
 
         #endregion Builder
@@ -55,14 +53,7 @@ namespace PrivateBlog.Web
 
             SeedData(app);
 
-            AddMiddlewares(app);
-
             return app;
-        }
-
-        private static void AddMiddlewares(WebApplication app)
-        {
-            app.UseMiddleware<HttpCustomMethodOverrideMiddleware>();
         }
 
         private static void SeedData(WebApplication app)

@@ -46,25 +46,19 @@
                                 @if (item.IsHidden)
                                 {
                                     <form asp-action="Toggle" method="POST" style="display: contents;">
-                                        @Html.HttpMethod("PUT")
                                         <input type="hidden" value="@item.Id" name="Id" />
                                         <input type="hidden" value="false" name="Hide" />
 
                                         <div class="tooltip-container">
-                                            <button class="btn btn-secondary btn-sm showSection">
                                                 <i class="bi bi-eye-fill" style="color:#F8F9FC;cursor: pointer;"></i>
                                             </button>
-                                            <span class="tooltip-text">Mostrar Sección</span>
-                                        </div>
                                     </form>
                                 }
                                 else
                                 {
                                     <form asp-action="Toggle" method="POST" style="display: contents;">
-                                        @Html.HttpMethod("PUT")
                                         <input type="hidden" value="@item.Id" name="Id" />
                                         <input type="hidden" value="true" name="Hide" />
-
                                         <div class="tooltip-container">
                                             <button class="btn btn-info btn-sm showSection"
                                                     data-id="@item.Id">
@@ -77,8 +71,6 @@
                                 }
 
                                 <form asp-action="Delete" asp-route-id="@item.Id" style="display:contents">
-                                    @* @Html.HttpMethod("DELETE") *@
-                                    @Html.Hidden("_method", "DELETE")
                                     <button class="btn btn-danger btn-sm btnDelete"><i class="bi bi-trash-fill"></i></button>
                                 </form>
                         </tr>

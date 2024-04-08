@@ -4,7 +4,7 @@
 
 namespace PrivateBlog.Web.Migrations
 {
-    public partial class AddSectionsTable : Migration
+    public partial class InnitialSquema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -21,6 +21,12 @@ namespace PrivateBlog.Web.Migrations
                 {
                     table.PrimaryKey("PK_Sections", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sections_Name",
+                table: "Sections",
+                column: "Name",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

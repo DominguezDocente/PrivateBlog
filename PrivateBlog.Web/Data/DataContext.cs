@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data.Entities;
 
 namespace PrivateBlog.Web.Data
@@ -14,6 +14,7 @@ namespace PrivateBlog.Web.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ConfigureIndexes(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
         }
 
