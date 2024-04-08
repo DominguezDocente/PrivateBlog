@@ -11,8 +11,8 @@ using PrivateBlog.Web.Data;
 namespace PrivateBlog.Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240402003124_SectionsTable")]
-    partial class SectionsTable
+    [Migration("20240408185239_InnitialSquema")]
+    partial class InnitialSquema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

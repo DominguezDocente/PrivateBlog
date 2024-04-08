@@ -4,7 +4,7 @@
 
 namespace PrivateBlog.Web.Migrations
 {
-    public partial class SectionsTable : Migration
+    public partial class InnitialSquema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
