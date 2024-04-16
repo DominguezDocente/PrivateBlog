@@ -3,6 +3,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Requests;
 using PrivateBlog.Web.Services;
@@ -21,9 +22,18 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] int? recordsPerPage,
+                                               [FromQuery] int? page,
+                                               [FromQuery] string? Filter)
         {
-            Response<List<Section>> response = await _sectionsService.GetListAsync();
+            PaginationRequest paginationRequest = new PaginationRequest
+            {
+                RecordsPerPage = recordsPerPage ?? 15,
+                Page = page ?? 1,
+                Filter = Filter,
+            };
+
+            Response<PaginationResponse<Section>> response = await _sectionsService.GetListAsync(paginationRequest);
 
             return View(response.Result);
         }

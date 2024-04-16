@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Helpers;
@@ -12,7 +13,7 @@ namespace PrivateBlog.Web.Services
     {
         public Task<Response<Section>> CreateAsync(Section model);
 
-        public Task<Response<List<Section>>> GetListAsync();
+        public Task<Response<PaginationResponse<Section>>> GetListAsync(PaginationRequest request);
 
         public Task<Response<Section>> GetOneAsync(int id);
 
@@ -52,17 +53,34 @@ namespace PrivateBlog.Web.Services
             }
         }
 
-        public async Task<Response<List<Section>>> GetListAsync()
+        public async Task<Response<PaginationResponse<Section>>> GetListAsync(PaginationRequest request)
         {
             try
             {
-                List<Section> list = await _context.Sections.ToListAsync();
+                IQueryable<Section> queryable = _context.Sections.AsQueryable();
 
-                return ResponseHelper<List<Section>>.MakeResponseSuccess(list, "Secciones obtenidas con éxito");
+                if (!string.IsNullOrWhiteSpace(request.Filter))
+                {
+                    queryable = queryable.Where(s => s.Name.ToLower().Contains(request.Filter.ToLower()));
+                }
+
+                PagedList<Section> list = await PagedList<Section>.ToPagedListAsync(queryable, request);
+
+
+                PaginationResponse<Section> result = new PaginationResponse<Section> 
+                {
+                    List = list,
+                    TotalCount = list.TotalCount,
+                    RecordsPerPage = list.RecordsPerPage,
+                    CurrentPage = list.CurrentPage,
+                    TotalPages = list.TotalPages,
+                };
+
+                return ResponseHelper<PaginationResponse<Section>>.MakeResponseSuccess(result, "Secciones obtenidas con éxito");
             }
             catch (Exception ex)
             {
-                return ResponseHelper<List<Section>>.MakeResponseFail(ex);
+                return ResponseHelper<PaginationResponse<Section>>.MakeResponseFail(ex);
             }
         }
 
