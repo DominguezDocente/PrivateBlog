@@ -74,6 +74,9 @@ namespace PrivateBlog.Web.Services
                     RecordsPerPage = list.RecordsPerPage,
                     CurrentPage = list.CurrentPage,
                     TotalPages = list.TotalPages,
+
+                    //Faltante:
+                    Filter = request.Filter,
                 };
 
                 return ResponseHelper<PaginationResponse<Section>>.MakeResponseSuccess(result, "Secciones obtenidas con éxito");

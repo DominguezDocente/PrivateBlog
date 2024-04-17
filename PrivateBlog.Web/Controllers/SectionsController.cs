@@ -22,14 +22,14 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index([FromQuery] int? recordsPerPage,
-                                               [FromQuery] int? page,
+        public async Task<IActionResult> Index([FromQuery] int? RecordsPerPage,
+                                               [FromQuery] int? Page,
                                                [FromQuery] string? Filter)
         {
             PaginationRequest paginationRequest = new PaginationRequest
             {
-                RecordsPerPage = recordsPerPage ?? 15,
-                Page = page ?? 1,
+                RecordsPerPage = RecordsPerPage ?? 15,
+                Page = Page ?? 1,
                 Filter = Filter,
             };
 
