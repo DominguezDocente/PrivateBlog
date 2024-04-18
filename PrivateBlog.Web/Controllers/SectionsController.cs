@@ -1,8 +1,10 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Requests;
@@ -10,6 +12,7 @@ using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
 {
+    [Authorize]
     public class SectionsController : Controller
     {
         private readonly ISectionsService _sectionsService;
@@ -22,6 +25,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "showSections", module: "Secciones")]
         public async Task<IActionResult> Index([FromQuery] int? RecordsPerPage,
                                                [FromQuery] int? Page,
                                                [FromQuery] string? Filter)

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Models;
 using System.Diagnostics;
 
 namespace PrivateBlog.Web.Controllers
 {
+	[Authorize]
 	public class HomeController : Controller
 	{
 		private readonly ILogger<HomeController> _logger;
@@ -23,6 +25,7 @@ namespace PrivateBlog.Web.Controllers
 			return View();
 		}
 
+		[AllowAnonymous]
 		public IActionResult Privacy()
 		{
 			return View();

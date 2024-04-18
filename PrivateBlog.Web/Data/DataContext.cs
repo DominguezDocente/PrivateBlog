@@ -1,14 +1,18 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data.Entities;
 
 namespace PrivateBlog.Web.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<User>
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
 
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<PrivateBlogRole> PrivateBlogRoles { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Section> Sections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,6 +28,29 @@ namespace PrivateBlog.Web.Data
             modelBuilder.Entity<Section>()
                         .HasIndex(s => s.Name)
                         .IsUnique();
+
+            // Roles
+            modelBuilder.Entity<PrivateBlogRole>()
+                        .HasIndex(s => s.Name)
+                        .IsUnique();
+            // Users
+            modelBuilder.Entity<User>()
+                        .HasIndex(s => s.Document)
+                        .IsUnique();
+
+            // Role Permission
+            modelBuilder.Entity<RolePermission>()
+                        .HasKey(rs => new { rs.RoleId, rs.PermissionId });
+
+            modelBuilder.Entity<RolePermission>()
+                        .HasOne(rs => rs.Role)
+                        .WithMany(r => r.RolePermissions)
+                        .HasForeignKey(rs => rs.RoleId);
+
+            modelBuilder.Entity<RolePermission>()
+                        .HasOne(rs => rs.Permission)
+                        .WithMany(s => s.RolePermissions)
+                        .HasForeignKey(rs => rs.PermissionId);
         }
     }
 }
