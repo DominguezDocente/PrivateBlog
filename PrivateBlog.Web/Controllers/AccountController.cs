@@ -1,19 +1,25 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
+using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IUsersService _usersService;
+        private readonly IConverterHelper _converterHelper;
         private readonly INotyfService _noty;
+        private readonly IUsersService _usersService;
 
-        public AccountController(IUsersService usersService, INotyfService noty)
+        public AccountController(IUsersService usersService, INotyfService noty, IConverterHelper converterHelper)
         {
             _usersService = usersService;
             _noty = noty;
+            _converterHelper = converterHelper;
         }
 
         [HttpGet]
@@ -55,6 +61,85 @@ namespace PrivateBlog.Web.Controllers
         [HttpGet]
         public IActionResult NotAuthorized()
         {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateUser()
+        {
+            User? user = await _usersService.GetUserAsync(User.Identity.Name);
+
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            AccountUserDTO dto = _converterHelper.ToAccountDTO(user);
+
+            return View(dto);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser(AccountUserDTO dto)
+        {
+            if (ModelState.IsValid)
+            {
+                User user = await _usersService.GetUserAsync(User.Identity.Name);
+
+                user.Document = dto.Document;
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+                user.PhoneNumber = dto.PhoneNumber;
+
+                await _usersService.UpdateUserAsync(user);
+
+                _noty.Success("Usuario editado con éxito");
+
+                return RedirectToAction("Dashboard", "Home");
+            }
+
+            _noty.Error("Debe ajustar los errores de validación.");
+            return View(dto);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO dto)
+        {
+            if (ModelState.IsValid)
+            {
+                User user = await _usersService.GetUserAsync(User.Identity.Name);
+
+                bool isCorrectPassword = await _usersService.CheckPasswordAsync(user, dto.CurrentPassword);
+
+                if (!isCorrectPassword)
+                {
+                    _noty.Error("Contraseña incorrecta");
+                    return View();
+                }
+
+                string restToken = await _usersService.GeneratePasswordResetTokenAsync(user);
+                IdentityResult result = await _usersService.ResetPasswordAsync(user, restToken, dto.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    _noty.Success("Contraseña actualizada con éxito");
+                    return RedirectToAction("Dashboard", "Home");
+                }
+
+                _noty.Error("Ha ocurriso un error, intentole nuevamente");
+                return View();
+            }
+
+            _noty.Error("Debe ajustar los errores de validación");
             return View();
         }
     }

@@ -1,3 +1,4 @@
+@inject PrivateBlog.Web.Services.IUsersService _usersService
 
 <aside id="sidebar" class="sidebar">
 
@@ -11,15 +12,18 @@
                 <span>Dashboard</span>
             </a>
         </li>
-
-        <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Sections"
+        
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showSections", "Secciones"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Sections"
                                                 && ViewContext.RouteData.Values["Action"].ToString() == "Index"
                                                 ? "" : "collapsed")" asp-controller="Sections" asp-action="Index">
-                <i class="bi bi-grid"></i>
-                <span>Secciones</span>
-            </a>
-        </li>
+                    <i class="bi bi-grid"></i>
+                    <span>Secciones</span>
+                </a>
+            </li>
+        }
 
     </ul>
 

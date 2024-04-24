@@ -6,6 +6,7 @@ using PrivateBlog.Web.Core.Middlewares;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Data.Seeders;
+using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web
@@ -74,6 +75,7 @@ namespace PrivateBlog.Web
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             // Helpers
+            builder.Services.AddScoped<IConverterHelper, ConverterHelper>(); 
         }
 
         #endregion Builder

@@ -14,17 +14,25 @@ namespace PrivateBlog.Web.Services
     {
         Task<IdentityResult> AddUserAsync(User user, string password);
 
+        Task<bool> CheckPasswordAsync(User user, string password);
+
         Task<IdentityResult> ConfirmEmailAsync(User user, string token);
 
         Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
 
         Task<string> GenerateEmailConfirmationTokenAsync(User user);
 
+        Task<string> GeneratePasswordResetTokenAsync(User user);
+
         Task<User> GetUserAsync(string email);
 
         Task<SignInResult> LoginAsync(LoginDTO model);
 
         Task LogoutAsync();
+
+        Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword);
+
+        Task<IdentityResult> UpdateUserAsync(User user);
     }
 
     public class UsersService : IUsersService
@@ -45,6 +53,11 @@ namespace PrivateBlog.Web.Services
         public async  Task<IdentityResult> AddUserAsync(User user, string password)
         {
             return await _userManager.CreateAsync(user, password);
+        }
+
+        public Task<bool> CheckPasswordAsync(User user, string password)
+        {
+            return _userManager.CheckPasswordAsync(user, password);
         }
 
         public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
@@ -90,6 +103,11 @@ namespace PrivateBlog.Web.Services
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
 
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
         public async Task<User> GetUserAsync(string email)
         {
             User? user = await _context.Users.Include(u => u.PrivateBlogRole)
@@ -106,6 +124,16 @@ namespace PrivateBlog.Web.Services
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
+        {
+            return _userManager.ResetPasswordAsync(user, resetToken, newPassword);
+        }
+
+        public async Task<IdentityResult> UpdateUserAsync(User user)
+        {
+            return await _userManager.UpdateAsync(user);
         }
     }
 }
