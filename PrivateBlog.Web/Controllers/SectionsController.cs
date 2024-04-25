@@ -95,7 +95,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(permission: "updateUsers", module: "Secciones")]
+        [CustomAuthorize(permission: "updateSections", module: "Secciones")]
         public async Task<IActionResult> Update(Section model)
         {
             try
@@ -125,7 +125,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost("{id}")]
-        [CustomAuthorize(permission: "updateUsers", module: "Secciones")]
+        [CustomAuthorize(permission: "updateSections", module: "Secciones")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Response<Section> response = await _sectionsService.DeleteAsync(id);
@@ -141,7 +141,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(permission: "updateUsers", module: "Secciones")]
+        [CustomAuthorize(permission: "updateSections", module: "Secciones")]
         public async Task<IActionResult> Toggle(int Id, bool Hide)
         {
             ToggleSectionRequest request = new ToggleSectionRequest { Id = Id, Hide = Hide };

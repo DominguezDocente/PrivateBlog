@@ -19,8 +19,20 @@
                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Sections"
                                                 && ViewContext.RouteData.Values["Action"].ToString() == "Index"
                                                 ? "" : "collapsed")" asp-controller="Sections" asp-action="Index">
-                    <i class="bi bi-grid"></i>
+                    <i class="bi bi-puzzle"></i>
                     <span>Secciones</span>
+                </a>
+            </li>
+        }
+
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showRoles", "Roles"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Roles"
+                                                && ViewContext.RouteData.Values["Action"].ToString() == "Index"
+                                                ? "" : "collapsed")" asp-controller="Roles" asp-action="Index">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Roles</span>
                 </a>
             </li>
         }

@@ -70,6 +70,7 @@ namespace PrivateBlog.Web
         private static void AddServices(this WebApplicationBuilder builder)
         {
             // Services
+            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IUsersService, UsersService>();

@@ -74,8 +74,6 @@ namespace PrivateBlog.Web.Services
                     RecordsPerPage = list.RecordsPerPage,
                     CurrentPage = list.CurrentPage,
                     TotalPages = list.TotalPages,
-
-                    //Faltante:
                     Filter = request.Filter,
                 };
 

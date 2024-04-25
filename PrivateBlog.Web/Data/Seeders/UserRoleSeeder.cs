@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Services;
 
@@ -23,11 +24,11 @@ namespace PrivateBlog.Web.Data.Seeders
 
         private async Task AdministradorRoleAsync()
         {
-            PrivateBlogRole? tmp = await _context.PrivateBlogRoles.Where(ir => ir.Name == "Administrador").FirstOrDefaultAsync();
+            PrivateBlogRole? tmp = await _context.PrivateBlogRoles.Where(ir => ir.Name == Constants.SUPER_ADMIN_ROLE_NAME).FirstOrDefaultAsync();
 
             if (tmp == null)
             {
-                PrivateBlogRole role = new PrivateBlogRole { Name = "Administrador" };
+                PrivateBlogRole role = new PrivateBlogRole { Name = Constants.SUPER_ADMIN_ROLE_NAME };
                 _context.PrivateBlogRoles.Add(role);
                 await _context.SaveChangesAsync();
             }

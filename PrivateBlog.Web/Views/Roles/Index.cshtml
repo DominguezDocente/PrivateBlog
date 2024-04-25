@@ -1,9 +1,9 @@
-@model PaginationResponse<PrivateBlog.Web.Data.Entities.Section>
+﻿@model PaginationResponse<PrivateBlog.Web.Data.Entities.PrivateBlogRole>
 
 @inject PrivateBlog.Web.Services.IUsersService _usersService
 
 @{
-    ViewData["Title"] = "Secciones";
+    ViewData["Title"] = "Roles";
     Layout = "~/Views/Shared/_MyLayout.cshtml";
 }
 
@@ -12,7 +12,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard">Dashboard</a></li>
-            <li class="breadcrumb-item active">Secciones</li>
+            <li class="breadcrumb-item active">Roles</li>
         </ol>
     </nav>
 </div>
@@ -23,9 +23,9 @@
 
         <div class="card-header py-3">
             <div class="row">
-                <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">Roles</h3>
 
-                @if (await _usersService.CurrentUserIsAuthorizedAsync("createSections", "Secciones"))
+                @if (await _usersService.CurrentUserIsAuthorizedAsync("createRoles", "Roles"))
                 {
                     <div class="col-md-1">
                         <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
@@ -57,53 +57,23 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th> Sección </th>
+                        <th> Rol </th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.List)
                     {
-                        <tr class='@(item.IsHidden ? "table-secondary" : "")'>
+                        <tr>
                             <td> @Html.DisplayFor(modelItem => item.Name) </td>
 
                             <td>
-                                @if (await _usersService.CurrentUserIsAuthorizedAsync("updateSections", "Secciones"))
+                                @if (await _usersService.CurrentUserIsAuthorizedAsync("updateRoles", "Roles"))
                                 {
                                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
-
-                                    @if (item.IsHidden)
-                                    {
-                                        <form asp-action="Toggle" method="POST" style="display: contents;">
-                                            <input type="hidden" value="@item.Id" name="Id" />
-                                            <input type="hidden" value="false" name="Hide" />
-
-                                            <div class="tooltip-container">
-                                                <button class="btn btn-secondary btn-sm showSection">
-                                                    <i class="bi bi-eye-fill" style="color:#F8F9FC;cursor: pointer;"></i>
-                                                </button>
-                                                <span class="tooltip-text">Mostrar Sección</span>
-                                            </div>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <form asp-action="Toggle" method="POST" style="display: contents;">
-                                            <input type="hidden" value="@item.Id" name="Id" />
-                                            <input type="hidden" value="true" name="Hide" />
-                                            <div class="tooltip-container">
-                                                <button class="btn btn-info btn-sm showSection"
-                                                        data-id="@item.Id">
-                                                    <i class="bi bi-eye-slash-fill" style="color:#F8F9FC;cursor: pointer;"></i>
-                                                </button>
-                                                <span class="tooltip-text">Ocultar Sección</span>
-                                            </div>
-
-                                        </form>
-                                    }
                                 }
 
-                                @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteSections", "Secciones"))
+                                @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteRoles", "Roles"))
                                 {
                                     <form asp-action="Delete" asp-route-id="@item.Id" style="display:contents">
                                         <button class="btn btn-danger btn-sm btnDelete"><i class="bi bi-trash-fill"></i></button>
@@ -116,6 +86,7 @@
                 </tbody>
             </table>
 
+            @* Paginación *@
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
 
@@ -194,7 +165,7 @@
                 event.preventDefault();
 
                 Swal.fire({
-                    title: "¿Desea eliminar la sección?",
+                    title: "¿Desea eliminar el Rol?",
                     text: "No prodrá revertirlo",
                     icon: "question",
                     showCancelButton: true,

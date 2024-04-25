@@ -13,12 +13,10 @@ namespace PrivateBlog.Web.Data.Seeders
 
         public async Task SeedAsync()
         {
-            List<Permission> sectionsPermisions = Setcions();
-            List<Permission> usersPermisions = Users();
-
             List<Permission> permissions = new List<Permission>();
-            permissions.AddRange(sectionsPermisions);
-            permissions.AddRange(usersPermisions);
+            permissions.AddRange(Roles());
+            permissions.AddRange(Users());
+            permissions.AddRange(Setcions());
 
             foreach (Permission permission in permissions)
             {
@@ -33,14 +31,14 @@ namespace PrivateBlog.Web.Data.Seeders
             await _context.SaveChangesAsync();
         }
 
-        private List<Permission> Users()
+        private List<Permission> Roles()
         {
             List<Permission> list = new List<Permission>
             {
-                new Permission { Name = "showUsers", Description = "Ver Usuarios", Module = "Usuarios" },
-                new Permission { Name = "createUsers", Description = "Crear Usuarios", Module = "Usuarios" },
-                new Permission { Name = "updateUsers", Description = "Editar Usuarios", Module = "Usuarios" },
-                new Permission { Name = "deleteUsers", Description = "Eliminar Usuarios", Module = "Usuarios" },
+                new Permission { Name = "showRoles", Description = "Ver Roles", Module = "Roles" },
+                new Permission { Name = "createRoles", Description = "Crear Roles", Module = "Roles" },
+                new Permission { Name = "updateRoles", Description = "Editar Roles", Module = "Roles" },
+                new Permission { Name = "deleteRoles", Description = "Eliminar Roles", Module = "Roles" },
             };
 
             return list;
@@ -54,6 +52,19 @@ namespace PrivateBlog.Web.Data.Seeders
                 new Permission { Name = "createSections", Description = "Crear Secciones", Module = "Secciones" },
                 new Permission { Name = "updateSections", Description = "Editar Secciones", Module = "Secciones" },
                 new Permission { Name = "deleteSections", Description = "Eliminar Secciones", Module = "Secciones" },
+            };
+
+            return list;
+        }
+
+        private List<Permission> Users()
+        {
+            List<Permission> list = new List<Permission>
+            {
+                new Permission { Name = "showUsers", Description = "Ver Usuarios", Module = "Usuarios" },
+                new Permission { Name = "createUsers", Description = "Crear Usuarios", Module = "Usuarios" },
+                new Permission { Name = "updateUsers", Description = "Editar Usuarios", Module = "Usuarios" },
+                new Permission { Name = "deleteUsers", Description = "Eliminar Usuarios", Module = "Usuarios" },
             };
 
             return list;
