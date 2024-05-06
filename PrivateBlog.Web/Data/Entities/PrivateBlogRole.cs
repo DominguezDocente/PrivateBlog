@@ -12,5 +12,7 @@ namespace PrivateBlog.Web.Data.Entities
         public string Name { get; set; } = null!;
 
         public ICollection<RolePermission> RolePermissions { get; set; }
+
+        public IEnumerable<User> Users { get; set; }
     }
 }
