@@ -12,8 +12,8 @@ using PrivateBlog.Web.Data;
 namespace PrivateBlog.Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240417234932_AddSquema")]
-    partial class AddSquema
+    [Migration("20240506235004_Squema")]
+    partial class Squema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -155,6 +155,42 @@ namespace PrivateBlog.Web.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Blog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("varchar(MAX)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Permission", b =>
@@ -386,6 +422,25 @@ namespace PrivateBlog.Web.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Blog", b =>
+                {
+                    b.HasOne("PrivateBlog.Web.Data.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PrivateBlog.Web.Data.Entities.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Section");
+                });
+
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.RolePermission", b =>
                 {
                     b.HasOne("PrivateBlog.Web.Data.Entities.Permission", "Permission")
@@ -408,7 +463,7 @@ namespace PrivateBlog.Web.Migrations
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.User", b =>
                 {
                     b.HasOne("PrivateBlog.Web.Data.Entities.PrivateBlogRole", "PrivateBlogRole")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("PrivateBlogRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -424,6 +479,8 @@ namespace PrivateBlog.Web.Migrations
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.PrivateBlogRole", b =>
                 {
                     b.Navigation("RolePermissions");
+
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

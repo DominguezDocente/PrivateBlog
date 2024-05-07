@@ -8,6 +8,7 @@ namespace PrivateBlog.Web.Helpers
     public interface IConverterHelper
     {
         public AccountUserDTO ToAccountDTO(User user);
+        Blog ToBlog(BlogDTO dto);
         public PrivateBlogRole ToRole(PrivateBlogRoleDTO dto);
         public Task<PrivateBlogRoleDTO> ToRoleDTOAsync(PrivateBlogRole role);
     }
@@ -31,6 +32,19 @@ namespace PrivateBlog.Web.Helpers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
+            };
+        }
+
+        public Blog ToBlog(BlogDTO dto)
+        {
+            return new Blog
+            {
+                AuthorId = dto.AuthorId,
+                Description = dto.Description,
+                Id = dto.Id,
+                IsPublished = dto.IsPublished,
+                SectionId = dto.SectionId,
+                Title = dto.Title,
             };
         }
 

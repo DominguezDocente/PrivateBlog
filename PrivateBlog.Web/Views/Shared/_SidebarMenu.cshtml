@@ -12,7 +12,20 @@
                 <span>Dashboard</span>
             </a>
         </li>
-        
+
+
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showBlogs", "Blogs"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs"
+                                                && ViewContext.RouteData.Values["Action"].ToString() == "Index"
+                                                ? "" : "collapsed")" asp-controller="Blogs" asp-action="Index">
+                    <i class="bi bi-puzzle"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+        }
+
         @if (await _usersService.CurrentUserIsAuthorizedAsync("showSections", "Secciones"))
         {
             <li class="nav-item">

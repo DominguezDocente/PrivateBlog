@@ -14,6 +14,7 @@ namespace PrivateBlog.Web.Data.Seeders
         public async Task SeedAsync()
         {
             List<Permission> permissions = new List<Permission>();
+            permissions.AddRange(Blogs());
             permissions.AddRange(Roles());
             permissions.AddRange(Users());
             permissions.AddRange(Setcions());
@@ -31,6 +32,18 @@ namespace PrivateBlog.Web.Data.Seeders
             await _context.SaveChangesAsync();
         }
 
+        private List<Permission> Blogs()
+        {
+            List<Permission> list = new List<Permission>
+            {
+                new Permission { Name = "showBlogs", Description = "Ver Blogs", Module = "Blogs" },
+                new Permission { Name = "createBlogs", Description = "Crear Blogs", Module = "Blogs" },
+                new Permission { Name = "updateBlogs", Description = "Editar Blogs", Module = "Blogs" },
+                new Permission { Name = "deleteBlogs", Description = "Eliminar Blogs", Module = "Blogs" },
+            };
+
+            return list;
+        }
         private List<Permission> Roles()
         {
             List<Permission> list = new List<Permission>

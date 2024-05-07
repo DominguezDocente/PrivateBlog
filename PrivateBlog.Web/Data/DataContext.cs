@@ -10,6 +10,7 @@ namespace PrivateBlog.Web.Data
         {
         }
 
+        public DbSet<Blog> Blogs { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<PrivateBlogRole> PrivateBlogRoles { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }

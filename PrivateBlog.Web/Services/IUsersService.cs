@@ -24,6 +24,8 @@ namespace PrivateBlog.Web.Services
 
         Task<string> GeneratePasswordResetTokenAsync(User user);
 
+        Task<User?> GetCurrentUserAsync();
+
         Task<User> GetUserAsync(string email);
 
         Task<SignInResult> LoginAsync(LoginDTO model);
@@ -106,6 +108,22 @@ namespace PrivateBlog.Web.Services
         public async Task<string> GeneratePasswordResetTokenAsync(User user)
         {
             return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
+        public async Task<User?> GetCurrentUserAsync()
+        {
+            ClaimsUser? claimsUser = _httpContextAccessor.HttpContext?.User;
+
+            if (claimsUser is null)
+            {
+                return null; 
+            }
+
+            string? userName = claimsUser.Identity.Name;
+
+            User? user = await GetUserAsync(userName);
+
+            return user;
         }
 
         public async Task<User> GetUserAsync(string email)
