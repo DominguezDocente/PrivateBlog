@@ -44,6 +44,7 @@ namespace PrivateBlog.Web.Data.Seeders
 
             return list;
         }
+
         private List<Permission> Roles()
         {
             List<Permission> list = new List<Permission>

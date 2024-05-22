@@ -8,9 +8,14 @@ namespace PrivateBlog.Web.Helpers
     public interface IConverterHelper
     {
         public AccountUserDTO ToAccountDTO(User user);
-        Blog ToBlog(BlogDTO dto);
+
+        public Blog ToBlog(BlogDTO dto);
+
         public PrivateBlogRole ToRole(PrivateBlogRoleDTO dto);
+
         public Task<PrivateBlogRoleDTO> ToRoleDTOAsync(PrivateBlogRole role);
+
+        public User ToUser(UserDTO dto);
     }
 
     public class ConverterHelper : IConverterHelper
@@ -66,7 +71,6 @@ namespace PrivateBlog.Web.Helpers
                 Description = p.Description,
                 Module = p.Module,
                 Selected = _context.RolePermissions.Any(rp => rp.PermissionId == p.Id && rp.RoleId == role.Id)
-
             }).ToListAsync();
 
             return new PrivateBlogRoleDTO
@@ -74,6 +78,21 @@ namespace PrivateBlog.Web.Helpers
                 Id = role.Id,
                 Name = role.Name,
                 Permissions = permissions,
+            };
+        }
+
+        public User ToUser(UserDTO dto)
+        {
+            return new User
+            {
+                Id = dto.Id.ToString(),
+                Document = dto.Document,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                UserName = dto.Email,
+                PrivateBlogRoleId = dto.PrivateBlogRoleId,
+                PhoneNumber = dto.PhoneNumber,
             };
         }
     }
