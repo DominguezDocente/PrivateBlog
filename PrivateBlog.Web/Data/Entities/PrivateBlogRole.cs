@@ -14,5 +14,7 @@ namespace PrivateBlog.Web.Data.Entities
         public ICollection<RolePermission> RolePermissions { get; set; }
 
         public IEnumerable<User> Users { get; set; }
+
+        public ICollection<RoleSection> RoleSections { get; set; }
     }
 }

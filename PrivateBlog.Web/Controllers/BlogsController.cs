@@ -7,6 +7,7 @@ using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Services;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers;
+using PrivateBlog.Web.Requests;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -74,6 +75,25 @@ namespace PrivateBlog.Web.Controllers
             }
 
             _noty.Success("Blog creado con éxito");
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [CustomAuthorize(permission: "updateBlogs", module: "Blogs")]
+        public async Task<IActionResult> Toggle(int Id, bool Hide)
+        {
+            ToggleSectionRequest request = new ToggleSectionRequest { Id = Id, Hide = Hide };
+            Response<Section> response = await _blogService.ToggleBlogAsync(request);
+
+            if (!response.IsSuccess)
+            {
+                _noty.Error(response.Message);
+            }
+            else
+            {
+                _noty.Success(response.Message);
+            }
+
             return RedirectToAction(nameof(Index));
         }
     }

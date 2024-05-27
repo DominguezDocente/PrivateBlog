@@ -77,6 +77,38 @@
                                 @if (await _usersService.CurrentUserIsAuthorizedAsync("updateBlogs", "Blogs"))
                                 {
                                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+
+
+                                    @if (item.IsPublished)
+                                    {
+                                        <form asp-action="Toggle" method="POST" style="display: contents;">
+                                            <input type="hidden" value="@item.Id" name="Id" />
+                                            <input type="hidden" value="false" name="Hide" />
+
+                                            <div class="tooltip-container">
+                                                <button class="btn btn-secondary btn-sm">
+                                                    <i class="bi bi-eye-slash-fill" style="color:#F8F9FC;cursor: pointer;"></i>
+                                                </button>
+                                                <span class="tooltip-text">Pasar a borrador</span>
+                                            </div>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Toggle" method="POST" style="display: contents;">
+
+                                            <input type="hidden" value="@item.Id" name="Id" />
+                                            <input type="hidden" value="true" name="Hide" />
+                                            <div class="tooltip-container">
+                                                <button class="btn btn-info btn-sm"
+                                                        data-id="@item.Id">
+                                                    <i class="bi bi-eye-fill" style="color:#F8F9FC;cursor: pointer;"></i>
+                                                </button>
+                                                <span class="tooltip-text">Publicar Blog</span>
+                                            </div>
+
+                                        </form>
+                                    }
                                 }
 
                                 @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteBlogs", "Blogs"))
