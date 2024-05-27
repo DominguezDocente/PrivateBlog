@@ -50,6 +50,16 @@ namespace PrivateBlog.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+
+            Response<IEnumerable<Section>> sectionsResponse = await _rolesService.GetSectionsAsync();
+
+            if (!sectionsResponse.IsSuccess)
+            {
+                _noty.Error(response.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
+
             PrivateBlogRoleDTO dto = new PrivateBlogRoleDTO
             {
                 Permissions = response.Result.Select(p => new PermissionForDTO
@@ -58,6 +68,12 @@ namespace PrivateBlog.Web.Controllers
                     Name = p.Name,
                     Description = p.Description,
                     Module = p.Module,
+                }).ToList(),
+
+                Sections = sectionsResponse.Result.Select(p => new SectionForDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
                 }).ToList()
             };
             return View(dto);
@@ -68,6 +84,7 @@ namespace PrivateBlog.Web.Controllers
         public async Task<IActionResult> Create(PrivateBlogRoleDTO dto)
         {
             Response<IEnumerable<Permission>> permissionsResponse = await _rolesService.GetPermissionsAsync();
+            Response<IEnumerable<Section>> sectionsResponse = await _rolesService.GetSectionsAsync();
 
             if (!ModelState.IsValid) 
             {
@@ -79,6 +96,11 @@ namespace PrivateBlog.Web.Controllers
                     Name = p.Name,
                     Description = p.Description,
                     Module = p.Module,
+                }).ToList();
+                dto.Sections = sectionsResponse.Result.Select(p => new SectionForDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
                 }).ToList();
 
                 return View(dto);
@@ -127,8 +149,11 @@ namespace PrivateBlog.Web.Controllers
             {
                 _noty.Error("Debe ajustar los errores de validación.");
 
-                Response<IEnumerable<PermissionForDTO>> res = await _rolesService.GetPermissionsByRoleAsync(dto.Id);
-                dto.Permissions = res.Result.ToList();
+                Response<IEnumerable<PermissionForDTO>> permissionsByRoleResponse = await _rolesService.GetPermissionsByRoleAsync(dto.Id);
+                Response<IEnumerable<SectionForDTO>> sectionsByRoleResponse = await _rolesService.GetSectionsByRoleAsync(dto.Id);
+
+                dto.Permissions = permissionsByRoleResponse.Result.ToList();
+                dto.Sections = sectionsByRoleResponse.Result.ToList();
 
                 return View(dto);
             }
@@ -142,8 +167,12 @@ namespace PrivateBlog.Web.Controllers
             }
 
             _noty.Error(response.Errors.First());
-            Response<IEnumerable<PermissionForDTO>> res2 = await _rolesService.GetPermissionsByRoleAsync(dto.Id);
-            dto.Permissions = res2.Result.ToList();
+            Response<IEnumerable<PermissionForDTO>> permissionsByRoleResponse2 = await _rolesService.GetPermissionsByRoleAsync(dto.Id);
+            Response<IEnumerable<SectionForDTO>> sectionsByRoleResponse2 = await _rolesService.GetSectionsByRoleAsync(dto.Id);
+
+            dto.Permissions = permissionsByRoleResponse2.Result.ToList();
+            dto.Sections = sectionsByRoleResponse2.Result.ToList();
+
             return View(dto);
         }
 

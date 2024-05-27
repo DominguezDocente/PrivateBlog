@@ -12,7 +12,7 @@ using PrivateBlog.Web.Data;
 namespace PrivateBlog.Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240506235004_Squema")]
+    [Migration("20240527231932_Squema")]
     partial class Squema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -256,6 +256,21 @@ namespace PrivateBlog.Web.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.RoleSection", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "SectionId");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("RoleSections");
+                });
+
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Section", b =>
                 {
                     b.Property<int>("Id")
@@ -460,6 +475,25 @@ namespace PrivateBlog.Web.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.RoleSection", b =>
+                {
+                    b.HasOne("PrivateBlog.Web.Data.Entities.PrivateBlogRole", "Role")
+                        .WithMany("RoleSections")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PrivateBlog.Web.Data.Entities.Section", "Section")
+                        .WithMany("RoleSections")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Section");
+                });
+
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.User", b =>
                 {
                     b.HasOne("PrivateBlog.Web.Data.Entities.PrivateBlogRole", "PrivateBlogRole")
@@ -480,7 +514,14 @@ namespace PrivateBlog.Web.Migrations
                 {
                     b.Navigation("RolePermissions");
 
+                    b.Navigation("RoleSections");
+
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Section", b =>
+                {
+                    b.Navigation("RoleSections");
                 });
 #pragma warning restore 612, 618
         }
