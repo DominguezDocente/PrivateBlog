@@ -5,6 +5,7 @@ using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers;
+using PrivateBlog.Web.Requests;
 
 namespace PrivateBlog.Web.Services
 {
@@ -12,6 +13,7 @@ namespace PrivateBlog.Web.Services
     {
         public Task<Response<Blog>> CreateAsync(BlogDTO dto);
         public Task<Response<PaginationResponse<Blog>>> GetListAsync(PaginationRequest request);
+        Task<Response<Section>> ToggleBlogAsync(ToggleSectionRequest request);
     }
 
     public class BlogsService : IBlogsService
@@ -93,6 +95,30 @@ namespace PrivateBlog.Web.Services
             catch (Exception ex) 
             {
                 return ResponseHelper<PaginationResponse<Blog>>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<Section>> ToggleBlogAsync(ToggleSectionRequest request)
+        {
+            try
+            {
+                Blog? model = await _context.Blogs.FindAsync(request.Id);
+
+                if (model == null)
+                {
+                    return ResponseHelper<Section>.MakeResponseFail($"No existe blog con id '{request.Id}'");
+                }
+
+                model.IsPublished = request.Hide;
+
+                _context.Blogs.Update(model);
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<Section>.MakeResponseSuccess("Blog actualizado con éxito");
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<Section>.MakeResponseFail(ex);
             }
         }
     }
