@@ -1,0 +1,52 @@
+﻿@model List<Section>
+
+@{
+    ViewData["Title"] = "Secciones";
+    Layout = "~/Views/Shared/_MyLayout.cshtml";
+}
+
+<div class="pagetitle">
+    <h1>Secciones</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item active">Secciones</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+
+    <div class="card">
+
+        <div class="card-header py-3">
+            <div class="row">
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>
+
+            </div>
+        </div>
+
+        <div class="card-body mt-2">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th> Sección </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Section item in Model)
+                    {
+                        <tr>
+                            <td> @Html.DisplayFor(modelItem => item.Id) </td>
+                            <td> @Html.DisplayFor(modelItem => item.Name) </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</section>
