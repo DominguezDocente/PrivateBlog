@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Services;
 
@@ -18,12 +20,26 @@ namespace PrivateBlog.Web
             // Services
             AddServices(builder);
 
+            // Toast
+            builder.Services.AddNotyf(config => 
+            { 
+                config.DurationInSeconds = 10; 
+                config.IsDismissable = true; 
+                config.Position = NotyfPosition.BottomRight; 
+            });
+
             return builder;
         }
 
         public static void AddServices(WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<ISectionsService, SectionsService>();
+        }
+
+        public static WebApplication AddCustomAppConfiguration(this WebApplication app)
+        {
+            app.UseNotyf();
+            return app;
         }
     }
 }

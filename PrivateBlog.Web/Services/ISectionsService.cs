@@ -3,6 +3,7 @@ using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Helpers;
+using PrivateBlog.Web.Requests;
 using System.Collections.Generic;
 
 namespace PrivateBlog.Web.Services
@@ -10,9 +11,11 @@ namespace PrivateBlog.Web.Services
     public interface ISectionsService
     {
         public Task<Response<Section>> CreateAsync(Section model);
+        public Task<Response<Section>> DeleteAsync(int id);
         public Task<Response<Section>> EditAsync(Section model);
         public Task<Response<List<Section>>> GetListAsync();
         public Task<Response<Section>> GetOneAsync(int id);
+        public Task<Response<Section>> ToggleSectionAsync(ToggleSectionRequest request);
     }
 
     public class SectionsService : ISectionsService
@@ -37,6 +40,28 @@ namespace PrivateBlog.Web.Services
                 await _context.SaveChangesAsync();
 
                 return ResponseHelper<Section>.MakeResponseSuccess(section, "Sección creada con éxito");
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<Section>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<Section>> DeleteAsync(int id)
+        {
+            try
+            {
+                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == id);
+
+                if (section is null)
+                {
+                    return ResponseHelper<Section>.MakeResponseFail($"La sección con id '{id}' no existe.");
+                }
+
+                _context.Sections.Remove(section);
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<Section>.MakeResponseSuccess(null, "Sección eliminada con éxito");
             }
             catch (Exception ex)
             {
@@ -85,6 +110,30 @@ namespace PrivateBlog.Web.Services
                 }
 
                 return ResponseHelper<Section>.MakeResponseSuccess(section);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<Section>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<Section>> ToggleSectionAsync(ToggleSectionRequest request)
+        {
+            try
+            {
+                Section? model = await _context.Sections.FindAsync(request.SectionId);
+
+                if (model == null)
+                {
+                    return ResponseHelper<Section>.MakeResponseFail($"No existe seeción con id '{request.SectionId}'");
+                }
+
+                model.IsHidden = request.Hide;
+
+                _context.Sections.Update(model);
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<Section>.MakeResponseSuccess(model, "Sección Actualizada con éxito");
             }
             catch (Exception ex)
             {
