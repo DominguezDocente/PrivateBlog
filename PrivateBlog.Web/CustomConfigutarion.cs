@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data;
+using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web
 {
@@ -14,7 +15,15 @@ namespace PrivateBlog.Web
                 configuration.UseSqlServer(builder.Configuration.GetConnectionString("MyConnection"));
             });
 
+            // Services
+            AddServices(builder);
+
             return builder;
+        }
+
+        public static void AddServices(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<ISectionsService, SectionsService>();
         }
     }
 }
