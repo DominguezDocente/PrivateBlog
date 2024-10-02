@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Helpers;
+using PrivateBlog.Web.Requests;
 using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
@@ -9,10 +11,12 @@ namespace PrivateBlog.Web.Controllers
     public class SectionsController : Controller
     {
         private readonly ISectionsService _sectionsService;
+        private readonly INotyfService _notifyService;
 
-        public SectionsController(ISectionsService sectionsService)
+        public SectionsController(ISectionsService sectionsService, INotyfService notifyService)
         {
             _sectionsService = sectionsService;
+            _notifyService = notifyService;
         }
 
         [HttpGet]
@@ -35,6 +39,7 @@ namespace PrivateBlog.Web.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    _notifyService.Error("Debe ajustar los errores de validación");
                     return View(section);
                 }
 
@@ -42,10 +47,11 @@ namespace PrivateBlog.Web.Controllers
 
                 if (response.IsSuccess)
                 {
+                    _notifyService.Success(response.Message);
                     return RedirectToAction(nameof(Index));
                 }
 
-                // TODO: Mostrar mensaje de error
+                _notifyService.Error(response.Message);
                 return View(response);
             }
             catch (Exception ex)
@@ -65,7 +71,7 @@ namespace PrivateBlog.Web.Controllers
                 return View(response.Result);
             }
 
-            // TODO: mensaje error
+            _notifyService.Error(response.Message);
             return RedirectToAction(nameof(Index));
         }
 
@@ -76,7 +82,7 @@ namespace PrivateBlog.Web.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    // TODO: mensaje error
+                    _notifyService.Error("Debe ajustar los errores de validación");
                     return View(section);
                 }
 
@@ -84,18 +90,60 @@ namespace PrivateBlog.Web.Controllers
 
                 if (response.IsSuccess)
                 {
-                    // TODO: mensaje exito
+                    _notifyService.Success(response.Message);
                     return RedirectToAction(nameof(Index));
                 }
 
-                // TODO: Mostrar mensaje de error
+                _notifyService.Error(response.Message);
                 return View(response);
             }
             catch (Exception ex)
             {
-                // TODO: mensaje error
+                _notifyService.Error(ex.Message);
                 return View(section);
             }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            Response<Section> response = await _sectionsService.DeleteteAsync(id);
+
+            if (response.IsSuccess)
+            {
+                _notifyService.Success(response.Message);
+            }
+            else
+            {
+                _notifyService.Error(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Toggle(int SectionId, bool Hide)
+        {
+            ToggleSectionStatusRequest request = new ToggleSectionStatusRequest
+            {
+                Hide = Hide,
+                SectionId = SectionId
+            };
+
+            Response<Section> response = await _sectionsService.ToggleAsync(request);
+
+            if (response.IsSuccess)
+            {
+                _notifyService.Success(response.Message);
+            }
+            else
+            {
+                _notifyService.Error(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

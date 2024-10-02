@@ -1,7 +1,7 @@
-﻿@model Section
+﻿@model List<Section>
 
 @{
-    ViewData["Title"] = "Editar Sección";
+    ViewData["Title"] = "Secciones";
 }
 
 <div class="pagetitle">
@@ -9,8 +9,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
-            <li class="breadcrumb-item"><a asp-action="Index">Secciones</a></li>
-            <li class="breadcrumb-item active">Editar Sección</li>
+            <li class="breadcrumb-item active">Secciones</li>
         </ol>
     </nav>
 </div>
@@ -18,35 +17,114 @@
 
 <section class="section dashboard">
 
-
     <div class="card">
-        <div class="card-body">
-            <h5 class="card-title text-primary">Editar Sección</h5>
 
-            <form class="row g-3" asp-action="Edit" method="POST">
+        <div class="card-header py-3">
 
-                <input type="hidden" asp-for="Id" />
+            <div class="row">
 
-                <div class="col-md-12">
-                    <div class="form-floating">
-                        <input asp-for="Name" class="form-control" id="floatingName" placeholder="@Html.DisplayFor(model => model.Name)">
-                        <label for="floatingName">@Html.DisplayFor(model => model.Name)</label>
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>
+
+                <div class="col-md-1">
+                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
                 </div>
 
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <a asp-action="Idex" class="btn btn-secondary">Volver</a>
-                </div>
-            </form>
+            </div>
+        
+        
+        </div>
 
+        <div class="card-body mt-2">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Seccion</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach(Section item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Name</td>
+                            <td>
+
+                                @if (item.IsHidden)
+                                {
+                                    <form asp-action="Toggle" method="POST" style="display: contents;">
+                                        <input type="hidden" value="@item.Id" name="SectionId" />
+                                        <input type="hidden" value="false" name="Hide" />
+
+                                        <div class="tooltip-container">
+                                            <button class="btn btn-secondary btn-sm showSection">
+                                                <i class="bi bi-eye-fill" style="color:#F8F9FC;cursor: pointer;"></i>
+                                            </button>
+                                            <span class="tooltip-text">Mostrar Sección</span>
+                                        </div>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Toggle" method="POST" style="display: contents;">
+                                        <input type="hidden" value="@item.Id" name="SectionId" />
+                                        <input type="hidden" value="true" name="Hide" />
+                                        <div class="tooltip-container">
+                                            <button class="btn btn-info btn-sm showSection"
+                                                    data-id="@item.Id">
+                                                <i class="bi bi-eye-slash-fill" style="color:#F8F9FC;cursor: pointer;"></i>
+                                            </button>
+                                            <span class="tooltip-text">Ocultar Sección</span>
+                                        </div>
+
+                                    </form>
+                                }
+
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+
+                                <form asp-action="Delete" asp-route-id="@item.Id" style="display:contents">
+                                    <button class="btn btn-danger btn-sm btnDelete"><i class="bi bi-trash-fill"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+            
         </div>
     </div>
 </section>
 
+
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+
+        $(document).ready(function () {
+
+            $('.btnDelete').click(function (event) {
+
+                event.preventDefault();
+
+                Swal.fire({
+                    title: "¿Desea eliminar la sección?",
+                    text: "No prodrá revertirlo",
+                    icon: "question",
+                    showCancelButton: true,
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        const form = $(this).closest('form');
+
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+    </script>
 }

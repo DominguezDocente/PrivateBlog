@@ -52,8 +52,45 @@
                             <td>@item.Id</td>
                             <td>@item.Name</td>
                             <td>
+
+                                @if (item.IsHidden)
+                                {
+                                    <form asp-action="Toggle" method="POST" style="display: contents;">
+
+                                        <input type="hidden" name="SectionId" value="@item.Id" />
+                                        <input type="hidden" name="Hide" value="false" />
+
+                                        <div class="tooltip-container">
+                                            <button class="btn btn-secondary btn-sm showSection">
+                                                <i class="bi bi-eye-fill" style="color: #F8F9FC cursor: pointer;"></i>
+                                            </button>
+                                            <span class="tooltip-text">Mostrar Sección</span>
+                                        </div>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Toggle" method="POST" style="display: contents;">
+
+                                        <input type="hidden" name="SectionId" value="@item.Id" />
+                                        <input type="hidden" name="Hide" value="true" />
+
+                                        <div class="tooltip-container">
+                                            <button class="btn btn-info btn-sm showSection">
+                                                <i class="bi bi-eye-slash-fill" style="color: #F8F9FC cursor: pointer;"></i>
+                                            </button>
+                                            <span class="tooltip-text">Ocultar Sección</span>
+                                        </div>
+
+                                    </form>
+                                }
+
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></a>
+
+                                <form asp-action="Delete" asp-route-id="@item.Id" style="display: contents;">
+                                    <button class="btn btn-danger btn-sm btnDelete"><i class="bi bi-trash-fill"></i></button>
+                                </form>
                             </td>
                         </tr>
                     }
@@ -64,3 +101,37 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+        
+    <script>
+            
+        $(document).ready(function () {
+
+            $('.btnDelete').click(function (event) { 
+                
+                event.preventDefault();
+                    
+                Swal.fire({
+
+                    title: "¿Desea eliminar la sección?",
+                    text: "No podrá revertirlo",
+                    icon: "question",
+                    showCancelButton: true,
+
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        const form = $(this).closest('form');
+
+                        form.submit();
+                    } 
+                });
+
+            });
+        });
+
+    </script>
+
+}
