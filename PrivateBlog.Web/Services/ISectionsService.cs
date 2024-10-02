@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
