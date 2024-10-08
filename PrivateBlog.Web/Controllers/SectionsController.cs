@@ -104,7 +104,6 @@ namespace PrivateBlog.Web.Controllers
             }
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

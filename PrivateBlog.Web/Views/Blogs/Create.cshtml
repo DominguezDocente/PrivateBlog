@@ -4,8 +4,13 @@
     ViewData["Title"] = "Nuevo Blog";
 }
 
+
+@section Styles {
+    <link href="~/lib/summernote/summernote-bs5.min.css" rel="stylesheet" />
+}
+
 <div class="pagetitle">
-    <h1>Secciones</h1>
+    <h1>Blogs</h1>
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
@@ -40,13 +45,10 @@
                     </div>
                 </div>
 
-
                 <div class="col-md-12">
-                    <div class="form-floating">
-                        <input asp-for="Content" class="form-control" id="floatingName" placeholder="@Html.DisplayFor(model => model.Content)">
-                        <label asp-for="Content"></label>
-                        <span asp-validation-for="Content" class="text-danger"></span>
-                    </div>
+                    <label asp-for="Content"></label>
+                    <textarea asp-for="Content" class="form-control" rows="10"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
                 </div>
 
                 <div class="text-center">
@@ -63,4 +65,20 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="~/lib/summernote/summernote-bs5.min.js"></script>
+    <script src="~/lib/summernote/lang/summernote-es-ES.js"></script>
+
+    <script>
+
+        $(document).ready(function() {
+
+            $('#Content').summernote({
+                lang: 'es-ES',
+                placeholder: 'Digite el blog...'
+            });
+
+        });
+
+    </script>
 }
