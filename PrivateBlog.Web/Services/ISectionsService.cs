@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Helpers;
@@ -11,10 +12,15 @@ namespace PrivateBlog.Web.Services
     public interface ISectionsService
     {
         public Task<Response<Section>> CreateAsync(Section model);
+
         public Task<Response<Section>> DeleteteAsync(int id);
+
         public Task<Response<Section>> EditAsync(Section model);
-        public Task<Response<List<Section>>> GetListAsync();
+
+        public Task<Response<PaginationResponse<Section>>> GetListAsync(PaginationRequest request);
+
         public Task<Response<Section>> GetOneAsync(int id);
+
         public Task<Response<Section>> ToggleAsync(ToggleSectionStatusRequest request);
     }
 
@@ -31,7 +37,7 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
-                Section section =  new Section 
+                Section section = new Section
                 {
                     Name = model.Name,
                 };
@@ -63,7 +69,7 @@ namespace PrivateBlog.Web.Services
 
                 return ResponseHelper<Section>.MakeResponseSuccess(null, "Sección eliminada con éxito");
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 return ResponseHelper<Section>.MakeResponseFail(ex);
             }
@@ -84,17 +90,34 @@ namespace PrivateBlog.Web.Services
             }
         }
 
-        public async Task<Response<List<Section>>> GetListAsync()
+        public async Task<Response<PaginationResponse<Section>>> GetListAsync(PaginationRequest request)
         {
             try
             {
-                List<Section> sections = await _context.Sections.ToListAsync();
+                IQueryable<Section> query = _context.Sections.AsQueryable();
 
-                return ResponseHelper<List<Section>>.MakeResponseSuccess(sections);
-            } 
-            catch(Exception ex)
+                if (!string.IsNullOrWhiteSpace(request.Filter))
+                {
+                    query = query.Where(s => s.Name.ToLower().Contains(request.Filter.ToLower()));
+                }
+
+                PagedList<Section> list = await PagedList<Section>.ToPagedListAsync(query, request);
+
+                PaginationResponse<Section> result = new PaginationResponse<Section>
+                {
+                    List = list,
+                    TotalCount = list.TotalCount,
+                    RecordsPerPage = list.RecordsPerPage,
+                    CurrentPage = list.CurrentPage,
+                    TotalPages = list.TotalPages,
+                    Filter = request.Filter
+                };
+
+                return ResponseHelper<PaginationResponse<Section>>.MakeResponseSuccess(result, "Secciones obtenidas con éxito");
+            }
+            catch (Exception ex)
             {
-                return ResponseHelper<List<Section>>.MakeResponseFail(ex);
+                return ResponseHelper<PaginationResponse<Section>>.MakeResponseFail(ex);
             }
         }
 
@@ -103,7 +126,7 @@ namespace PrivateBlog.Web.Services
             try
             {
                 Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == id);
-                    
+
                 if (section is null)
                 {
                     return ResponseHelper<Section>.MakeResponseFail("La sección con el id indicado no existe");

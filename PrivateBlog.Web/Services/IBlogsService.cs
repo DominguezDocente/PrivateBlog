@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
@@ -10,8 +12,11 @@ namespace PrivateBlog.Web.Services
     public interface IBlogsService
     {
         public Task<Response<Blog>> CreateAsync(BlogDTO dto);
+
         public Task<Response<Blog>> EditAsync(BlogDTO dto);
-        public Task<Response<List<Blog>>> GetListAsync();
+
+        public Task<Response<PaginationResponse<Blog>>> GetListAsync(PaginationRequest request);
+
         public Task<Response<Blog>> GetOneAsync(int id);
     }
 
@@ -26,7 +31,7 @@ namespace PrivateBlog.Web.Services
             _converterHelper = converterHelper;
         }
 
-        public async  Task<Response<Blog>> CreateAsync(BlogDTO dto)
+        public async Task<Response<Blog>> CreateAsync(BlogDTO dto)
         {
             try
             {
@@ -49,14 +54,14 @@ namespace PrivateBlog.Web.Services
             {
                 Blog? blog = await _context.Blogs.FirstOrDefaultAsync(b => b.Id == dto.Id);
 
-                if (blog is null) 
+                if (blog is null)
                 {
                     return ResponseHelper<Blog>.MakeResponseFail($"No existe Blog con id '{dto.Id}'");
                 }
 
                 //blog = _converterHelper.ToBlog(dto);
 
-                blog.Title = dto.Title; 
+                blog.Title = dto.Title;
                 blog.Content = dto.Content;
                 blog.SectionId = dto.SectionId;
 
@@ -71,18 +76,34 @@ namespace PrivateBlog.Web.Services
             }
         }
 
-        public async Task<Response<List<Blog>>> GetListAsync()
+        public async Task<Response<PaginationResponse<Blog>>> GetListAsync(PaginationRequest request)
         {
             try
             {
-                List<Blog> list = await _context.Blogs.Include(b => b.Section)
-                                                      .ToListAsync();
+                IQueryable<Blog> query = _context.Blogs.AsQueryable().Include(b => b.Section);
 
-                return ResponseHelper<List<Blog>>.MakeResponseSuccess(list);
+                if (!string.IsNullOrWhiteSpace(request.Filter))
+                {
+                    query = query.Where(s => s.Title.ToLower().Contains(request.Filter.ToLower()));
+                }
+
+                PagedList<Blog> list = await PagedList<Blog>.ToPagedListAsync(query, request);
+
+                PaginationResponse<Blog> result = new PaginationResponse<Blog>
+                {
+                    List = list,
+                    TotalCount = list.TotalCount,
+                    RecordsPerPage = list.RecordsPerPage,
+                    CurrentPage = list.CurrentPage,
+                    TotalPages = list.TotalPages,
+                    Filter = request.Filter
+                };
+
+                return ResponseHelper<PaginationResponse<Blog>>.MakeResponseSuccess(result, "Blogs obtenidas con éxito");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return ResponseHelper<List<Blog>>.MakeResponseFail(ex);
+                return ResponseHelper<PaginationResponse<Blog>>.MakeResponseFail(ex);
             }
         }
 

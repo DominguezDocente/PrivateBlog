@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers;
@@ -24,16 +25,25 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] int? RecordsPerPage,
+                                               [FromQuery] int? Page,
+                                               [FromQuery] string? Filter)
         {
-            Response<List<Blog>> response = await _blogsService.GetListAsync();
+            PaginationRequest request = new PaginationRequest
+            {
+                RecordsPerPage = RecordsPerPage ?? 15,
+                Page = Page ?? 1,
+                Filter = Filter
+            };
+
+            Response<PaginationResponse<Blog>> response = await _blogsService.GetListAsync(request);
             return View(response.Result);
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            BlogDTO dto = new BlogDTO 
+            BlogDTO dto = new BlogDTO
             {
                 Sections = await _combosHelper.GetComboSections(),
             };
@@ -44,7 +54,7 @@ namespace PrivateBlog.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(BlogDTO dto)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
                 _notifyService.Error("Debe ajustar los errores de validación");
                 dto.Sections = await _combosHelper.GetComboSections();
@@ -67,7 +77,6 @@ namespace PrivateBlog.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
-
             Response<Blog> response = await _blogsService.GetOneAsync(id);
 
             if (response.IsSuccess)
@@ -80,7 +89,6 @@ namespace PrivateBlog.Web.Controllers
             _notifyService.Error(response.Message);
             return RedirectToAction(nameof(Index));
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Edit(BlogDTO dto)

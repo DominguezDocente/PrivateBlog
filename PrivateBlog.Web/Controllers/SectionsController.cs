@@ -1,6 +1,7 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Requests;
@@ -20,9 +21,18 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] int? RecordsPerPage,
+                                               [FromQuery] int? Page,
+                                               [FromQuery] string? Filter)
         {
-            Response<List<Section>> response = await _sectionsService.GetListAsync();
+            PaginationRequest request = new PaginationRequest
+            {
+                RecordsPerPage = RecordsPerPage ?? 15,
+                Page = Page ?? 1,
+                Filter = Filter
+            };
+
+            Response<PaginationResponse<Section>> response = await _sectionsService.GetListAsync(request);
             return View(response.Result);
         }
 
@@ -60,13 +70,12 @@ namespace PrivateBlog.Web.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
             Response<Section> response = await _sectionsService.GetOneAsync(id);
 
-            if (response.IsSuccess) 
+            if (response.IsSuccess)
             {
                 return View(response.Result);
             }
@@ -120,7 +129,6 @@ namespace PrivateBlog.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Toggle(int SectionId, bool Hide)
