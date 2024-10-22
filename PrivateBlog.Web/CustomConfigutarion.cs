@@ -1,7 +1,10 @@
 using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data;
+using PrivateBlog.Web.Data.Entities;
+using PrivateBlog.Web.Data.Seeders;
 using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
 
@@ -21,6 +24,9 @@ namespace PrivateBlog.Web
             // Services
             AddServices(builder);
 
+            // Identity and Acces Managment
+            AddIAM(builder);
+
             // Toast Notification
             builder.Services.AddNotyf(config => 
             { 
@@ -32,11 +38,36 @@ namespace PrivateBlog.Web
             return builder;
         }
 
+        private static void AddIAM(WebApplicationBuilder builder)
+        {
+            builder.Services.AddIdentity<User, IdentityRole>(conf =>
+            {
+                conf.User.RequireUniqueEmail = true;
+                conf.Password.RequireDigit = false;
+                conf.Password.RequiredUniqueChars = 0;
+                conf.Password.RequireLowercase = false;
+                conf.Password.RequireUppercase = false;
+                conf.Password.RequireNonAlphanumeric = false;
+                conf.Password.RequiredLength = 4;
+            }).AddEntityFrameworkStores<DataContext>()
+              .AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(conf => 
+            {
+                conf.Cookie.Name = "Auth";
+                conf.ExpireTimeSpan = TimeSpan.FromDays(100);
+                conf.LoginPath = "/Account/Login";
+                conf.AccessDeniedPath = "/Account/NotAuthorized";
+            });
+        }
+
         public static void AddServices(WebApplicationBuilder builder)
         {
             // Services
             builder.Services.AddScoped<IBlogsService, BlogsService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
+            builder.Services.AddTransient<SeedDb>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
 
             // Helpers
             builder.Services.AddScoped<ICombosHelper, CombosHelper>();
@@ -47,7 +78,20 @@ namespace PrivateBlog.Web
         {
             app.UseNotyf();
 
+            SeedData(app);
+
             return app;
+        }
+
+        private static void SeedData(WebApplication app)
+        {
+            IServiceScopeFactory scopeFactory = app.Services.GetService<IServiceScopeFactory>();
+
+            using (IServiceScope scope = scopeFactory!.CreateScope())
+            {
+                SeedDb service = scope.ServiceProvider.GetService<SeedDb>();
+                service!.SeedAsync().Wait();
+            }
         }
     }
 }
