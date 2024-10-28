@@ -8,6 +8,7 @@ namespace PrivateBlog.Web.Helpers
         public Blog ToBlog(BlogDTO dto);
         public Task<BlogDTO> ToBlogDTO(Blog result);
         public User ToUser(UserDTO dto);
+        public Task<UserDTO> ToUserDTOAsync(User user, bool isNew = true);
     }
 
     public class ConverterHelper : IConverterHelper
@@ -56,6 +57,21 @@ namespace PrivateBlog.Web.Helpers
                 UserName = dto.Email,
                 PrivateBlogRoleId = dto.PrivateBlogRoleId,
                 PhoneNumber = dto.PhoneNumber,
+            };
+        }
+
+        public async Task<UserDTO> ToUserDTOAsync(User user, bool isNew = true)
+        {
+            return new UserDTO
+            {
+                Id = isNew ? Guid.NewGuid() : Guid.Parse(user.Id),
+                Document = user.Document,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PrivateBlogRoles = await _combosHelper.GetComboPrivateBlogRolesAsync(),
+                PrivateBlogRoleId = user.PrivateBlogRoleId,
+                PhoneNumber = user.PhoneNumber
             };
         }
     }

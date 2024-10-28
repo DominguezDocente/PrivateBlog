@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
@@ -17,9 +18,11 @@ namespace PrivateBlog.Web.Services
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
         public Task<Response<PaginationResponse<User>>> GetListAsync(PaginationRequest request);
         public Task<User> GetUserAsync(string email);
+        public Task<User> GetUserAsync(Guid id);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
-
+        public Task<IdentityResult> UpdateUserAsync(User user);
+        public Task<Response<User>> UpdateUserAsync(UserDTO dto);
     }
 
     public class UsersService : IUsersService
@@ -118,6 +121,12 @@ namespace PrivateBlog.Web.Services
             return user;
         }
 
+        public async Task<User> GetUserAsync(Guid id)
+        {
+            return await _context.Users.Include(u => u.PrivateBlogRole)
+                                             .FirstOrDefaultAsync(u => u.Id == id.ToString());
+        }
+
         public async Task<SignInResult> LoginAsync(LoginDTO dto)
         {
             return await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
@@ -126,6 +135,34 @@ namespace PrivateBlog.Web.Services
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<IdentityResult> UpdateUserAsync(User user)
+        {
+            return await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<Response<User>> UpdateUserAsync(UserDTO dto)
+        {
+            try
+            {
+                User user =  await GetUserAsync(dto.Id);
+                user.PhoneNumber = dto.PhoneNumber;
+                user.Document = dto.Document;
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+                user.PrivateBlogRoleId = dto.PrivateBlogRoleId;
+
+                _context.Users.Update(user);
+
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<User>.MakeResponseSuccess(user, "Usuario actualizado con éxito");
+            }
+            catch (Exception ex) 
+            {
+                return ResponseHelper<User>.MakeResponseFail(ex);
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ namespace PrivateBlog.Web.Helpers
 {
     public interface ICombosHelper
     {
-        Task<IEnumerable<SelectListItem>> GetComboProvateBlogRolesAsync();
+        Task<IEnumerable<SelectListItem>> GetComboPrivateBlogRolesAsync();
         public Task<IEnumerable<SelectListItem>> GetComboSections();
     }
 
@@ -19,7 +19,7 @@ namespace PrivateBlog.Web.Helpers
             _context = context;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetComboProvateBlogRolesAsync()
+        public async Task<IEnumerable<SelectListItem>> GetComboPrivateBlogRolesAsync()
         {
             List<SelectListItem> list = await _context.PrivateBlogRoles.Select(r => new SelectListItem
             {
