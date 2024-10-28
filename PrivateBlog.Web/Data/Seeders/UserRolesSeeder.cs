@@ -44,7 +44,7 @@ namespace PrivateBlog.Web.Data.Seeders
 
                 await _usersService.AddUserAsync(user, "1234");
 
-                string token = await _usersService.GenerateEmialConfirmationTokenAsync(user);
+                string token = await _usersService.GenerateEmailConfirmationTokenAsync(user);
                 await _usersService.ConfirmEmailAsync(user, token);
             }
 
@@ -68,7 +68,7 @@ namespace PrivateBlog.Web.Data.Seeders
 
                 await _usersService.AddUserAsync(user, "1234");
 
-                string token = await _usersService.GenerateEmialConfirmationTokenAsync(user);
+                string token = await _usersService.GenerateEmailConfirmationTokenAsync(user);
                 await _usersService.ConfirmEmailAsync(user, token);
             }
         }

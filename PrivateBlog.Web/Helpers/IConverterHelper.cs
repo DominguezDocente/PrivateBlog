@@ -7,6 +7,7 @@ namespace PrivateBlog.Web.Helpers
     {
         public Blog ToBlog(BlogDTO dto);
         public Task<BlogDTO> ToBlogDTO(Blog result);
+        public User ToUser(UserDTO dto);
     }
 
     public class ConverterHelper : IConverterHelper
@@ -40,6 +41,21 @@ namespace PrivateBlog.Web.Helpers
                 SectionId = blog.SectionId,
                 Title = blog.Title,
                 Sections= await _combosHelper.GetComboSections()
+            };
+        }
+
+        public User ToUser(UserDTO dto)
+        {
+            return new User
+            {
+                Id = dto.Id.ToString(),
+                Document = dto.Document,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                UserName = dto.Email,
+                PrivateBlogRoleId = dto.PrivateBlogRoleId,
+                PhoneNumber = dto.PhoneNumber,
             };
         }
     }

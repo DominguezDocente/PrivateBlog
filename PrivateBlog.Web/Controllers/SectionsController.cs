@@ -1,4 +1,5 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
@@ -9,6 +10,7 @@ using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
 {
+    [Authorize]
     public class SectionsController : Controller
     {
         private readonly ISectionsService _sectionsService;
