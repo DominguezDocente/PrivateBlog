@@ -1,0 +1,111 @@
+﻿@model PaginationResponse<Section>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+            <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<section class="section dashboard">
+
+    <div class="row">
+
+        <form class="" asp-action="Dashboard" method="GET">
+            <input type="hidden" name="Page" value="@Model.CurrentPage" />
+            <input type="hidden" name="RecordsPerPage" value="@Model.RecordsPerPage" />
+
+            <div class="input-group mb-3">
+
+                <input type="text" class="form-control border-0 small" placeholder="Buscar.." aria-label="Search" asp-for="@Model.Filter" name="Filter">
+
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+        <div class="row">
+            @foreach (var item in Model.List)
+            {
+                <div class="col-md-5 m-2">
+                    <a asp-action="Section" asp-route-id="@item.Id" class="btn btn-outline-primary form-control">@item.Name</a>
+                </div>
+            }
+        </div>
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+
+                @*Primero*@
+                <li class="page-item">
+                    <a class="page-link @(Model.CurrentPage == 1 ? "disabled" : "" )"
+                       asp-action="Index"
+                       asp-route-Page="1"
+                       asp-route-Filter="@Model.Filter"
+                       asp-route-RecordsPerPage="@Model.RecordsPerPage">
+                        &laquo;
+                    </a>
+                </li>
+
+                @*Anterior*@
+                <li class="page-item">
+                    <a class="page-link @(!Model.HasPrevious ? "disabled" : "" )"
+                       asp-action="Index"
+                       asp-route-Filter="@Model.Filter"
+                       asp-route-Page="@(Model.CurrentPage - 1)"
+                       asp-route-RecordsPerPage="@Model.RecordsPerPage">
+                        &lsaquo;
+                    </a>
+                </li>
+
+                @*Paginas*@
+                @foreach (int page in Model.Pages)
+                {
+
+                    <li class="page-item">
+                        <a class="page-link @(Model.CurrentPage == page ? "active" : "" )"
+                           asp-action="Index"
+                           asp-route-Filter="@Model.Filter"
+                           asp-route-Page="@(page)"
+                           asp-route-RecordsPerPage="@Model.RecordsPerPage">
+                            @(page)
+                        </a>
+                    </li>
+                }
+
+                @*Siguiente*@
+                <li class="page-item">
+                    <a class="page-link @(!Model.HasNext ? "disabled" : "" )"
+                       asp-action="Index"
+                       asp-route-Filter="@Model.Filter"
+                       asp-route-Page="@(Model.CurrentPage + 1)"
+                       asp-route-RecordsPerPage="@Model.RecordsPerPage">
+                        &rsaquo;
+                    </a>
+                </li>
+
+                @*Último*@
+                <li class="page-item">
+                    <a class="page-link @(Model.TotalPages == Model.CurrentPage ? "disabled" : "" )"
+                       asp-action="Index"
+                       asp-route-Filter="@Model.Filter"
+                       asp-route-Page="@Model.TotalPages"
+                       asp-route-RecordsPerPage="@Model.RecordsPerPage">
+                        &raquo;
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+</section>

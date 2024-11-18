@@ -21,12 +21,20 @@ namespace PrivateBlog.Web.Core.Pagination
 
         public static async Task<PagedList<T>> ToPagedListAsync(IQueryable<T> query, PaginationRequest request)
         {
-            int count = await query.CountAsync();
+            try
+            {
+                int count = await query.CountAsync();
 
-            List<T> items = await query.Paginate<T>(request)
-                                       .ToListAsync();
+                List<T> items = await query.Paginate<T>(request)
+                                           .ToListAsync();
 
-            return new PagedList<T>(items, count, request.Page, request.RecordsPerPage);
+                return new PagedList<T>(items, count, request.Page, request.RecordsPerPage);
+
+            }
+            catch (Exception ex) 
+            {
+                throw ex;
+            }
         }
     }
 }
