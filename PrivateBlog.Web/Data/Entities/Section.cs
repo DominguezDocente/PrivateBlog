@@ -16,5 +16,6 @@ namespace PrivateBlog.Web.Data.Entities
 
         [Display(Name = "¿Está Oculta?")]
         public bool IsHidden { get; set; }
+        public ICollection<RoleSection>? RoleSections { get; set; }
     }
 }

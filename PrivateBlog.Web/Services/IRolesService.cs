@@ -15,11 +15,14 @@ namespace PrivateBlog.Web.Services
     public interface IRolesService
     {
         public Task<Response<PrivateBlogRole>> CreateAsync(PrivateBlogRoleDTO dto);
+        public Task<Response<object>> DeleteAsync(int id);
         public Task<Response<PrivateBlogRole>> EditAsync(PrivateBlogRoleDTO dto);
         public Task<Response<PaginationResponse<PrivateBlogRole>>> GetListAsync(PaginationRequest request);
         public Task<Response<PrivateBlogRoleDTO>> GetOneAsync(int id);
         public Task<Response<IEnumerable<Permission>>> GetPermissionsAsync();
         public Task<Response<IEnumerable<PermissionForDTO>>> GetPermissionsByRoleAsync(int id);
+        public Task<Response<IEnumerable<Section>>> GetSectionsAsync();
+        public Task<Response<IEnumerable<SectionForDTO>>> GetSectionsByRoleAsync(int id);
     }
 
     public class RolesService : IRolesService
@@ -66,8 +69,26 @@ namespace PrivateBlog.Web.Services
                         await _context.RolePermissions.AddAsync(rolePermission);
                     }
 
-                    await _context.SaveChangesAsync();
+                    // Inserción de secciones
+                    List<int> sectionIds = new List<int>();
 
+                    if (!string.IsNullOrWhiteSpace(dto.SectionIds))
+                    {
+                        sectionIds = JsonConvert.DeserializeObject<List<int>>(dto.SectionIds);
+                    }
+
+                    foreach (int sectionId in sectionIds)
+                    {
+                        RoleSection roleSection = new RoleSection
+                        {
+                            RoleId = roleId,
+                            SectionId = sectionId
+                        };
+
+                        _context.RoleSections.Add(roleSection);
+                    }
+
+                    await _context.SaveChangesAsync();
                     transaction.Commit();
 
                     return ResponseHelper<PrivateBlogRole>.MakeResponseSuccess(role, "Rol creado con éxito");
@@ -78,6 +99,11 @@ namespace PrivateBlog.Web.Services
                     return ResponseHelper<PrivateBlogRole>.MakeResponseFail(ex);
                 }
             }
+        }
+
+        public Task<Response<object>> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<Response<PrivateBlogRole>> EditAsync(PrivateBlogRoleDTO dto)
@@ -110,6 +136,30 @@ namespace PrivateBlog.Web.Services
                     };
 
                     await _context.RolePermissions.AddAsync(rolePermission);
+                }
+
+                // Secciones
+                List<int> sectionIds = new List<int>();
+
+                if (!string.IsNullOrEmpty(dto.SectionIds))
+                {
+                    sectionIds = JsonConvert.DeserializeObject<List<int>>(dto.SectionIds);
+                }
+
+                // Eliminación de antiguas secciones
+                List<RoleSection> oldRoleSections = await _context.RoleSections.Where(rs => rs.RoleId == dto.Id).ToListAsync();
+                _context.RoleSections.RemoveRange(oldRoleSections);
+
+                // Inserción de nuevas secciones
+                foreach (int sectionId in sectionIds)
+                {
+                    RoleSection roleSection = new RoleSection
+                    {
+                        RoleId = dto.Id,
+                        SectionId = sectionId
+                    };
+
+                    _context.RoleSections.Add(roleSection);
                 }
 
                 // Actualización de Rol
@@ -165,7 +215,7 @@ namespace PrivateBlog.Web.Services
 
                 if (role is null)
                 {
-                    return ResponseHelper<PrivateBlogRoleDTO>.MakeResponseFail("El blog con el id indicado no existe");
+                    return ResponseHelper<PrivateBlogRoleDTO>.MakeResponseFail("El rol con el id indicado no existe");
                 }
 
                 return ResponseHelper<PrivateBlogRoleDTO>.MakeResponseSuccess(await _converterHelper.ToRoleDTOAsync(role));
@@ -208,6 +258,42 @@ namespace PrivateBlog.Web.Services
             catch (Exception ex)
             {
                 return ResponseHelper<IEnumerable<PermissionForDTO>>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<IEnumerable<Section>>> GetSectionsAsync()
+        {
+            try
+            {
+                IEnumerable<Section> sections = await _context.Sections.Where(s => !s.IsHidden)
+                                                                       .ToListAsync();
+
+                return ResponseHelper<IEnumerable<Section>>.MakeResponseSuccess(sections);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<IEnumerable<Section>>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<IEnumerable<SectionForDTO>>> GetSectionsByRoleAsync(int id)
+        {
+            try
+            {
+                Response<PrivateBlogRoleDTO> response = await GetOneAsync(id);
+
+                if (!response.IsSuccess)
+                {
+                    return ResponseHelper<IEnumerable<SectionForDTO>>.MakeResponseFail(response.Message);
+                }
+
+                List<SectionForDTO> permissions = response.Result.Sections;
+
+                return ResponseHelper<IEnumerable<SectionForDTO>>.MakeResponseSuccess(permissions);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<IEnumerable<SectionForDTO>>.MakeResponseFail(ex);
             }
         }
     }
