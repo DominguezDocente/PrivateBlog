@@ -1,4 +1,6 @@
-﻿using PrivateBlog.Web.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using PrivateBlog.Web.Data;
+using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 
 namespace PrivateBlog.Web.Helpers
@@ -7,6 +9,8 @@ namespace PrivateBlog.Web.Helpers
     {
         public Blog ToBlog(BlogDTO dto);
         public Task<BlogDTO> ToBlogDTO(Blog result);
+        PrivateBlogRole ToRole(PrivateBlogRoleDTO dto);
+        public Task<PrivateBlogRoleDTO> ToRoleDTOAsync(PrivateBlogRole role);
         public User ToUser(UserDTO dto);
         public Task<UserDTO> ToUserDTOAsync(User user, bool isNew = true);
     }
@@ -14,10 +18,12 @@ namespace PrivateBlog.Web.Helpers
     public class ConverterHelper : IConverterHelper
     {
         private readonly ICombosHelper _combosHelper;
+        private readonly DataContext _context;
 
-        public ConverterHelper(ICombosHelper combosHelper)
+        public ConverterHelper(ICombosHelper combosHelper, DataContext context)
         {
             _combosHelper = combosHelper;
+            _context = context;
         }
 
         public Blog ToBlog(BlogDTO dto)
@@ -42,6 +48,34 @@ namespace PrivateBlog.Web.Helpers
                 SectionId = blog.SectionId,
                 Title = blog.Title,
                 Sections= await _combosHelper.GetComboSections()
+            };
+        }
+
+        public PrivateBlogRole ToRole(PrivateBlogRoleDTO dto)
+        {
+            return new PrivateBlogRole
+            {
+                Id = dto.Id,
+                Name = dto.Name,
+            };
+        }
+
+        public async Task<PrivateBlogRoleDTO> ToRoleDTOAsync(PrivateBlogRole role)
+        {
+            List<PermissionForDTO> permissions = await _context.Permissions.Select(p => new PermissionForDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Module = p.Module,
+                Selected = _context.RolePermissions.Any(rp => rp.PermissionId == p.Id && rp.RoleId == role.Id)
+            }).ToListAsync();
+
+            return new PrivateBlogRoleDTO
+            {
+                Id = role.Id,
+                Name = role.Name,
+                Permissions = permissions,
             };
         }
 

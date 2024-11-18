@@ -21,6 +21,8 @@ namespace PrivateBlog.Web
                 configuration.UseSqlServer(builder.Configuration.GetConnectionString("MyConnection"));
             });
 
+            builder.Services.AddHttpContextAccessor();
+
             // Services
             AddServices(builder);
 
@@ -65,6 +67,7 @@ namespace PrivateBlog.Web
         {
             // Services
             builder.Services.AddScoped<IBlogsService, BlogsService>();
+            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IUsersService, UsersService>();

@@ -15,7 +15,7 @@ namespace PrivateBlog.Web.Data.Seeders
 
         public async Task SeedAsync()
         {
-            List<Permission> permissions = [.. Blogs(), .. Sections()];
+            List<Permission> permissions = [.. Blogs(), .. Sections(), .. Users(), .. Roles()];
 
             foreach (Permission permission in permissions)
             {
@@ -37,7 +37,7 @@ namespace PrivateBlog.Web.Data.Seeders
             {
                 new Permission { Name = "showBlogs", Description = "Ver Blogs", Module = "Blogs" },
                 new Permission { Name = "createBlogs", Description = "Crear Blogs", Module = "Blogs" },
-                new Permission { Name = "editBlogs", Description = "Editar Blogs", Module = "Blogs" },
+                new Permission { Name = "updateBlogs", Description = "Editar Blogs", Module = "Blogs" },
                 new Permission { Name = "deleteBlogs", Description = "Eliminar Blogs", Module = "Blogs" },
             };
         }
@@ -46,10 +46,32 @@ namespace PrivateBlog.Web.Data.Seeders
         {
             return new List<Permission>
             {
-                new Permission { Name = "showSections", Description = "Ver Sections", Module = "Sections" },
-                new Permission { Name = "createSections", Description = "Crear Sections", Module = "Sections" },
-                new Permission { Name = "editSections", Description = "Editar Sections", Module = "Sections" },
-                new Permission { Name = "deleteSections", Description = "Eliminar Sections", Module = "Sections" },
+                new Permission { Name = "showSections", Description = "Ver Secciones", Module = "Secciones" },
+                new Permission { Name = "createSections", Description = "Crear Secciones", Module = "Secciones" },
+                new Permission { Name = "updateSections", Description = "Editar Secciones", Module = "Secciones" },
+                new Permission { Name = "deleteSections", Description = "Eliminar Secciones", Module = "Secciones" },
+            };
+        }
+
+        private List<Permission> Users()
+        {
+            return new List<Permission>
+            {
+                new Permission { Name = "showUsers", Description = "Ver Usuarios", Module = "Usuarios" },
+                new Permission { Name = "createUsers", Description = "Crear Usuarios", Module = "Usuarios" },
+                new Permission { Name = "updateUsers", Description = "Editar Usuarios", Module = "Usuarios" },
+                new Permission { Name = "deleteUsers", Description = "Eliminar Usuarios", Module = "Usuarios" },
+            };
+        }
+
+        private List<Permission> Roles()
+        {
+            return new List<Permission>
+            {
+                new Permission { Name = "showRoles", Description = "Ver Roles", Module = "Roles" },
+                new Permission { Name = "createRoles", Description = "Crear Roles", Module = "Roles" },
+                new Permission { Name = "updateRoles", Description = "Editar Roles", Module = "Roles" },
+                new Permission { Name = "deleteRoles", Description = "Eliminar Roles", Module = "Roles" },
             };
         }
     }

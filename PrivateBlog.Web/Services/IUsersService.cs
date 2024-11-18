@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers;
+using ClaimsUser = System.Security.Claims.ClaimsPrincipal;
 
 namespace PrivateBlog.Web.Services
 {
@@ -15,6 +15,7 @@ namespace PrivateBlog.Web.Services
         public Task<IdentityResult> AddUserAsync(User user, string password);
         public Task<IdentityResult> ConfirmEmailAsync(User user, string token);
         public Task<Response<User>> CreateAsync(UserDTO dto);
+        public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
         public Task<Response<PaginationResponse<User>>> GetListAsync(PaginationRequest request);
         public Task<User> GetUserAsync(string email);
@@ -31,13 +32,16 @@ namespace PrivateBlog.Web.Services
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IConverterHelper _converterHelper;
+        private IHttpContextAccessor _httpContextAccessor;
 
-        public UsersService(DataContext context, SignInManager<User> signInManager, UserManager<User> userManager, IConverterHelper converterHelper)
+        public UsersService(DataContext context, SignInManager<User> signInManager, UserManager<User> userManager
+            , IConverterHelper converterHelper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _signInManager = signInManager;
             _userManager = userManager;
             _converterHelper = converterHelper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -66,10 +70,39 @@ namespace PrivateBlog.Web.Services
 
                 return ResponseHelper<User>.MakeResponseSuccess(user, "Usuario creado con éxito");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return ResponseHelper<User>.MakeResponseFail(ex);
             }
+        }
+
+        public async Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module)
+        {
+            ClaimsUser? claimUser = _httpContextAccessor.HttpContext?.User;
+
+            // Valida si hay sesión
+            if (claimUser is null)
+            {
+                return false;
+            }
+
+            string? userName = claimUser.Identity.Name;
+
+            User? user = await GetUserAsync(userName);
+
+            if(user is null)
+            {
+                return false;
+            }
+
+            if (user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME)
+            {
+                return true;
+            }
+
+            return await _context.Permissions.Include(p => p.RolePermissions)
+                                             .AnyAsync(p => (p.Module == module && p.Name == permission)
+                                                            && p.RolePermissions.Any(rp => rp.RoleId == user.PrivateBlogRoleId));
         }
 
         public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
@@ -146,7 +179,7 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
-                User user =  await GetUserAsync(dto.Id);
+                User user = await GetUserAsync(dto.Id);
                 user.PhoneNumber = dto.PhoneNumber;
                 user.Document = dto.Document;
                 user.FirstName = dto.FirstName;
@@ -159,7 +192,7 @@ namespace PrivateBlog.Web.Services
 
                 return ResponseHelper<User>.MakeResponseSuccess(user, "Usuario actualizado con éxito");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return ResponseHelper<User>.MakeResponseFail(ex);
             }

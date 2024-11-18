@@ -1,4 +1,5 @@
-﻿
+﻿@inject PrivateBlog.Web.Services.IUsersService _usersService
+
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -12,32 +13,53 @@
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Sections" ? "" : "collapsed")"
-               asp-controller="Sections" 
-                asp-action="Index">
-                <i class="bi bi-person"></i>
-                <span>Secciones</span>
-            </a>
-        </li>
+        @if(await _usersService.CurrentUserIsAuthorizedAsync("showSections", "Secciones"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Sections" ? "" : "collapsed")"
+                   asp-controller="Sections" 
+                    asp-action="Index">
+                    <i class="bi bi-person"></i>
+                    <span>Secciones</span>
+                </a>
+            </li>            
+        }
 
-        <li class="nav-item">
-            <a class="nav-link  @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs" ? "" : "collapsed")"
-               asp-controller="Blogs" 
-                asp-action="Index">
-                <i class="bi bi-person"></i>
-                <span>Blogs</span>
-            </a>
-        </li>
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showBlogs", "Blogs"))
+        {
+            <li class="nav-item">
+                <a class="nav-link  @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs" ? "" : "collapsed")"
+                   asp-controller="Blogs" 
+                    asp-action="Index">
+                    <i class="bi bi-person"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+        }
 
-        <li class="nav-item">
-            <a class="nav-link  @(ViewContext.RouteData.Values["Controller"].ToString() == "Users" ? "" : "collapsed")"
-               asp-controller="Users"
-               asp-action="Index">
-                <i class="bi bi-person"></i>
-                <span>Usuarios</span>
-            </a>
-        </li>
+        @if(await _usersService.CurrentUserIsAuthorizedAsync("showUsers", "Usuarios"))
+        {
+            <li class="nav-item">
+                <a class="nav-link  @(ViewContext.RouteData.Values["Controller"].ToString() == "Users" ? "" : "collapsed")"
+                   asp-controller="Users"
+                   asp-action="Index">
+                    <i class="bi bi-person"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+        }
+
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showRoles", "Roles"))
+        {
+            <li class="nav-item">
+                <a class="nav-link  @(ViewContext.RouteData.Values["Controller"].ToString() == "Roles" ? "" : "collapsed")"
+                   asp-controller="Roles"
+                   asp-action="Index">
+                    <i class="bi bi-person"></i>
+                    <span>Roles</span>
+                </a>
+            </li>
+        }
 
     </ul>
 

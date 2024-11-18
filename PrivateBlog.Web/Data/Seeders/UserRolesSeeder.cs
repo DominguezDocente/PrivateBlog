@@ -88,6 +88,14 @@ namespace PrivateBlog.Web.Data.Seeders
             {
                 PrivateBlogRole role = new PrivateBlogRole { Name = "Gestor de usuarios" };
                 await _context.PrivateBlogRoles.AddAsync(role);
+
+                List<Permission> permissions = await _context.Permissions.Where(p => p.Module == "Usuarios").ToListAsync();
+
+                foreach (Permission permission in permissions) 
+                {
+                    await _context.RolePermissions.AddAsync(new RolePermission { Permission = permission, Role = role });
+                }
+
                 await _context.SaveChangesAsync();
             }
         }
@@ -100,6 +108,14 @@ namespace PrivateBlog.Web.Data.Seeders
             {
                 PrivateBlogRole role = new PrivateBlogRole { Name = "Gestor de contenido" };
                 await _context.PrivateBlogRoles.AddAsync(role);
+
+                List<Permission> permissions = await _context.Permissions.Where(p => p.Module == "Secciones" || p.Module == "Blogs").ToListAsync();
+
+                foreach (Permission permission in permissions)
+                {
+                    await _context.RolePermissions.AddAsync(new RolePermission { Permission = permission, Role = role });
+                }
+
                 await _context.SaveChangesAsync();
             }
         }
