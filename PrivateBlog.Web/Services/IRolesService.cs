@@ -20,6 +20,8 @@ namespace PrivateBlog.Web.Services
         public Task<Response<PrivateBlogRoleDTO>> GetOneAsync(int id);
         public Task<Response<IEnumerable<Permission>>> GetPermissionsAsync();
         public Task<Response<IEnumerable<PermissionForDTO>>> GetPermissionsByRoleAsync(int id);
+        public Task<Response<IEnumerable<Section>>> GetSectionsAsync();
+        public Task<Response<IEnumerable<SectionForDTO>>> GetSectionsByRoleAsync(int id);
     }
 
     public class RolesService : IRolesService
@@ -45,9 +47,9 @@ namespace PrivateBlog.Web.Services
 
                     await _context.SaveChangesAsync();
 
-                    // Inserción de permisos
                     int roleId = role.Id;
 
+                    // Inserción de permisos
                     List<int> permissionIds = new List<int>();
 
                     if (!string.IsNullOrWhiteSpace(dto.PermissionIds))
@@ -64,6 +66,25 @@ namespace PrivateBlog.Web.Services
                         };
 
                         await _context.RolePermissions.AddAsync(rolePermission);
+                    }
+
+                    // Inserción de secciones
+                    List<int> sectionIds = new List<int>();
+
+                    if (!string.IsNullOrWhiteSpace(dto.SectionIds))
+                    {
+                        sectionIds = JsonConvert.DeserializeObject<List<int>>(dto.SectionIds);
+                    }
+
+                    foreach (int sectionId in sectionIds)
+                    {
+                        RoleSection rolePermission = new RoleSection
+                        {
+                            RoleId = roleId,
+                            SectionId = sectionId
+                        };
+
+                        await _context.RoleSections.AddAsync(rolePermission);
                     }
 
                     await _context.SaveChangesAsync();
@@ -89,6 +110,7 @@ namespace PrivateBlog.Web.Services
                     return ResponseHelper<PrivateBlogRole>.MakeResponseFail($"El role '{Env.SUPER_ADMIN_ROLE_NAME}' no puede ser editado.");
                 }
 
+                // Permisos
                 List<int> permissionIds = new List<int>();
 
                 if (!string.IsNullOrWhiteSpace(dto.PermissionIds))
@@ -110,6 +132,30 @@ namespace PrivateBlog.Web.Services
                     };
 
                     await _context.RolePermissions.AddAsync(rolePermission);
+                }
+
+                // Secciones
+                List<int> sectionIds = new List<int>();
+
+                if (!string.IsNullOrWhiteSpace(dto.SectionIds))
+                {
+                    sectionIds = JsonConvert.DeserializeObject<List<int>>(dto.SectionIds);
+                }
+
+                // Eliminación de secciones antiguas
+                List<RoleSection> oldRoleSections = await _context.RoleSections.Where(rp => rp.RoleId == dto.Id).ToListAsync();
+                _context.RoleSections.RemoveRange(oldRoleSections);
+
+                // Inserción de nuevas secciones
+                foreach (int sectionId in sectionIds)
+                {
+                    RoleSection roleSection = new RoleSection
+                    {
+                        RoleId = dto.Id,
+                        SectionId = sectionId
+                    };
+
+                    await _context.RoleSections.AddAsync(roleSection);
                 }
 
                 // Actualización de Rol
@@ -208,6 +254,41 @@ namespace PrivateBlog.Web.Services
             catch (Exception ex)
             {
                 return ResponseHelper<IEnumerable<PermissionForDTO>>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<IEnumerable<Section>>> GetSectionsAsync()
+        {
+            try
+            {
+                IEnumerable<Section> sections = await _context.Sections.ToListAsync();
+
+                return ResponseHelper<IEnumerable<Section>>.MakeResponseSuccess(sections);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<IEnumerable<Section>>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<IEnumerable<SectionForDTO>>> GetSectionsByRoleAsync(int id)
+        {
+            try
+            {
+                Response<PrivateBlogRoleDTO> response = await GetOneAsync(id);
+
+                if (!response.IsSuccess)
+                {
+                    return ResponseHelper<IEnumerable<SectionForDTO>>.MakeResponseFail(response.Message);
+                }
+
+                List<SectionForDTO> sections = response.Result.Sections;
+
+                return ResponseHelper<IEnumerable<SectionForDTO>>.MakeResponseSuccess(sections);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<IEnumerable<SectionForDTO>>.MakeResponseFail(ex);
             }
         }
     }

@@ -71,11 +71,19 @@ namespace PrivateBlog.Web.Helpers
                 Selected = _context.RolePermissions.Any(rp => rp.PermissionId == p.Id && rp.RoleId == role.Id)
             }).ToListAsync();
 
+            List<SectionForDTO> sections = await _context.Sections.Select(p => new SectionForDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Selected = _context.RoleSections.Any(rs => rs.SectionId == p.Id && rs.RoleId == role.Id)
+            }).ToListAsync();
+
             return new PrivateBlogRoleDTO
             {
                 Id = role.Id,
                 Name = role.Name,
                 Permissions = permissions,
+                Sections = sections
             };
         }
 
