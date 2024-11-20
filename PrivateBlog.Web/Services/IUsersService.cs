@@ -14,16 +14,19 @@ namespace PrivateBlog.Web.Services
     public interface IUsersService
     {
         public Task<IdentityResult> AddUserAsync(User user, string password);
+        Task<bool> CheckPasswordAsync(User user, string currentPassword);
         public Task<IdentityResult> ConfirmEmailAsync(User user, string token);
         public Task<Response<User>> CreateAsync(UserDTO dto);
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<bool> CurrentUserIsSuperAdmin();
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
+        public Task<string> GeneratePasswordResetTokenAsync(User user);
         public Task<Response<PaginationResponse<User>>> GetListAsync(PaginationRequest request);
         public Task<User> GetUserAsync(string email);
         public Task<User> GetUserAsync(Guid id);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
+        public Task<IdentityResult> ResetPasswordAsync(User user, string restToken, string newPassword);
         public Task<IdentityResult> UpdateUserAsync(User user);
         public Task<Response<User>> UpdateUserAsync(UserDTO dto);
     }
@@ -49,6 +52,11 @@ namespace PrivateBlog.Web.Services
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
             return await _userManager.CreateAsync(user, password);
+        }
+
+        public async Task<bool> CheckPasswordAsync(User user, string password)
+        {
+            return await _userManager.CheckPasswordAsync(user, password);
         }
 
         public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
@@ -141,6 +149,11 @@ namespace PrivateBlog.Web.Services
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
 
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
         public async Task<Response<PaginationResponse<User>>> GetListAsync(PaginationRequest request)
         {
             try
@@ -199,6 +212,11 @@ namespace PrivateBlog.Web.Services
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
         }
 
         public async Task<IdentityResult> UpdateUserAsync(User user)

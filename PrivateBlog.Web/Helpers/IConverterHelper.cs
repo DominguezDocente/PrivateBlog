@@ -7,6 +7,7 @@ namespace PrivateBlog.Web.Helpers
 {
     public interface IConverterHelper
     {
+        AccountUserDTO ToAccountDTO(User user);
         public Blog ToBlog(BlogDTO dto);
         public Task<BlogDTO> ToBlogDTO(Blog result);
         PrivateBlogRole ToRole(PrivateBlogRoleDTO dto);
@@ -24,6 +25,19 @@ namespace PrivateBlog.Web.Helpers
         {
             _combosHelper = combosHelper;
             _context = context;
+        }
+
+        public AccountUserDTO ToAccountDTO(User user)
+        {
+            return new AccountUserDTO
+            {
+                Id = Guid.Parse(user.Id),
+                Document = user.Document,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+            };
         }
 
         public Blog ToBlog(BlogDTO dto)
