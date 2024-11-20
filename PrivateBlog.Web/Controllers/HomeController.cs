@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
@@ -26,6 +27,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Dashboard([FromQuery] int? RecordsPerPage,
                                                    [FromQuery] int? Page,
                                                    [FromQuery] string? Filter)

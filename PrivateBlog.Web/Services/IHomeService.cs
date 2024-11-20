@@ -79,7 +79,7 @@ namespace PrivateBlog.Web.Services
                     return ResponseHelper<SectionDTO>.MakeResponseFail($"No tiene permiso para visualizar esta sección.");
                 }
 
-                IQueryable<Blog> query = _context.Blogs.Where(a => a.Section == section && a.IsPublished);
+                IQueryable<Blog> query = _context.Blogs.Where(a => a.SectionId == section.Id);
 
                 if (!string.IsNullOrWhiteSpace(request.Filter))
                 {
@@ -127,12 +127,13 @@ namespace PrivateBlog.Web.Services
                 string? userName = claimsUser.Identity.Name;
                 User user = await _usersService.GetUserAsync(userName);
 
-                IQueryable<Section> query = _context.Sections.Where(s => !s.IsHidden);
+                IQueryable<Section> query = _context.Sections.Include(s => s.RoleSections)
+                                                             .Where(s => !s.IsHidden);
 
-                //if (!await _usersService.CurrentUserIsSuperAdmin())
-                //{
-                //    query = query.Where(s => s.RoleSections.Any(rs => rs.RoleId == user.PrivateBlogRoleId));
-                //}
+                if (!await _usersService.CurrentUserIsSuperAdmin())
+                {
+                    query = query.Where(s => s.RoleSections.Any(rs => rs.RoleId == user.PrivateBlogRoleId));
+                }
 
                 if (!string.IsNullOrWhiteSpace(request.Filter))
                 {

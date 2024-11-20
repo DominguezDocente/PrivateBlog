@@ -5,8 +5,8 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "" : "collapsed")" 
-                asp-action="Index" 
+            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "" : "collapsed")"
+               asp-action="Dashboard"
                 asp-controller="Home">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
