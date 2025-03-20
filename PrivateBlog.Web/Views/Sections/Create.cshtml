@@ -1,0 +1,50 @@
+﻿@model SectionDTO
+
+@{
+    ViewData["Title"] = "Nueva sección";
+}
+
+<div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-item active"><a asp-action="Index">Secciones</a></li>
+            <li class="breadcrumb-item active">Nueva sección</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+
+    <div class="card">
+
+        <div class="card-body">
+            <h5 class="card-title text.primary">Nueva Sección</h5>
+
+            <form asp-action="Create" method="POST" class="row g-3">
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <input asp-for="Name" class="form-control" placeholder="@Html.DisplayFor(dto => dto.Name)" />
+                        <label asp-for="Name"></label>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary" >Guardar</button>
+                    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial"); 
+    }
+}

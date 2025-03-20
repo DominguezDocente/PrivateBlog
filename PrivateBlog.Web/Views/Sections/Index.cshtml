@@ -20,7 +20,12 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="m-0 font-weight-bold text-primary">Secciones</h3>
+            <div class="row">
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>
+                <div class="col-md-1">
+                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
+                </div>
+            </div>
         </div>
 
         <div class="card-body">
@@ -40,18 +45,74 @@
                             <td>@item.Id</td>
                             <td>@item.Name</td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
-                                <a href="#" class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></a>
-                                <a href="#" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+
+                                @if (item.IsHidden)
+                                {
+                                    <form asp-action="Toggle" style="display: contents;">
+                                        <input type="hidden" value="@item.Id" name="SectionId" />
+                                        <input type="hidden" value="false" name="Hide" />
+                                        <button class="btn btn-sm btn-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Toggle" style="display: contents;">
+                                        <input type="hidden" value="@item.Id" name="SectionId" />
+                                        <input type="hidden" value="true" name="Hide" />
+                                        <button class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye-slash-fill"></i>
+                                        </button>
+                                    </form>
+                                }
+
+                                <form asp-action="Delete" asp-route-id="@item.Id" style="display: contents;">
+                                    <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
+                                </form>
                             </td>
                         </tr>
                     }
                 </div>
 
             </table>
-
         </div>
-
     </div>
 
 </section>
+
+@section Scripts{
+
+    <script>
+
+        $(document).ready(function() {
+
+            $('.btnDelete').click(function(event) {
+
+                event.preventDefault();
+
+                Swal.fire({
+                
+                    title: "¿Desea eliminar al sección?",
+                    text: "No podrá revertirlo",
+                    icon: "question",
+                    showCancelButton: true
+                
+                }).then((result) => {
+                        
+                    if (result.isConfirmed) {
+                    
+                        const form = $(this).closest('form');
+
+                        form.submit();
+                    }
+
+                });
+            });
+
+        });
+
+    </script>
+
+}
