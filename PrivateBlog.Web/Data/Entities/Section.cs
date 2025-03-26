@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrivateBlog.Web.Core.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace PrivateBlog.Web.Data.Entities
 {
@@ -9,9 +10,11 @@ namespace PrivateBlog.Web.Data.Entities
 
         [Display(Name = "Sección")]
         [Required(ErrorMessage = "El campo '{0}' es requerido.")]
+        [FilterableAsString]
         public string Name { get; set; } = null!;
 
         [Display(Name = "Descripción")]
+        [FilterableAsString]
         public string? Description { get; set; }
 
         [Display(Name = "¿Está oculta?")]

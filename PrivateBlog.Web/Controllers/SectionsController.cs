@@ -2,6 +2,8 @@
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
+using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services;
 using System.Threading.Tasks;
@@ -20,9 +22,9 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
-            Response<List<SectionDTO>> response = await _sectionsService.GetListAsync();
+            Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginationAsync(request);
             return View(response.Result);
         }
 
@@ -92,6 +94,23 @@ namespace PrivateBlog.Web.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Response<object> response = await _sectionsService.DeleteAsync(id);
+
+            if (response.IsSuccess)
+            {
+                _notifyService.Success(response.Message);
+            }
+            else
+            {
+                _notifyService.Error(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Toggle([FromForm] ToggleSectionStatusDTO dto)
+        {
+            Response<Section> response = await _sectionsService.ToggleAsync(dto);
 
             if (response.IsSuccess)
             {
