@@ -2,6 +2,7 @@
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
@@ -16,6 +17,8 @@ namespace PrivateBlog.Web.Services
         public Task<Response<SectionDTO>> EditAsync(SectionDTO dto);
         public Task<Response<List<SectionDTO>>> GetListAsync();
         public Task<Response<SectionDTO>> GetOneAsync(int id);
+        public Task<Response<PaginationResponse<SectionDTO>>> GetPaginationAsync(PaginationRequest request);
+        public Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto);
     }
 
     public class SectionsService : ISectionsService
@@ -50,7 +53,6 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
-                // TODO: ajustar con AutoMapper
                 Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == id);
 
                 if (section is null)
@@ -74,16 +76,15 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
-                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == dto.Id);
+                Section? section = await _context.Sections.AsNoTracking()
+                                                          .FirstOrDefaultAsync(s => s.Id == dto.Id);
 
                 if (section is null)
                 {
                     return ResponseHelper<SectionDTO>.MakeResponseFail($"No existe sección con id {dto.Id}");
                 }
 
-                // TODO: Ajustar
-                //section = _mapper.Map<Section>(dto);
-                section.Name = dto.Name;
+                section = _mapper.Map<Section>(dto);
                 _context.Update(section);
                 await _context.SaveChangesAsync();
 
@@ -133,5 +134,55 @@ namespace PrivateBlog.Web.Services
                 return ResponseHelper<SectionDTO>.MakeResponseFail(ex);
             }
         }
+
+        public async Task<Response<PaginationResponse<SectionDTO>>> GetPaginationAsync(PaginationRequest request)
+        {
+            try
+            {
+                IQueryable<Section> query = _context.Sections.AsQueryable();
+
+                PagedList<Section> list = await PagedList<Section>.ToPagedListAsync(query, request);
+
+                PaginationResponse<SectionDTO> response = new PaginationResponse<SectionDTO>
+                {
+                    List = _mapper.Map<PagedList<SectionDTO>>(list),
+                    TotalCount = list.TotalCount,
+                    RecordsPerPage = list.RecordsPerPage,
+                    CurrentPage = list.CurrentPage,
+                    TotalPages = list.TotalPages,
+                };
+
+                return ResponseHelper<PaginationResponse<SectionDTO>>.MakeResponseSuccess(response);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<PaginationResponse<SectionDTO>>.MakeResponseFail(ex);
+            }
+            throw new NotImplementedException();
+        }
+
+        public async Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto)
+        {
+            try
+            {
+                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == dto.SectionId);
+
+                if (section is null)
+                {
+                    return ResponseHelper<object>.MakeResponseFail($"No existe sección con id {dto.SectionId}");
+                }
+
+                section.IsHidden = dto.Hide;
+                _context.Sections.Update(section);
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<object>.MakeResponseSuccess("Sección actualizada con éxito");
+            }
+            catch(Exception ex)
+            {
+                return ResponseHelper<object>.MakeResponseFail(ex);
+            }
+        }
+
     }
 }
