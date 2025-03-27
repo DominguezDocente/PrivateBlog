@@ -2,6 +2,7 @@
 using AspNetCoreHero.ToastNotification.Extensions;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data;
+using PrivateBlog.Web.Data.Seeders;
 using PrivateBlog.Web.Services;
 using System.Runtime.CompilerServices;
 
@@ -38,13 +39,27 @@ namespace PrivateBlog.Web
         private static void AddServices(WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<ISectionsService, SectionsService>();
+            builder.Services.AddTransient<SeedDb>();
         }
 
         public static WebApplication AddcustomWebApplicationConfiguration(this WebApplication app)
         {
             app.UseNotyf();
 
+            SeedData(app);
+
             return app;
+        }
+
+        private static void SeedData(WebApplication app)
+        {
+            IServiceScopeFactory scopeFactory = app.Services.GetService<IServiceScopeFactory>();
+
+            using (IServiceScope scope = scopeFactory.CreateScope())
+            {
+                SeedDb service = scope.ServiceProvider.GetService<SeedDb>();
+                service.SeedAsync().Wait();
+            }
         }
     }
 }
