@@ -36,12 +36,14 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
-                Section section = _mapper.Map<Section>(dto);
+                //    Section section = _mapper.Map<Section>(dto);
 
-                await _context.AddAsync(section);
-                await _context.SaveChangesAsync();
+                //    await _context.AddAsync(section);
+                //    await _context.SaveChangesAsync();
 
-                return ResponseHelper<SectionDTO>.MakeResponseSuccess(dto, "Sección creada con éxito");
+                //    return ResponseHelper<SectionDTO>.MakeResponseSuccess(dto, "Sección creada con éxito");
+
+                return await CreateAsync<Section, SectionDTO>(dto);
             }
             catch (Exception ex)
             {
@@ -51,49 +53,53 @@ namespace PrivateBlog.Web.Services
 
         public async Task<Response<object>> DeleteAsync(int id)
         {
-            try
-            {
-                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == id);
+            //try
+            //{
+            //    Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (section is null)
-                {
-                    return ResponseHelper<object>.MakeResponseFail($"No existe sección con id {id}");
-                }
+            //    if (section is null)
+            //    {
+            //        return ResponseHelper<object>.MakeResponseFail($"No existe sección con id {id}");
+            //    }
 
-                _context.Sections.Remove(section);
-                await _context.SaveChangesAsync();
+            //    _context.Sections.Remove(section);
+            //    await _context.SaveChangesAsync();
 
-                return ResponseHelper<object>.MakeResponseSuccess("Sección eliminada con éxito");
+            //    return ResponseHelper<object>.MakeResponseSuccess("Sección eliminada con éxito");
 
-            }
-            catch (Exception ex)
-            {
-                return ResponseHelper<object>.MakeResponseFail(ex);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return ResponseHelper<object>.MakeResponseFail(ex);
+            //}
+
+            return await DeleteAsync<Section>(id);
         }
 
         public async Task<Response<SectionDTO>> EditAsync(SectionDTO dto)
         {
-            try
-            {
-                Section? section = await _context.Sections.AsNoTracking()
-                                                          .FirstOrDefaultAsync(s => s.Id == dto.Id);
+            //try
+            //{
+            //    Section? section = await _context.Sections.AsNoTracking()
+            //                                              .FirstOrDefaultAsync(s => s.Id == dto.Id);
 
-                if (section is null)
-                {
-                    return ResponseHelper<SectionDTO>.MakeResponseFail($"No existe sección con id {dto.Id}");
-                }
+            //    if (section is null)
+            //    {
+            //        return ResponseHelper<SectionDTO>.MakeResponseFail($"No existe sección con id {dto.Id}");
+            //    }
 
-                section = _mapper.Map<Section>(dto);
-                _context.Update(section);
-                await _context.SaveChangesAsync();
+            //    section = _mapper.Map<Section>(dto);
+            //    _context.Update(section);
+            //    await _context.SaveChangesAsync();
 
-                return ResponseHelper<SectionDTO>.MakeResponseSuccess(dto, "Sección actualizada con éxito");
-            }
-            catch (Exception ex)
-            {
-                return ResponseHelper<SectionDTO>.MakeResponseFail(ex);
-            }
+            //    return ResponseHelper<SectionDTO>.MakeResponseSuccess(dto, "Sección actualizada con éxito");
+            //}
+            //catch (Exception ex)
+            //{
+            //    return ResponseHelper<SectionDTO>.MakeResponseFail(ex);
+            //}
+
+            return await EditAsync<Section, SectionDTO>(dto, dto.Id);
         }
 
         public async Task<Response<List<SectionDTO>>> GetListAsync()

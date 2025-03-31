@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrivateBlog.Web.Data.Entities
 {
-    public class Section
+    public class Section : IId
     {
         [Key]
         public int Id { get; set; }

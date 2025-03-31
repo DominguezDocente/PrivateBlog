@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PrivateBlog.Web.Services
@@ -92,5 +93,66 @@ namespace PrivateBlog.Web.Services
             }
         }
 
+        public async Task<Response<TDTO>> CreateAsync<TEntity, TDTO>(TDTO dto)
+            where TEntity : class
+            where TDTO : class
+        {
+            try
+            {
+                TEntity entity = _mapper.Map<TEntity>(dto);
+
+                await _context.AddAsync(entity);
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<TDTO>.MakeResponseSuccess(_mapper.Map<TDTO>(entity));
+            }
+            catch(Exception ex)
+            {
+                return ResponseHelper<TDTO>.MakeResponseFail(ex);
+            }
+
+        }
+
+        public async Task<Response<object>> DeleteAsync<TEntity>(int id) where TEntity : class, IId
+        {
+            try
+            {
+                TEntity? entity = await _context.Set<TEntity>()
+                                                .FirstOrDefaultAsync(e => e.Id == id);
+
+                if (entity is null)
+                {
+                    return ResponseHelper<object>.MakeResponseFail($"No existeregistro con id {id}");
+                }
+
+                _context.Remove(entity);
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<object>.MakeResponseSuccess("Registro eliminado con éxito");
+
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<object>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<TDTO>> EditAsync<TEntity, TDTO>(TDTO dto, int id) where TEntity : class, IId
+        {
+            try
+            {
+                TEntity entity = _mapper.Map<TEntity>(dto);
+                entity.Id = id;
+
+                _context.Entry(entity).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<TDTO>.MakeResponseSuccess(dto);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<TDTO>.MakeResponseFail(ex);
+            }
+        }
     }
 }
