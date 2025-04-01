@@ -20,6 +20,15 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs" ? "" : "collapsed")"
+               asp-controller="Blogs"
+               asp-action="Index">
+                <i class="bi bi-grid"></i>
+                <span>Blogs</span>
+            </a>
+        </li>
+
 
     </ul>
 

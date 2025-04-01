@@ -3,11 +3,11 @@ using PrivateBlog.Web.Data.Entities;
 
 namespace PrivateBlog.Web.Data.Seeders
 {
-    public class SecctionsSeeder
+    public class SectionsSeeder
     {
         private readonly DataContext _context;
 
-        public SecctionsSeeder(DataContext context)
+        public SectionsSeeder(DataContext context)
         {
             _context = context;
         }

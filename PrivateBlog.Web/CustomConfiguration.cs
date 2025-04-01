@@ -3,6 +3,7 @@ using AspNetCoreHero.ToastNotification.Extensions;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Seeders;
+using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
 using System.Runtime.CompilerServices;
 
@@ -38,8 +39,13 @@ namespace PrivateBlog.Web
 
         private static void AddServices(WebApplicationBuilder builder)
         {
+            // Servicios
+            builder.Services.AddScoped<IBlogsService, BlogsService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
+
+            // Helpers
+            builder.Services.AddScoped<ICombosHelper, CombosHelper>();
         }
 
         public static WebApplication AddcustomWebApplicationConfiguration(this WebApplication app)
