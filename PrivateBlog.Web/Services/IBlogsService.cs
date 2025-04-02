@@ -53,7 +53,14 @@ namespace PrivateBlog.Web.Services
 
         public async Task<Response<PaginationResponse<BlogDTO>>> GetPaginationAsync(PaginationRequest request)
         {
-            IQueryable<Blog> query = _context.Blogs.Include(b => b.Section).AsQueryable();
+            IQueryable<Blog> query = _context.Blogs.Include(b => b.Section)
+                                                   .Select(b => new Blog
+                                                   {
+                                                       Id = b.Id,
+                                                       Name = b.Name,
+                                                       Section = b.Section
+                                                   })
+                                                   .AsQueryable();
             return await GetPaginationAsync<Blog, BlogDTO>(request, query);
         }
     }
