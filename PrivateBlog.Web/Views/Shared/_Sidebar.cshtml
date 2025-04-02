@@ -1,4 +1,4 @@
-﻿<aside id="sidebar" class="sidebar">
+<aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
@@ -17,6 +17,15 @@
                asp-action="Index">
                 <i class="bi bi-grid"></i>
                 <span>Secciones</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs" ? "" : "collapsed")"
+               asp-controller="Blogs"
+               asp-action="Index">
+                <i class="bi bi-grid"></i>
+                <span>Blogs</span>
             </a>
         </li>
 

@@ -1,4 +1,4 @@
-﻿namespace PrivateBlog.Web.Core.Pagination
+namespace PrivateBlog.Web.Core.Pagination
 {
     public class PaginationRequest
     {

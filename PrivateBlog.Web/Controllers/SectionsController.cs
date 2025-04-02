@@ -1,4 +1,4 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
@@ -35,7 +35,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(SectionDTO dto)
+        public async Task<IActionResult> Create([FromForm] SectionDTO dto)
         {
             if (!ModelState.IsValid)
             {

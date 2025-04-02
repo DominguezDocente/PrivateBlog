@@ -6,6 +6,8 @@
         <title>@ViewData["Title"] - PrivateBlog</title>
 
         @await Html.PartialAsync("_Styles")
+        @await RenderSectionAsync("Styles", required: false)
+
 
     </head>
     <body>

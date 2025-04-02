@@ -1,4 +1,4 @@
-﻿using PrivateBlog.Web.Core.Pagination;
+using PrivateBlog.Web.Core.Pagination;
 
 namespace PrivateBlog.Web.Core.Extensions
 {

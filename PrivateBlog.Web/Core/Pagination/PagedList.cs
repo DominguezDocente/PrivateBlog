@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core.Extensions;
 
 namespace PrivateBlog.Web.Core.Pagination

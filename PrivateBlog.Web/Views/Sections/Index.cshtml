@@ -1,4 +1,4 @@
-﻿@model PaginationResponse<SectionDTO>
+@model PaginationResponse<SectionDTO>
 
 @{
     ViewData["Title"] = "Secciones";
@@ -70,7 +70,7 @@
 
                                 @if (item.IsHidden)
                                 {
-                                    <form asp-action="Toggle" style="display: contents;">
+                                    <form asp-action="Toggle" style="display: contents;" method="POST">
                                         <input type="hidden" value="@item.Id" name="SectionId" />
                                         <input type="hidden" value="false" name="Hide" />
                                         <button class="btn btn-sm btn-secondary">
@@ -80,7 +80,7 @@
                                 }
                                 else
                                 {
-                                    <form asp-action="Toggle" style="display: contents;">
+                                    <form asp-action="Toggle" style="display: contents;" method="POST">
                                         <input type="hidden" value="@item.Id" name="SectionId" />
                                         <input type="hidden" value="true" name="Hide" />
                                         <button class="btn btn-sm btn-info">

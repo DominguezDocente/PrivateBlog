@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data.Entities;
 
 namespace PrivateBlog.Web.Data.Seeders

@@ -1,4 +1,4 @@
-﻿namespace PrivateBlog.Web.Data.Seeders
+namespace PrivateBlog.Web.Data.Seeders
 {
     public class SeedDb
     {
@@ -12,6 +12,7 @@
         public async Task SeedAsync()
         {
             await new SectionsSeeder(_context).SeedAsync();
+            await new BlogsSeeder(_context).SeedAsync();
         }
     }
 }
