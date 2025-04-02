@@ -69,9 +69,8 @@ namespace PrivateBlog.Web.Controllers
         {
             Response<BlogDTO> response = await _blogsService.GetOneAsync(id);
 
-            if (!response.IsSuccess)
+            if (response.IsSuccess)
             {
-                _notifyService.Error(response.Message);
                 response.Result.Sections = await _combosHelper.GetComboSections();
                 return View(response.Result);
             }
