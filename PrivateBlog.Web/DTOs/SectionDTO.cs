@@ -16,10 +16,4 @@ namespace PrivateBlog.Web.DTOs
         [Display(Name = "¿Está oculta?")]
         public bool IsHidden { get; set; }
     }
-
-    public class ToggleSectionStatusDTO
-    {
-        public int SectionId { get; set; }
-        public bool Hide { get; set; }
-    }
 }

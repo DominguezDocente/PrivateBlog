@@ -110,7 +110,7 @@ namespace PrivateBlog.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Toggle([FromForm] ToggleSectionStatusDTO dto)
         {
-            Response<Section> response = await _sectionsService.ToggleAsync(dto);
+            Response<object> response = await _sectionsService.ToggleAsync(dto);
 
             if (response.IsSuccess)
             {

@@ -12,7 +12,7 @@ namespace PrivateBlog.Web.DTOs
         [Display(Name = "Titulo")]
         [MaxLength(64, ErrorMessage = "El campo {0} debe tener máximo {1} caracteres.")]
         [Required(ErrorMessage = "El campo '{0}' es requerido.")]
-        public string Title { get; set; }
+        public string Name { get; set; }
 
 
         [Display(Name = "Contenido")]
@@ -22,7 +22,7 @@ namespace PrivateBlog.Web.DTOs
 
         public bool IsPublished { get; set; } = false;
 
-        //public Section? Section { get; set; }
+        public Section? Section { get; set; }
 
         [Display(Name = "Sección")]
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una sección")]

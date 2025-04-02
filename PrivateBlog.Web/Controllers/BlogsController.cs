@@ -26,7 +26,7 @@ namespace PrivateBlog.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
-            Response<PaginationResponse<SectionDTO>> response = await _blogsService.GetPaginationAsync(request);
+            Response<PaginationResponse<BlogDTO>> response = await _blogsService.GetPaginationAsync(request);
             return View(response.Result);
         }
 
@@ -72,7 +72,7 @@ namespace PrivateBlog.Web.Controllers
             if (!response.IsSuccess)
             {
                 _notifyService.Error(response.Message);
-                dto.Sections = await _combosHelper.GetComboSections();
+                response.Result.Sections = await _combosHelper.GetComboSections();
                 return View(response.Result);
             }
 

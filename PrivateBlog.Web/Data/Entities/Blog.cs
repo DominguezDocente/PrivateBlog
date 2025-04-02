@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PrivateBlog.Web.Data.Entities
 {
-    public class Blog
+    public class Blog : IId
     {
         [Key]
         public int Id { get; set; }
@@ -11,7 +11,7 @@ namespace PrivateBlog.Web.Data.Entities
         [Display(Name = "Titulo")]
         [MaxLength(64, ErrorMessage = "El campo {0} debe tener máximo {1} caracteres.")]
         [Required(ErrorMessage = "El campo '{0}' es requerido.")]
-        public string Title { get; set; }
+        public string Name { get; set; }
 
 
         [Display(Name = "Contenido")]

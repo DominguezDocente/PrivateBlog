@@ -21,7 +21,7 @@ namespace PrivateBlog.Web.Services
         public Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto);
     }
 
-    public class SectionsService : CustomBaseService, ISectionsService
+    public class SectionsService : CustomQueryableOperations, ISectionsService
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
@@ -106,20 +106,18 @@ namespace PrivateBlog.Web.Services
 
         public async Task<Response<List<SectionDTO>>> GetListAsync()
         {
-            //try
-            //{
-            //    List<Section> sections = await _context.Sections.ToListAsync();
+            try
+            {
+                List<Section> sections = await _context.Sections.ToListAsync();
 
-            //    List<SectionDTO> list = _mapper.Map<List<SectionDTO>>(sections);
+                List<SectionDTO> list = _mapper.Map<List<SectionDTO>>(sections);
 
-            //    return ResponseHelper<List<SectionDTO>>.MakeResponseSuccess(list);
-            //}
-            //catch(Exception ex)
-            //{
-            //    return ResponseHelper<List<SectionDTO>>.MakeResponseFail(ex);
-            //}
-
-            return await GetListAsync<Section, SectionDTO>();
+                return ResponseHelper<List<SectionDTO>>.MakeResponseSuccess(list);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<List<SectionDTO>>.MakeResponseFail(ex);
+            }
         }
 
         public async Task<Response<SectionDTO>> GetOneAsync(int id)
