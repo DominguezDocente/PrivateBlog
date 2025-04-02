@@ -122,6 +122,7 @@ namespace PrivateBlog.Web.Services
                     RecordsPerPage = list.RecordsPerPage,
                     CurrentPage = list.CurrentPage,
                     TotalPages = list.TotalPages,
+                    Filter = request.Filter
                 };
 
                 return ResponseHelper<PaginationResponse<TDTO>>.MakeResponseSuccess(response);

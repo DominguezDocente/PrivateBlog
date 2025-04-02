@@ -30,19 +30,38 @@
 
         <div class="card-body">
 
-            <form class="navbar-search mt-2" asp-action="Index" method="GET">
+            <form asp-action="Index" class="navbar-search" method="GET">
 
                 <input type="hidden" name="Page" value="@Model.CurrentPage" />
-                <input type="hidden" name="RecordsPerPage" value="@Model.RecordsPerPage" />
 
-                <div class="input-group mb-3">
+                <div class="row mt-3">
+                    <div class="col-md-auto">
 
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Buscar..." aria-label="Serch" asp-form="@Model.Filter" name="Filter" />
+                        <select name="RecordsPerPage" class="form-select bg-light border-0 small" asp-for="RecordsPerPage">
+                            <option value="2" selected="@(Model.RecordsPerPage == 2)">2</option>
+                            <option value="10" selected="@(Model.RecordsPerPage == 10)">10</option>
+                            <option value="15" selected="@(Model.RecordsPerPage == 15)">15</option>
+                            <option value="30" selected="@(Model.RecordsPerPage == 30)">30</option>
+                            <option value="50" selected="@(Model.RecordsPerPage == 50)">50</option>
+                        </select>
 
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
+                    </div>
+
+                    <div class="col-md-10">
+                        <div class="input-group-mb-3">
+                            <input type="text"
+                                   class="form-control bg-light border-0 small"
+                                   placeholder="Buscar..."
+                                   aria-label="search"
+                                   asp-for="Filter">
+                        </div>
+                    </div>
+
+                    <div class="col-md-auto">
+
+                        <div class="input-group-mb-3">
+                            <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+                        </div>
                     </div>
 
                 </div>
@@ -99,71 +118,7 @@
                 
             </table>
 
-            <nav aria-label="">
-
-                <ul class="pagination justify-content-center">
-
-                    @* Primero *@
-                    <li class="page-item">
-                        <a class="page-link  @(Model.CurrentPage == 1 ? "disabled" : "")"
-                           asp-action="Index"
-                           asp-route-Page="1"
-                           asp-route-Filter="@Model.Filter"
-                           asp-route-RecordsPerPage="@Model.RecordsPerPage">
-                            &laquo;
-                        </a>
-                    </li>
-
-                    @* Anterior *@
-                    <li class="page-item">
-                        <a class="page-link  @(!Model.HasPrevious ? "disabled" : "")"
-                           asp-action="Index"
-                           asp-route-Page="@(Model.CurrentPage - 1)"
-                           asp-route-Filter="@Model.Filter"
-                           asp-route-RecordsPerPage="@Model.RecordsPerPage">
-                            &lsaquo;
-                        </a>
-                    </li>
-
-                    @* Páginas *@
-                    @foreach (int page in Model.Pages)
-                    {
-                        <li class="page-item">
-                            <a class="page-link  @(Model.CurrentPage == page ? "disabled" : "")"
-                               asp-action="Index"
-                               asp-route-Page="@(page)"
-                               asp-route-Filter="@Model.Filter"
-                               asp-route-RecordsPerPage="@Model.RecordsPerPage">
-                                @(page)
-                            </a>
-                        </li>
-                    }
-
-                    @* Siguiente *@
-                    <li class="page-item">
-                        <a class="page-link  @(!Model.HasNext ? "disabled" : "")"
-                           asp-action="Index"
-                           asp-route-Page="@(Model.CurrentPage + 1)"
-                           asp-route-Filter="@Model.Filter"
-                           asp-route-RecordsPerPage="@Model.RecordsPerPage">
-                            &rsaquo;
-                        </a>
-                    </li>
-
-                    @* Último *@
-                    <li class="page-item">
-                        <a class="page-link  @(Model.TotalPages == Model.CurrentPage ? "disabled" : "")"
-                           asp-action="Index"
-                           asp-route-Page="@(Model.TotalPages)"
-                           asp-route-Filter="@Model.Filter"
-                           asp-route-RecordsPerPage="@Model.RecordsPerPage">
-                            &raquo;
-                        </a>
-                    </li>
-
-                </ul>
-
-            </nav>
+            @await Html.PartialAsync("~/Views/Shared/Components/_PaginationComponent.cshtml", Model)
         </div>
     </div>
 

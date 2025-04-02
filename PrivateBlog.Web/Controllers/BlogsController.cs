@@ -109,5 +109,22 @@ namespace PrivateBlog.Web.Controllers
                 return View(dto);
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            Response<object> response = await _blogsService.DeleteAsync(id);
+
+            if (response.IsSuccess)
+            {
+                _notifyService.Success(response.Message);
+            }
+            else
+            {
+                _notifyService.Error(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

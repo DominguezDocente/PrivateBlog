@@ -61,6 +61,12 @@ namespace PrivateBlog.Web.Services
                                                        Section = b.Section
                                                    })
                                                    .AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.Filter))
+            {
+                query = query.Where(b => b.Name.Contains(request.Filter));
+            }
+
             return await GetPaginationAsync<Blog, BlogDTO>(request, query);
         }
     }

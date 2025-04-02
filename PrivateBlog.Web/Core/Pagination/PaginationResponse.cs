@@ -1,6 +1,6 @@
 namespace PrivateBlog.Web.Core.Pagination
 {
-    public class PaginationResponse<T> where T : class
+    public class PaginationResponse<T> : IPagination where T : class
     {
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }

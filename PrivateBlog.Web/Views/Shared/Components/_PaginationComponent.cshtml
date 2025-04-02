@@ -1,0 +1,83 @@
+﻿@model IPagination
+
+@{
+    var pagination = Model;
+    var filter = pagination.Filter ?? ""; // Asegura que no sea null
+    // var controllerName = ViewData["ControllerName"] as string ?? "Home";
+    // var actionName = ViewData["ActionName"] as string ?? "Index";
+
+    var controllerName = ViewContext.RouteData.Values["Controller"].ToString() ?? "Home";
+    var actionName = ViewContext.RouteData.Values["Action"].ToString() ?? "Index";    
+}
+
+@if (pagination.TotalPages > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+
+            @* Botón Primero *@
+            <li class="page-item @(pagination.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                    asp-controller="@controllerName"
+                    asp-action="@actionName"
+                    asp-route-Page="1" 
+                    asp-route-Filter="@filter" 
+                    asp-route-RecordsPerPage="@pagination.RecordsPerPage">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+            </li>
+
+            @* Botón Anterior *@
+            <li class="page-item @(pagination.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                    asp-controller="@controllerName"
+                    asp-action="@actionName"
+                    asp-route-Page="@(pagination.CurrentPage - 1)" 
+                    asp-route-Filter="@filter" 
+                    asp-route-RecordsPerPage="@pagination.RecordsPerPage">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+
+            @* Números de Página *@
+            @for (int i = 1; i <= pagination.TotalPages; i++)
+            {
+                <li class="page-item @(pagination.CurrentPage == i ? "active" : "")">
+                    <a class="page-link"
+                        asp-controller="@controllerName"
+                        asp-action="@actionName"
+                        asp-route-Page="@i" 
+                        asp-route-Filter="@filter" 
+                        asp-route-RecordsPerPage="@pagination.RecordsPerPage">
+                        @i
+                    </a>
+                </li>
+            }
+
+            @* Botón Siguiente *@
+            <li class="page-item @(pagination.CurrentPage == pagination.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                    asp-controller="@controllerName"
+                    asp-action="@actionName"
+                    asp-route-Page="@(pagination.CurrentPage + 1)"
+                    asp-route-Filter="@filter" 
+                    asp-route-RecordsPerPage="@pagination.RecordsPerPage">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+
+            @* Botón Último *@
+            <li class="page-item @(pagination.CurrentPage == pagination.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                    asp-controller="@controllerName"
+                    asp-action="@actionName"
+                    asp-route-Page="@pagination.TotalPages" 
+                    asp-route-Filter="@filter"
+                    asp-route-RecordsPerPage="@pagination.RecordsPerPage">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}
