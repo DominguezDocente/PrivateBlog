@@ -29,6 +29,6 @@ namespace PrivateBlog.Web.DTOs
         [Required(ErrorMessage = "El campo '{0}' es requerido.")]
         public int SectionId { get; set; }
         
-        public IEnumerable<SelectListItem> Sections { get; set; }
+        public IEnumerable<SelectListItem>? Sections { get; set; }
     }
 }

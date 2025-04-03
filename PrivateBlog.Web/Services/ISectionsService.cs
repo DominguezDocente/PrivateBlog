@@ -169,7 +169,16 @@ namespace PrivateBlog.Web.Services
             //    return ResponseHelper<PaginationResponse<SectionDTO>>.MakeResponseFail(ex);
             //}
 
-            return await GetPaginationAsync<Section, SectionDTO>(request);
+
+            IQueryable<Section> query = _context.Sections.AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.Filter))
+            {
+                query = query.Where(b => b.Name.ToLower().Contains(request.Filter.ToLower())
+                                      || b.Description.ToLower().Contains(request.Filter.ToLower()));
+            }
+
+            return await GetPaginationAsync<Section, SectionDTO>(request, query);
 
         }
 

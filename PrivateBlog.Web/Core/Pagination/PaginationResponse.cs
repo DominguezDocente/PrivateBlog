@@ -1,6 +1,6 @@
 ﻿namespace PrivateBlog.Web.Core.Pagination
 {
-    public class PaginationResponse<T> where T : class
+    public class PaginationResponse<T> : IPagination where T : class
     {
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
@@ -9,6 +9,9 @@
         public bool HasPrevious => CurrentPage > 1;
         public bool HasNext => CurrentPage < TotalPages;
         public int VisiblePages { get; set; } = 5;
+
+        public string? Filter { get; set; }
+
         public List<int> Pages
         {
             get

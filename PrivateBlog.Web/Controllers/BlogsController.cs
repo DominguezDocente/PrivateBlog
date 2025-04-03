@@ -35,5 +35,84 @@ namespace PrivateBlog.Web.Controllers
             BlogDTO dto = new BlogDTO { Sections =  await _combosHelper.GetComboSections()};
             return View(dto);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(BlogDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notifyService.Error("Debe ajustar los errores de validación");
+                dto.Sections = await _combosHelper.GetComboSections();
+                return View(dto);
+            }
+
+            Response<BlogDTO> response = await _blogsService.CreateAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notifyService.Error(response.Message);
+                dto.Sections = await _combosHelper.GetComboSections();
+                return View(dto);
+            }
+
+            _notifyService.Success(response.Message);
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit([FromRoute] int id)
+        {
+            Response<BlogDTO> response = await _blogsService.GetOneAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notifyService.Error(response.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
+            response.Result.Sections = await _combosHelper.GetComboSections();
+            return View(response.Result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(BlogDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notifyService.Error("Debe ajustar los errores de validación");
+                dto.Sections = await _combosHelper.GetComboSections();
+                return View(dto);
+            }
+
+            Response<BlogDTO> response = await _blogsService.EditAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notifyService.Error(response.Message);
+                dto.Sections = await _combosHelper.GetComboSections();
+                return View(dto);
+            }
+
+            _notifyService.Success(response.Message);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            Response<object> response = await _blogsService.DeleteAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notifyService.Error(response.Message);
+            }
+            else
+            {
+                _notifyService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

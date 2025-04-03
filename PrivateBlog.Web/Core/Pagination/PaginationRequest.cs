@@ -6,6 +6,8 @@
         private int _recordsPerPage = 15;
         private const int MAX_RECORDS_PER_PAGE = 50;
 
+        public string? Filter { get; set; }
+
         public int Page 
         { 
             get => _page; 
