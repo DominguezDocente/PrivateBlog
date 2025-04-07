@@ -29,6 +29,15 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Logs" ? "" : "collapsed")"
+               asp-controller="Logs"
+               asp-action="Index">
+                <i class="bi bi-file-earmark-post"></i>
+                <span>Logs</span>
+            </a>
+        </li>
+
 
     </ul>
 

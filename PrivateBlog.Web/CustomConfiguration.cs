@@ -5,6 +5,8 @@ using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Seeders;
 using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
+using Serilog;
+using Serilog.Enrichers.CallerInfo;
 using System.Runtime.CompilerServices;
 
 namespace PrivateBlog.Web
@@ -33,7 +35,34 @@ namespace PrivateBlog.Web
                 config.Position = NotyfPosition.BottomRight;
             });
 
+            // Log Setup
+            AddLogConfiguration(builder);
+
             return builder;
+        }
+
+        private static void AddLogConfiguration(WebApplicationBuilder builder)
+        {
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Warning()
+                                                  .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+                                                  .WriteTo.File("logs/log.log", rollingInterval: RollingInterval.Day)
+                                                  .CreateLogger();
+
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog();
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                Log.Fatal(args.ExceptionObject as Exception, "Excepción no manejada");
+                Log.CloseAndFlush();
+            };
+
+            TaskScheduler.UnobservedTaskException += (sender, args) =>
+            {
+                Log.Fatal(args.Exception, "Excepción no observada en Task");
+                args.SetObserved();
+                Log.CloseAndFlush();
+            };
         }
 
         private static void AddServices(WebApplicationBuilder builder)
@@ -42,6 +71,8 @@ namespace PrivateBlog.Web
             builder.Services.AddScoped<IBlogsService, BlogsService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
+            builder.Services.AddScoped<ILogService, LocalLogSercive>();
+
 
             // Helpers
             builder.Services.AddScoped<ICombosHelper, CombosHelper>();

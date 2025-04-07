@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Models;
+using Serilog;
+using System.Diagnostics;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -15,6 +16,9 @@ namespace PrivateBlog.Web.Controllers
 
         public IActionResult Index()
         {
+            Log.Warning("Esto es una advertencia.", "HomeController.Index");
+            Log.Error("Esto es un error.");
+
             return View();
         }
 
