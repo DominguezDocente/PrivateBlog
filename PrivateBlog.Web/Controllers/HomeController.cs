@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Models;
+using Serilog;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -15,6 +16,22 @@ namespace PrivateBlog.Web.Controllers
 
         public IActionResult Index()
         {
+            Log.Warning("Log de advertencia");
+            Log.Error("Log de Error");
+            Log.Fatal("Log Fatal");
+            Log.Information("Log de Información");
+            Log.Debug("Log de Debug");
+
+            try
+            {
+                int a = 13;
+                int b = 0;
+                int r = a / b;
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex, "Ha ocurrido un error en HomeController.Index");
+            }
             return View();
         }
 
