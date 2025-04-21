@@ -1,7 +1,9 @@
 using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Data;
+using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Data.Seeders;
 using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
@@ -27,6 +29,9 @@ namespace PrivateBlog.Web
             // Services
             AddServices(builder);
 
+            // Identity and Acces Managment
+            AddIAM(builder);
+
             // Toast Notification Setup
             builder.Services.AddNotyf(config =>
             {
@@ -39,6 +44,29 @@ namespace PrivateBlog.Web
             AddLogConfiguration(builder);
 
             return builder;
+        }
+
+        private static void AddIAM(WebApplicationBuilder builder)
+        {
+            builder.Services.AddIdentity<User, IdentityRole>(conf =>
+            {
+                conf.User.RequireUniqueEmail = true;
+                conf.Password.RequireDigit = false;
+                conf.Password.RequiredUniqueChars = 0;
+                conf.Password.RequireLowercase = false;
+                conf.Password.RequireUppercase = false;
+                conf.Password.RequireNonAlphanumeric = false;
+                conf.Password.RequiredLength = 4;
+            }).AddEntityFrameworkStores<DataContext>()
+              .AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(conf =>
+            {
+                conf.Cookie.Name = "Auth";
+                conf.ExpireTimeSpan = TimeSpan.FromDays(100);
+                conf.LoginPath = "/Account/Login";
+                conf.AccessDeniedPath = "/Account/NotAuthorized";
+            });
         }
 
         private static void AddLogConfiguration(WebApplicationBuilder builder)
@@ -72,6 +100,7 @@ namespace PrivateBlog.Web
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<ILogService, LocalLogSercive>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
 
 
             // Helpers

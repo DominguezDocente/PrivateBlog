@@ -1,5 +1,6 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
@@ -10,6 +11,7 @@ using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
 {
+    [Authorize]
     public class BlogsController : Controller
     {
         private readonly IBlogsService _blogsService;
@@ -23,6 +25,7 @@ namespace PrivateBlog.Web.Controllers
             _notifyService = notifyService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
