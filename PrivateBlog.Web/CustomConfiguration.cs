@@ -23,6 +23,8 @@ namespace PrivateBlog.Web
                 options.UseSqlServer(builder.Configuration.GetConnectionString("MyConnection"));
             });
 
+            builder.Services.AddHttpContextAccessor();
+
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(Program));
 
@@ -65,7 +67,7 @@ namespace PrivateBlog.Web
                 conf.Cookie.Name = "Auth";
                 conf.ExpireTimeSpan = TimeSpan.FromDays(100);
                 conf.LoginPath = "/Account/Login";
-                conf.AccessDeniedPath = "/Account/NotAuthorized";
+                conf.AccessDeniedPath = "/Errors/403";
             });
         }
 

@@ -3,6 +3,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
@@ -11,7 +12,6 @@ using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
 {
-    [Authorize]
     public class BlogsController : Controller
     {
         private readonly IBlogsService _blogsService;
@@ -25,8 +25,8 @@ namespace PrivateBlog.Web.Controllers
             _notifyService = notifyService;
         }
 
-        [AllowAnonymous]
         [HttpGet]
+        [CustomAuthorize(permission: "showBlogs", module: "Blogs")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<BlogDTO>> response = await _blogsService.GetPaginationAsync(request);
@@ -34,6 +34,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize("createBlogs", "Blogs")]
         public async Task<IActionResult> Create()
         {
             BlogDTO dto = new BlogDTO
@@ -45,6 +46,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("createBlogs", "Blogs")]
         public async Task<IActionResult> Create(BlogDTO dto)
         {
             if (!ModelState.IsValid)
@@ -68,6 +70,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize("updateBlogs", "Blogs")]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
             Response<BlogDTO> response = await _blogsService.GetOneAsync(id);
@@ -83,6 +86,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("updateBlogs", "Blogs")]
         public async Task<IActionResult> Edit(BlogDTO dto)
         {
             try
@@ -114,6 +118,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("deleteBlogs", "Blogs")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Response<object> response = await _blogsService.DeleteAsync(id);

@@ -71,12 +71,37 @@ namespace PrivateBlog.Web.Data.Seeders
                 string token = await _usersService.GenerateEmailConfirmationTokenAsync(user);
                 await _usersService.ConfirmEmailAsync(user, token);
             }
+
+            // Basic
+            user = await _usersService.GetUserAsync("jhond@yopmail.com");
+
+            if (user is null)
+            {
+                PrivateBlogRole basicRole = _context.PrivateBlogRoles.FirstOrDefault(r => r.Name == "Basic");
+
+                user = new User
+                {
+                    Email = "jhond@yopmail.com",
+                    FirstName = "Jhon",
+                    LastName = "Doe",
+                    PhoneNumber = "3221111",
+                    UserName = "jhond@yopmail.com",
+                    Document = "33333",
+                    PrivateBlogRole = basicRole
+                };
+
+                await _usersService.AddUserAsync(user, "1234");
+
+                string token = await _usersService.GenerateEmailConfirmationTokenAsync(user);
+                await _usersService.ConfirmEmailAsync(user, token);
+            }
         }
 
         private async Task CheckRoles()
         {
             await AdminRoleAsync();
             await ContentManagerAsync();
+            await BasicRoleAsync();
         }
 
         private async Task ContentManagerAsync()
@@ -106,6 +131,18 @@ namespace PrivateBlog.Web.Data.Seeders
             if (!exists)
             {
                 PrivateBlogRole role = new PrivateBlogRole { Name = Env.SUPER_ADMIN_ROLE_NAME };
+                await _context.PrivateBlogRoles.AddAsync(role);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task BasicRoleAsync()
+        {
+            bool exists = await _context.PrivateBlogRoles.AnyAsync(r => r.Name == "Basic");
+
+            if (!exists)
+            {
+                PrivateBlogRole role = new PrivateBlogRole { Name = "Basic" };
                 await _context.PrivateBlogRoles.AddAsync(role);
                 await _context.SaveChangesAsync();
             }
