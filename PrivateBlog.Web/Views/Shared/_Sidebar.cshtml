@@ -1,33 +1,42 @@
-﻿<aside id="sidebar" class="sidebar">
+﻿@inject PrivateBlog.Web.Services.IUsersService _usersService
+
+<aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
             <a class="nav-link  @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "" : "collapsed")"
-               asp-controller="Home" 
-               asp-action="Index">
+            asp-controller="Home" 
+            asp-action="Index">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() ==  "Sections" ? "" : "collapsed")" 
-               asp-controller="Sections" 
-               asp-action="Index">
-                <i class="bi bi-book"></i>
-                <span>Secciones</span>
-            </a>
-        </li>
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showSections", "Secciones"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() ==  "Sections" ? "" : "collapsed")" 
+                asp-controller="Sections" 
+                asp-action="Index">
+                    <i class="bi bi-book"></i>
+                    <span>Secciones</span>
+                </a>
+            </li>
+        }
 
-        <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs" ? "" : "collapsed")"
-               asp-controller="Blogs"
-               asp-action="Index">
-                <i class="bi bi-file-earmark-post"></i>
-                <span>Blogs</span>
-            </a>
-        </li>
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showBlogs", "Blogs"))
+        {
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Blogs" ? "" : "collapsed")"
+                   asp-controller="Blogs"
+                   asp-action="Index">
+                    <i class="bi bi-file-earmark-post"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+        }
 
         <li class="nav-item">
             <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "ApplicationLogs" ? "" : "collapsed")"

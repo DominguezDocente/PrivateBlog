@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Controllers.Attributes;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs;
@@ -9,7 +10,6 @@ using PrivateBlog.Web.Services;
 
 namespace PrivateBlog.Web.Controllers
 {
-    [Authorize]
     public class BlogsController : Controller
     {
         private readonly IBlogsService _blogsService;
@@ -23,9 +23,8 @@ namespace PrivateBlog.Web.Controllers
             _combosHelper = combosHelper;
         }
 
-
         [HttpGet]
-        [AllowAnonymous]
+        [CustomAuthorize(permission: "showBLogs", module: "Blogs")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<BlogDTO>> response = await _blogsService.GetPaginationAsync(request);
@@ -33,6 +32,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "createBLogs", module: "Blogs")]
         public async Task<IActionResult> Create()
         {
             BlogDTO dto = new BlogDTO { Sections =  await _combosHelper.GetComboSections()};
@@ -40,6 +40,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "createBLogs", module: "Blogs")]
         public async Task<IActionResult> Create(BlogDTO dto)
         {
             if (!ModelState.IsValid)
@@ -64,6 +65,7 @@ namespace PrivateBlog.Web.Controllers
 
 
         [HttpGet]
+        [CustomAuthorize(permission: "updateBlogs", module: "Blogs")]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
             Response<BlogDTO> response = await _blogsService.GetOneAsync(id);
@@ -79,6 +81,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "updateBlogs", module: "Blogs")]
         public async Task<IActionResult> Edit(BlogDTO dto)
         {
             if (!ModelState.IsValid)
@@ -102,6 +105,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "deleteBlogs", module: "Blogs")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Response<object> response = await _blogsService.DeleteAsync(id);
