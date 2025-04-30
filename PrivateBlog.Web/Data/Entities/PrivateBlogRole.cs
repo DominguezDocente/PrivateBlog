@@ -2,7 +2,7 @@
 
 namespace PrivateBlog.Web.Data.Entities
 {
-    public class PrivateBlogRole
+    public class PrivateBlogRole : IId
     {
         [Key]
         public int Id { get; set; }

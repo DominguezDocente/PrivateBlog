@@ -11,6 +11,10 @@ namespace PrivateBlog.Web.Core
             CreateMap<Section, SectionDTO>().ReverseMap();
 
             CreateMap<Blog, BlogDTO>().ReverseMap();
+
+            CreateMap<PrivateBlogRoleDTO, PrivateBlogRole>().ReverseMap();
+
+            CreateMap<Permission, PermissionDTO>().ReverseMap();
         }
     }
 }
