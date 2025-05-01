@@ -102,6 +102,7 @@ namespace PrivateBlog.Web.Services
                 return ResponseHelper<TDTO>.MakeResponseFail(ex);
             }
         }
+
         public async Task<Response<PaginationResponse<TDTO>>> GetPaginationAsync<TEntity, TDTO>(PaginationRequest request, IQueryable<TEntity> query = null)
         where TEntity : class
         where TDTO : class
@@ -130,6 +131,28 @@ namespace PrivateBlog.Web.Services
             catch (Exception ex)
             {
                 return ResponseHelper<PaginationResponse<TDTO>>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<Response<List<TDTO>>> GetCompleteList<TEntity, TDTO>(IQueryable<TEntity> query = null)
+        where TEntity : class
+        where TDTO : class
+        {
+            try
+            {
+                if (query is null)
+                {
+                    query = _context.Set<TEntity>();
+                }
+
+                List<TEntity> list = await query.ToListAsync();
+                List<TDTO> dtoList = _mapper.Map<List<TDTO>>(list);
+
+                return ResponseHelper<List<TDTO>>.MakeResponseSuccess(dtoList);
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<List<TDTO>>.MakeResponseFail(ex);
             }
         }
     }

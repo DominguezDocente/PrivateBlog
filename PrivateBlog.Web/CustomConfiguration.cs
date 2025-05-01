@@ -89,6 +89,7 @@ namespace PrivateBlog.Web
             builder.Services.AddScoped<IReadLogsService, ReadPlainTextLogsService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
+            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             // Helpers
