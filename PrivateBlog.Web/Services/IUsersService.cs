@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
@@ -15,9 +16,11 @@ namespace PrivateBlog.Web.Services
         public bool CurrentUserIsAuthenticated();
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
+        Task<User?> GetCurrentUserAsync();
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
+        public Task<int> UpdateUserAsync(AccountUserDTO user);
     }
 
     public class UsersService : IUsersService
@@ -26,13 +29,15 @@ namespace PrivateBlog.Web.Services
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor)
+        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -85,6 +90,22 @@ namespace PrivateBlog.Web.Services
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
 
+        public async Task<User?> GetCurrentUserAsync()
+        {
+            ClaimsUser? claimUser = _httpContextAccessor.HttpContext?.User;
+
+            if (claimUser is null)
+            {
+                return null;
+            }
+
+            string? userName = claimUser.Identity.Name;
+
+            User? user = await GetUserAsync(userName);
+
+            return user;
+        }
+
         public async Task<User> GetUserAsync(string email)
         {
             User? user = await _context.Users.Include(u => u.PrivateBlogRole)
@@ -101,6 +122,18 @@ namespace PrivateBlog.Web.Services
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<int> UpdateUserAsync(AccountUserDTO dto)
+        {
+            User user = _mapper.Map<User>(dto);
+
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded ? 1 : 0;
+
+            //_context.Users.Update(user);
+            //return await _context.SaveChangesAsync();
         }
     }
 }

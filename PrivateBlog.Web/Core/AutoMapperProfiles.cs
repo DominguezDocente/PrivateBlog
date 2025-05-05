@@ -15,6 +15,12 @@ namespace PrivateBlog.Web.Core
             CreateMap<PrivateBlogRoleDTO, PrivateBlogRole>().ReverseMap();
 
             CreateMap<Permission, PermissionDTO>().ReverseMap();
+
+            CreateMap<User, UserDTO>().ReverseMap();
+
+            CreateMap<User, AccountUserDTO>();
+
+            CreateMap<AccountUserDTO, User>().ForMember(u => u.UserName, config => config.MapFrom(dto => dto.Email));
         }
     }
 }

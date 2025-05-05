@@ -1,5 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services;
 
@@ -9,11 +11,13 @@ namespace PrivateBlog.Web.Controllers
     {
         private readonly INotyfService _notifyService;
         private readonly IUsersService _usersService;
+        private readonly IMapper _mapper;
 
-        public AccountController(INotyfService notifyService, IUsersService usersService)
+        public AccountController(INotyfService notifyService, IUsersService usersService, IMapper mapper)
         {
             _notifyService = notifyService;
             _usersService = usersService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -54,6 +58,32 @@ namespace PrivateBlog.Web.Controllers
         public IActionResult NotAuthorized()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateUser()
+        {
+            User user = await _usersService.GetUserAsync(User.Identity.Name);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(_mapper.Map<AccountUserDTO>(user));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateUser(AccountUserDTO dto)
+        {
+            if (ModelState.IsValid)
+            {
+                var test = await _usersService.UpdateUserAsync(dto);
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(dto);
         }
     }
 }
