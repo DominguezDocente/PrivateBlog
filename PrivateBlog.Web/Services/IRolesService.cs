@@ -142,7 +142,7 @@ namespace PrivateBlog.Web.Services
 
                 // Delete old sections
                 List<RoleSection> oldRoleSections = await _context.RoleSections.Where(rp => rp.RoleId == dto.Id).ToListAsync();
-                _context.RolePermissions.RemoveRange(oldRolePermissions);
+                _context.RoleSections.RemoveRange(oldRoleSections);
 
                 foreach (int sectionId in sectionIds)
                 {

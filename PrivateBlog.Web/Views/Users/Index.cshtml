@@ -1,8 +1,8 @@
-﻿@model PaginationResponse<BlogDTO>
+﻿@model PaginationResponse<UserDTO>
 @inject PrivateBlog.Web.Services.IUsersService _usersService
 
 @{
-    ViewData["Title"] = "Blogs";
+    ViewData["Title"] = "Usuarios";
 }
 
 
@@ -12,7 +12,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
-            <li class="breadcrumb-item active">Blogs</li>
+            <li class="breadcrumb-item active">Usuarios</li>
         </ol>
     </nav>
 </div>
@@ -22,17 +22,15 @@
     <div class="card">
         <div class="card-header">
 
-
-            @if (await _usersService.CurrentUserIsAuthorizedAsync("createBlogs", "Blogs"))
+            @if (await _usersService.CurrentUserIsAuthorizedAsync("createUsers", "Usuarios"))
             {
                 <div class="row">
-                    <h3 class="m-0 font-weight-bold text-primary col-md-11">Blogs</h3>
+                    <h3 class="m-0 font-weight-bold text-primary col-md-11">Usuarios</h3>
                     <div class="col-md-1">
                         <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
                     </div>
-                </div>                
+                </div>
             }
-
         </div>
 
         <div class="card-body">
@@ -74,32 +72,37 @@
 
             </form>
 
+
             <table class="table table-bordered">
 
                 <thead>
-                    <th>Id</th>
-                    <th>Titulo</th>
-                    <th>Sección</th>
+                    <th>Documento</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
                     <th></th>
                 </thead>
 
                 <div class="card-body">
-                    @foreach (BlogDTO item in Model.List)
+                    @foreach (UserDTO item in Model.List)
                     {
                     <tr>
-                        <td>@item.Id</td>
-                        <td>@item.Name</td>
-                        <td>@item.Section.Name</td>
+                        <td>@item.Document</td>
+                        <td>@item.FirstName</td>
+                        <td>@item.LastName</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>@item.Email</td>
                         <td>
 
-                            @if (await _usersService.CurrentUserIsAuthorizedAsync("updateBlogs", "Blogs"))
+                            @if (await _usersService.CurrentUserIsAuthorizedAsync("updateUsers", "Usuarios"))
                             {
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
                             }
 
-                            @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteBlogs", "Blogs"))
+                            @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteUsers", "Usuarios"))
                             {
-                                <form asp-action="Delete" asp-route-id="@item.Id" style="display: contents;" method="POST">
+                                <form asp-action="Delete" asp-route-id="@item.Id" style="display: contents;">
                                     <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
                                 </form>
                             }
@@ -111,6 +114,7 @@
         </table>
 
         @await Html.PartialAsync("_PaginationComponent", Model)
+
     </div>
     </div>
 
@@ -128,7 +132,7 @@
 
                 Swal.fire({
 
-                    title: "¿Desea eliminar al sección?",
+                    title: "¿Desea eliminar al usuario?",
                     text: "No podrá revertirlo",
                     icon: "question",
                     showCancelButton: true

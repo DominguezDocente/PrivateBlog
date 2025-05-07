@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
+using PrivateBlog.Web.Helpers;
 using ClaimsUser = System.Security.Claims.ClaimsPrincipal;
 
 namespace PrivateBlog.Web.Services
@@ -18,21 +21,32 @@ namespace PrivateBlog.Web.Services
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
+        Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request);
+        Task<Response<UserDTO>> CreateAsync(UserDTO dto);
+        Task<User?> GetUserAsync(Guid id);
+        Task<Response<UserDTO>> UpdateUserAsync(UserDTO dto);
     }
 
-    public class UsersService : IUsersService
+    public class UsersService : CustomQueryableOperations, IUsersService
     {
         private readonly DataContext _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor)
+        public UsersService(DataContext context,
+                            UserManager<User> userManager,
+                            SignInManager<User> signInManager,
+                            IHttpContextAccessor httpContextAccessor,
+                            IMapper mapper)
+            : base(context, mapper)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -43,6 +57,26 @@ namespace PrivateBlog.Web.Services
         public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
         {
             return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<Response<UserDTO>> CreateAsync(UserDTO dto)
+        {
+            try
+            {
+                User user = _mapper.Map<User>(dto);
+                user.Id = Guid.NewGuid().ToString();
+
+                IdentityResult result = await AddUserAsync(user, dto.Document);
+
+                string token = await GenerateEmailConfirmationTokenAsync(user);
+                await ConfirmEmailAsync(user, token);
+
+                return ResponseHelper<UserDTO>.MakeResponseSuccess(_mapper.Map<UserDTO>(user), "Usuario creado con éxito");
+            }
+            catch(Exception ex)
+            {
+                return ResponseHelper<UserDTO>.MakeResponseFail(ex);
+            }
         }
 
         public bool CurrentUserIsAuthenticated()
@@ -85,10 +119,35 @@ namespace PrivateBlog.Web.Services
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
 
+        public async Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request)
+        {
+
+            IQueryable<User> query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.Filter))
+            {
+                query = query.Where(b => b.FirstName.ToLower().Contains(request.Filter.ToLower())
+                                      || b.LastName.ToLower().Contains(request.Filter.ToLower())
+                                      || b.Document.Contains(request.Filter)
+                                      || b.Email.ToLower().Contains(request.Filter.ToLower())
+                                      || b.PhoneNumber.Contains(request.Filter));
+            }
+
+            return await GetPaginationAsync<User, UserDTO>(request, query);
+        }
+
         public async Task<User> GetUserAsync(string email)
         {
+            User? user = await _context.Users.Include(u => u.PrivateBlogRole)
+                                             .FirstOrDefaultAsync(u => u.Email == email);
+
+            return user;
+        }
+
+        public async Task<User?> GetUserAsync(Guid id)
+        {
             return await _context.Users.Include(u => u.PrivateBlogRole)
-                                       .FirstOrDefaultAsync(u => u.Email == email);
+                                       .FirstOrDefaultAsync(u => u.Id == id.ToString());
         }
 
         public async Task<SignInResult> LoginAsync(LoginDTO dto)
@@ -99,6 +158,32 @@ namespace PrivateBlog.Web.Services
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<Response<UserDTO>> UpdateUserAsync(UserDTO dto)
+        {
+            try
+            {
+                //User user = _mapper.Map<User>(dto);
+
+                Guid id = Guid.Parse(dto.Id!);
+                User user = await GetUserAsync(id);
+                user.PhoneNumber = dto.PhoneNumber;
+                user.Document = dto.Document;
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+                user.PrivateBlogRoleId = dto.PrivateBlogRoleId;
+
+                _context.Users.Update(user);
+
+                await _context.SaveChangesAsync();
+
+                return ResponseHelper<UserDTO>.MakeResponseSuccess(dto, "Usuario actualizado con éxito");
+            }
+            catch(Exception ex)
+            {
+                return ResponseHelper<UserDTO>.MakeResponseFail(ex);
+            }
         }
     }
 }

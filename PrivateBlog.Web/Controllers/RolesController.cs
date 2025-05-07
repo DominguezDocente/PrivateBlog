@@ -1,6 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
-using PrivateBlog.Web.Controllers.Attributes;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;

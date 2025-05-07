@@ -1,4 +1,5 @@
 ﻿@model PaginationResponse<SectionDTO>
+@inject PrivateBlog.Web.Services.IUsersService _usersService
 
 @{
     ViewData["Title"] = "Secciones";
@@ -20,12 +21,16 @@
 
     <div class="card">
         <div class="card-header">
-            <div class="row">
-                <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>
-                <div class="col-md-1">
-                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
-                </div>
-            </div>
+
+            @if (await _usersService.CurrentUserIsAuthorizedAsync("createSections", "Secciones"))
+            {
+                <div class="row">
+                    <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>
+                    <div class="col-md-1">
+                        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
+                    </div>
+                </div>                
+            }
         </div>
 
         <div class="card-body">
@@ -50,10 +55,10 @@
                     <div class="col-md-10">
                         <div class="input-group-mb-3">
                             <input type="text"
-                                   class="form-control bg-light border-0 small"
-                                   placeholder="Buscar..."
-                                   aria-label="search"
-                                   asp-for="Filter">
+                            class="form-control bg-light border-0 small"
+                            placeholder="Buscar..."
+                            aria-label="search"
+                            asp-for="Filter">
                         </div>
                     </div>
 
@@ -85,32 +90,39 @@
                             <td>@item.Name</td>
                             <td>@item.Description</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
 
-                                @if (item.IsHidden)
+                                @if (await _usersService.CurrentUserIsAuthorizedAsync("updateSections", "Secciones"))
                                 {
-                                    <form asp-action="Toggle" style="display: contents;" method="POST">
-                                        <input type="hidden" value="@item.Id" name="SectionId" />
-                                        <input type="hidden" value="false" name="Hide" />
-                                        <button class="btn btn-sm btn-secondary">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+
+                                    @if (item.IsHidden)
+                                    {
+                                        <form asp-action="Toggle" style="display: contents;" method="POST">
+                                            <input type="hidden" value="@item.Id" name="SectionId" />
+                                            <input type="hidden" value="false" name="Hide" />
+                                            <button class="btn btn-sm btn-secondary">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Toggle" style="display: contents;" method="POST">
+                                            <input type="hidden" value="@item.Id" name="SectionId" />
+                                            <input type="hidden" value="true" name="Hide" />
+                                            <button class="btn btn-sm btn-info">
+                                                <i class="bi bi-eye-slash-fill"></i>
+                                            </button>
+                                        </form>
+                                    }                                    
+                                }
+
+                                @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteSections", "Secciones"))
+                                {
+                                    <form asp-action="Delete" asp-route-id="@item.Id" style="display: contents;">
+                                        <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
                                     </form>
                                 }
-                                else
-                                {
-                                    <form asp-action="Toggle" style="display: contents;" method="POST">
-                                        <input type="hidden" value="@item.Id" name="SectionId" />
-                                        <input type="hidden" value="true" name="Hide" />
-                                        <button class="btn btn-sm btn-info">
-                                            <i class="bi bi-eye-slash-fill"></i>
-                                        </button>
-                                    </form>
-                                }
-
-                                <form asp-action="Delete" asp-route-id="@item.Id" style="display: contents;">
-                                    <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
-                                </form>
                             </td>
                         </tr>
                     }

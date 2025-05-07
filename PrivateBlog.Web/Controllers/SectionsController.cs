@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs;
@@ -21,6 +22,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "showSections", module: "Secciones")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginationAsync(request);
@@ -28,12 +30,14 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "createSections", module: "Secciones")]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "createSections", module: "Secciones")]
         public async Task<IActionResult> Create([FromForm] SectionDTO dto)
         {
             if (!ModelState.IsValid)
@@ -55,6 +59,7 @@ namespace PrivateBlog.Web.Controllers
         }
         
         [HttpGet]
+        [CustomAuthorize(permission: "updateSections", module: "Secciones")]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
             Response<SectionDTO> response = await _sectionsService.GetOneAsync(id);
@@ -69,6 +74,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "updateSections", module: "Secciones")]
         public async Task<IActionResult> Edit(SectionDTO dto)
         {
             if (!ModelState.IsValid)
@@ -90,6 +96,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "deleteSections", module: "Secciones")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Response<object> response = await _sectionsService.DeleteAsync(id);
@@ -107,6 +114,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "updateSections", module: "Secciones")]
         public async Task<IActionResult> Toggle([FromForm] ToggleSectionStatusDTO dto)
         {
             Response<object> response = await _sectionsService.ToggleAsync(dto);

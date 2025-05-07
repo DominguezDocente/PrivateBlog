@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using PrivateBlog.Web.Services;
 
-namespace PrivateBlog.Web.Controllers.Attributes
+namespace PrivateBlog.Web.Core.Attributes
 {
     public class CustomAuthorizeAttribute : TypeFilterAttribute
     {
