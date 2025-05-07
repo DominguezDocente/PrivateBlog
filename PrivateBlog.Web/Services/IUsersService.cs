@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
@@ -30,14 +31,17 @@ namespace PrivateBlog.Web.Services
         private readonly SignInManager<User> _signInManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly string _container = "users";
+        private readonly IStorageService _storageService;
 
-        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor, IMapper mapper, IStorageService storageService)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _storageService = storageService;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -123,17 +127,37 @@ namespace PrivateBlog.Web.Services
         {
             await _signInManager.SignOutAsync();
         }
+        public async Task<User?> GetUserAsync(Guid id)
+        {
+            return await _context.Users.Include(u => u.PrivateBlogRole)
+                                       .FirstOrDefaultAsync(u => u.Id == id.ToString());
+        }
 
         public async Task<int> UpdateUserAsync(AccountUserDTO dto)
         {
-            User user = _mapper.Map<User>(dto);
+            User user = await GetUserAsync(dto.Id);
+            user.PhoneNumber = dto.PhoneNumber;
+            user.Document = dto.Document;
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
 
-            var result = await _userManager.UpdateAsync(user);
+            if (dto.Photo is not null)
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    await dto.Photo.CopyToAsync(ms);
+                    byte[] content = ms.ToArray();
+                    string extension = Path.GetExtension(dto.Photo.FileName);
+                    user.Photo = await _storageService.SaveFileAsync(content, extension, _container, dto.Photo.ContentType);
+                }
+            }
 
-            return result.Succeeded ? 1 : 0;
+            //var result = await _userManager.UpdateAsync(user);
 
-            //_context.Users.Update(user);
-            //return await _context.SaveChangesAsync();
+            //return result.Succeeded ? 1 : 0;
+
+            _context.Users.Update(user);
+            return await _context.SaveChangesAsync();
         }
     }
 }

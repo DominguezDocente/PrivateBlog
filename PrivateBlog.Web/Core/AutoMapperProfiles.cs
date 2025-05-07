@@ -18,9 +18,11 @@ namespace PrivateBlog.Web.Core
 
             CreateMap<User, UserDTO>().ReverseMap();
 
-            CreateMap<User, AccountUserDTO>();
+            CreateMap<User, AccountUserDTO>().ForMember(x => x.Photo, options => options.Ignore())
+                                             .ForMember(u => u.PhotoUrl, config => config.MapFrom(dto => dto.Photo));
 
-            CreateMap<AccountUserDTO, User>().ForMember(u => u.UserName, config => config.MapFrom(dto => dto.Email));
+            CreateMap<AccountUserDTO, User>().ForMember(u => u.UserName, config => config.MapFrom(dto => dto.Email))
+                                             .ForMember(x => x.Photo, options => options.Ignore());
         }
     }
 }

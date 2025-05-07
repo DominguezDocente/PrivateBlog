@@ -103,6 +103,7 @@ namespace PrivateBlog.Web
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IRolesService, RolesService>();
+            builder.Services.AddScoped<IStorageService, LocalStorageService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             // Helpers

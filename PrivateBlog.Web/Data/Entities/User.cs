@@ -20,6 +20,8 @@ namespace PrivateBlog.Web.Data.Entities
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         public string LastName { get; set; } = null!;
 
+        public string? Photo { get; set; }
+
         public string FullName => $"{FirstName} {LastName}";
 
         public int PrivateBlogRoleId { get; set; }

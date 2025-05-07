@@ -21,7 +21,7 @@
         <div class="card-body">
             <h5 class="card-title text.primary">Editar Usuario</h5>
 
-            <form asp-action="UpdateUser" method="POST" class="row g-3">
+            <form asp-action="UpdateUser" method="POST" class="row g-3" enctype='multipart/form-data'>
                 <input type="hidden" asp-for="Id" />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Email" />
@@ -69,11 +69,23 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6 mt-2">
+                        <div class="form-floating">
+                            <input asp-for="Photo" class="form-control" placeholder="Imagen" accept="image/*" id="imageInput" />
+                            <label asp-for="Photo"></label>
+                            <span asp-validation-for="Photo" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <img id="imagePreview" src="@Model.PhotoUrl" alt="Vista previa" style="max-width: 300px; margin-top: 10px;" />
+                    </div>
+
                 </div>
 
                 <div class="text-center mt-3">
                     <button type="submit" class="btn btn-primary">Guardar</button>
-                    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Volver</a>
                 </div>
             </form>
 
@@ -87,4 +99,30 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+
+            if ($('#imagePreview').attr('src').length == 0) {
+
+                ($('#imagePreview').addClass();
+            }
+
+            $('#imageInput').on('change', function () {
+                var input = this;
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('#imagePreview')
+                            .attr('src', e.target.result)
+                            .show();
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+        });
+    </script>
 }
