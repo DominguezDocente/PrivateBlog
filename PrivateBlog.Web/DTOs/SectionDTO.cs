@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrivateBlog.Web.Core.Pagination;
+using PrivateBlog.Web.Data.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace PrivateBlog.Web.DTOs
 {
@@ -15,5 +17,7 @@ namespace PrivateBlog.Web.DTOs
 
         [Display(Name = "¿Está oculta?")]
         public bool IsHidden { get; set; }
+
+        public PaginationResponse<BlogDTO>? PaginatedBlogs { get; set; }
     }
 }

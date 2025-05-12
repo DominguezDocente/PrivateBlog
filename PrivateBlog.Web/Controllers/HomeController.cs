@@ -1,5 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
+using PrivateBlog.Web.Data.Entities;
+using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Models;
+using PrivateBlog.Web.Services;
 using Serilog;
 using System.Diagnostics;
 
@@ -8,18 +14,36 @@ namespace PrivateBlog.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHomeService _homeService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHomeService homeService)
         {
             _logger = logger;
+            _homeService = homeService;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
-            Log.Warning("Esto es una advertencia.", "HomeController.Index");
-            Log.Error("Esto es un error.");
+            Response<PaginationResponse<SectionDTO>> response = await _homeService.GetSectionsAsync(request);
+            return View(response.Result);
+        }
 
-            return View();
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Section([FromRoute] int id, [FromQuery] PaginationRequest request)
+        {
+            Response<SectionDTO> response = await _homeService.GetSectionAsync(request, id);
+            return View(response.Result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Blog([FromRoute] int id)
+        {
+            Response<BlogDTO> response = await _homeService.GetBlogAsync(id);
+            return View(response.Result);
         }
 
         public IActionResult Privacy()

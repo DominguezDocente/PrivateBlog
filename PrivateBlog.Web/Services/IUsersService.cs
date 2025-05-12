@@ -17,6 +17,7 @@ namespace PrivateBlog.Web.Services
         public Task<IdentityResult> ConfirmEmailAsync(User user, string token);
         public bool CurrentUserIsAuthenticated();
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
+        Task<bool> CurrentUserIsSuperAdmin();
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
         Task<string> GeneratePasswordResetTokenAsync(User user);
         Task<User?> GetCurrentUserAsync();
@@ -177,6 +178,29 @@ namespace PrivateBlog.Web.Services
         public async Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
         {
             return await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
+        }
+
+        public async Task<bool> CurrentUserIsSuperAdmin()
+        {
+            ClaimsUser? claimUser = _httpContextAccessor?.HttpContext?.User;
+
+            // Validar si hay sesión
+            if (claimUser is null)
+            {
+                return false;
+            }
+
+            string userName = claimUser.Identity.Name;
+
+            User? user = await GetUserAsync(userName);
+
+            // Validar si usuario existe
+            if (user is null)
+            {
+                return false;
+            }
+
+            return user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME;
         }
     }
 }

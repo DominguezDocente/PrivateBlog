@@ -99,15 +99,16 @@ namespace PrivateBlog.Web
         {
             // Servicios
             builder.Services.AddScoped<IBlogsService, BlogsService>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
             builder.Services.AddScoped<ILogService, LocalLogSercive>();
+            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
-            builder.Services.AddScoped<IRolesService, RolesService>();
-            builder.Services.AddScoped<IStorageService, LocalStorageService>();
+            builder.Services.AddTransient<IStorageService, LocalStorageService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             // Helpers
-            builder.Services.AddScoped<ICombosHelper, CombosHelper>();
+            builder.Services.AddTransient<ICombosHelper, CombosHelper>();
         }
 
         public static WebApplication AddcustomWebApplicationConfiguration(this WebApplication app)
