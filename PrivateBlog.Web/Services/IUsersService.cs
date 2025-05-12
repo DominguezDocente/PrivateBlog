@@ -13,14 +13,17 @@ namespace PrivateBlog.Web.Services
     public interface IUsersService
     {
         public Task<IdentityResult> AddUserAsync(User user, string password);
+        Task<bool> CheckPasswordAsync(User user, string currentPassword);
         public Task<IdentityResult> ConfirmEmailAsync(User user, string token);
         public bool CurrentUserIsAuthenticated();
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
+        Task<string> GeneratePasswordResetTokenAsync(User user);
         Task<User?> GetCurrentUserAsync();
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
+        Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword);
         public Task<int> UpdateUserAsync(AccountUserDTO user);
     }
 
@@ -127,6 +130,7 @@ namespace PrivateBlog.Web.Services
         {
             await _signInManager.SignOutAsync();
         }
+
         public async Task<User?> GetUserAsync(Guid id)
         {
             return await _context.Users.Include(u => u.PrivateBlogRole)
@@ -158,6 +162,21 @@ namespace PrivateBlog.Web.Services
 
             _context.Users.Update(user);
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> CheckPasswordAsync(User user, string currentPassword)
+        {
+            return await _userManager.CheckPasswordAsync(user, currentPassword);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
         }
     }
 }
