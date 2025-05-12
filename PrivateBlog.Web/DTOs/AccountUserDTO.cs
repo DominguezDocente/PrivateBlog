@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using PrivateBlog.Web.Data.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace PrivateBlog.Web.Data.Entities
+namespace PrivateBlog.Web.DTOs
 {
-    public class User : IdentityUser
+    public class AccountUserDTO
     {
+        public Guid Id { get; set; }
+
         [Display(Name = "Documento")]
         [MaxLength(32, ErrorMessage = "Elcampo {0} debe tener máximo {1} caractéres.")]
         [Required(ErrorMessage = "El campo {0} es requerido.")]
@@ -20,11 +23,16 @@ namespace PrivateBlog.Web.Data.Entities
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         public string LastName { get; set; } = null!;
 
-        public string? Photo { get; set; }
+        [Display(Name = "Teléfono")]
+        [MaxLength(32, ErrorMessage = "Elcampo {0} debe tener máximo {1} caractéres.")]
+        [Required(ErrorMessage = "El campo {0} es requerido.")]
+        public string PhoneNumber { get; set; } = null!;
 
-        public int PrivateBlogRoleId { get; set; }
+        public string? Email { get; set; } = null!;
 
-        public PrivateBlogRole PrivateBlogRole { get; set; }
+        public IFormFile? Photo { get; set; }
+
+        public string? PhotoUrl { get; set; }
 
         public string FullName => $"{FirstName} {LastName}";
     }

@@ -12,7 +12,7 @@ using PrivateBlog.Web.Data;
 namespace PrivateBlog.Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250422000629_Squema")]
+    [Migration("20250508002333_Squema")]
     partial class Squema
     {
         /// <inheritdoc />
@@ -349,6 +349,9 @@ namespace PrivateBlog.Web.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Photo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PrivateBlogRoleId")
                         .HasColumnType("int");

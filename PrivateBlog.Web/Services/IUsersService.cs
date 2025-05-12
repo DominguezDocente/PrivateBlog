@@ -7,6 +7,7 @@ using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers;
+using Serilog;
 using ClaimsUser = System.Security.Claims.ClaimsPrincipal;
 
 namespace PrivateBlog.Web.Services
@@ -21,10 +22,11 @@ namespace PrivateBlog.Web.Services
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
-        Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request);
-        Task<Response<UserDTO>> CreateAsync(UserDTO dto);
-        Task<User?> GetUserAsync(Guid id);
-        Task<Response<UserDTO>> UpdateUserAsync(UserDTO dto);
+        public Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request);
+        public Task<Response<UserDTO>> CreateAsync(UserDTO dto);
+        public Task<User?> GetUserAsync(Guid id);
+        public Task<Response<UserDTO>> UpdateUserAsync(UserDTO dto);
+        public Task<int> UpdateUserAsync(AccountUserDTO dto);
     }
 
     public class UsersService : CustomQueryableOperations, IUsersService
@@ -34,12 +36,17 @@ namespace PrivateBlog.Web.Services
         private readonly SignInManager<User> _signInManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IStorageService _localStorageService;
+        private readonly IStorageService _azureStorageService;
+        private readonly string _container = "users";
 
         public UsersService(DataContext context,
                             UserManager<User> userManager,
                             SignInManager<User> signInManager,
                             IHttpContextAccessor httpContextAccessor,
-                            IMapper mapper)
+                            IMapper mapper,
+                            [FromKeyedServices("local")] IStorageService localStorageService,
+                            [FromKeyedServices("azure")] IStorageService azureStorageService)
             : base(context, mapper)
         {
             _context = context;
@@ -47,6 +54,8 @@ namespace PrivateBlog.Web.Services
             _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _localStorageService = localStorageService;
+            _azureStorageService = azureStorageService;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -164,8 +173,6 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
-                //User user = _mapper.Map<User>(dto);
-
                 Guid id = Guid.Parse(dto.Id!);
                 User user = await GetUserAsync(id);
                 user.PhoneNumber = dto.PhoneNumber;
@@ -183,6 +190,39 @@ namespace PrivateBlog.Web.Services
             catch(Exception ex)
             {
                 return ResponseHelper<UserDTO>.MakeResponseFail(ex);
+            }
+        }
+
+        public async Task<int> UpdateUserAsync(AccountUserDTO dto)
+        {
+            try
+            {
+                User user = await GetUserAsync(dto.Id);
+                user.PhoneNumber = dto.PhoneNumber;
+                user.Document = dto.Document;
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+
+                if (dto.Photo is not null)
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        await dto.Photo.CopyToAsync(ms);
+                        byte[] content = ms.ToArray();
+                        string extension = Path.GetExtension(dto.Photo.FileName);
+                        user.Photo = await _localStorageService.SaveFileAsync(content, extension, _container, dto.Photo.ContentType);
+                    }
+                }
+
+                _context.Users.Update(user);
+
+                return await _context.SaveChangesAsync();
+            } 
+            
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+                return 0;
             }
         }
     }

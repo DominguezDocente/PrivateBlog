@@ -39,8 +39,10 @@
 
                 @if (user is not null)
                 {
+                    string imageSrc = string.IsNullOrWhiteSpace(user.Photo) ? "/assets/img/profile-img.jpg" : user.Photo;
+
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="~/assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
+                        <img src="@imageSrc" alt="Profile" class="rounded-circle">
                         <span class="d-none d-md-block dropdown-toggle ps-2">@user.FirstName.Substring(0,1). @user.LastName</span>
                     </a>
 
@@ -56,7 +58,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                            <a class="dropdown-item d-flex align-items-center" asp-controller="Account" asp-action="UpdateUser">
                                 <i class="bi bi-person"></i>
                                 <span>Mi Perfil</span>
                             </a>

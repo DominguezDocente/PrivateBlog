@@ -2,6 +2,7 @@
 using AspNetCoreHero.ToastNotification.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Data.Seeders;
@@ -91,6 +92,9 @@ namespace PrivateBlog.Web
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
+
+            builder.Services.AddKeyedScoped<IStorageService, LocalStorageService>("local");
+            builder.Services.AddKeyedScoped<IStorageService, AzureBlobStorageService>("azure");
 
             // Helpers
             builder.Services.AddScoped<ICombosHelper, CombosHelper>();
