@@ -27,6 +27,9 @@ namespace PrivateBlog.Web.Services
         public Task<User?> GetUserAsync(Guid id);
         public Task<Response<UserDTO>> UpdateUserAsync(UserDTO dto);
         public Task<int> UpdateUserAsync(AccountUserDTO dto);
+        public Task<bool> CheckPasswordAsync(User user, string currentPassword);
+        public Task<string> GeneratePasswordResetTokenAsync(User user);
+        public Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword);
     }
 
     public class UsersService : CustomQueryableOperations, IUsersService
@@ -61,6 +64,11 @@ namespace PrivateBlog.Web.Services
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
             return await _userManager.CreateAsync(user, password);
+        }
+
+        public async Task<bool> CheckPasswordAsync(User user, string currentPassword)
+        {
+            return await _userManager.CheckPasswordAsync(user, currentPassword);
         }
 
         public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
@@ -128,6 +136,11 @@ namespace PrivateBlog.Web.Services
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
 
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
         public async Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request)
         {
 
@@ -167,6 +180,11 @@ namespace PrivateBlog.Web.Services
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
         }
 
         public async Task<Response<UserDTO>> UpdateUserAsync(UserDTO dto)

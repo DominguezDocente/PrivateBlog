@@ -1,7 +1,9 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services;
@@ -116,6 +118,60 @@ namespace PrivateBlog.Web.Controllers
 
             _notifyService.Error("Debe ajustar los errores de validación");
             return View(dto);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _notifyService.Error("Debe ajustar los errores de validación");
+                    return View();
+                }
+
+                User? user = await _usersService.GetUserAsync(User.Identity.Name);
+                if (user is null)
+                {
+                    _notifyService.Error("Ha ocurrido un error. Por favor intente mas tarde");
+                    return View();
+                }
+
+                bool isCorrectPassword = await _usersService.CheckPasswordAsync(user, dto.CurrentPassword);
+
+                if (!isCorrectPassword)
+                {
+                    _notifyService.Error("Credenciales incorrectas");
+                    return View();
+                }
+
+                string resetToken = await _usersService.GeneratePasswordResetTokenAsync(user);
+                IdentityResult result = await _usersService.ResetPasswordAsync(user, resetToken, dto.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    _notifyService.Error("Ha ocurrido un error al intantar actulizar la contraseña");
+                    ViewBag.Message = $"Error al actualizar la contraseña {result.Errors}";
+                    return View(dto);
+                }
+
+                _notifyService.Success("Contraseña actualizada con éxito");
+                return RedirectToAction("Index", "Home");
+            }
+            catch(Exception ex)
+            {
+                _notifyService.Error("Ha ocurrido un error. Por favor intente mas tarde");
+                return View();
+            }
         }
     }
 }
