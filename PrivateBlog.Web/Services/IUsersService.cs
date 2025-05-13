@@ -18,6 +18,7 @@ namespace PrivateBlog.Web.Services
         public bool CurrentUserIsAuthenticated();
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<IdentityResult> ConfirmEmailAsync(User user, string token);
+        public Task<bool> CurrentUserIsSuperAdmin();
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
@@ -129,6 +130,28 @@ namespace PrivateBlog.Web.Services
             return await _context.Permissions.Include(p => p.RolePermissions)
                                              .AnyAsync(p => (p.Module == module && p.Name == permission)
                                                             && p.RolePermissions.Any(rp => rp.RoleId == user.PrivateBlogRoleId));
+        }
+
+        public async Task<bool> CurrentUserIsSuperAdmin()
+        {
+            ClaimsUser? claimsUser = _httpContextAccessor.HttpContext?.User;
+
+            // Valida si hay sesión
+            if (claimsUser is null)
+            {
+                return false;
+            }
+
+            string userName = claimsUser.Identity!.Name!;
+
+            User? user = await GetUserAsync(userName);
+
+            if (user is null)
+            {
+                return false;
+            }
+
+            return user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME;
         }
 
         public async Task<string> GenerateEmailConfirmationTokenAsync(User user)

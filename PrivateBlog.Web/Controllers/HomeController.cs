@@ -1,6 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
+using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Models;
+using PrivateBlog.Web.Services;
 using Serilog;
 
 namespace PrivateBlog.Web.Controllers
@@ -8,31 +14,36 @@ namespace PrivateBlog.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHomeService _homeService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHomeService homeService)
         {
             _logger = logger;
+            _homeService = homeService;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
-            Log.Warning("Log de advertencia");
-            Log.Error("Log de Error");
-            Log.Fatal("Log Fatal");
-            Log.Information("Log de Información");
-            Log.Debug("Log de Debug");
+            Response<PaginationResponse<SectionDTO>> response = await _homeService.GetSectionsAsync(request);
+            return View(response.Result);
+        }
 
-            try
-            {
-                int a = 13;
-                int b = 0;
-                int r = a / b;
-            }
-            catch(Exception ex)
-            {
-                Log.Error(ex, "Ha ocurrido un error en HomeController.Index");
-            }
-            return View();
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Section([FromRoute] int id, [FromQuery] PaginationRequest request)
+        {
+            Response<SectionDTO> response = await _homeService.GetSectionAsync(request, id);
+            return View(response.Result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Blog([FromRoute] int id)
+        {
+            Response<BlogDTO> response = await _homeService.GetBlogAsync(id);
+            return View(response.Result);
         }
 
         public IActionResult Privacy()

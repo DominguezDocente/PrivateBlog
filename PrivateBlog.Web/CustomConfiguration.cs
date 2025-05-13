@@ -87,10 +87,11 @@ namespace PrivateBlog.Web
         {
             // Servicios
             builder.Services.AddScoped<IBlogsService, BlogsService>();
-            builder.Services.AddScoped<IReadLogsService, ReadPlainTextLogsService>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddTransient<IReadLogsService, ReadPlainTextLogsService>();
+            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddTransient<SeedDb>();
-            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             builder.Services.AddKeyedScoped<IStorageService, LocalStorageService>("local");
