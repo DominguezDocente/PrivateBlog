@@ -3,7 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services;
@@ -16,12 +16,14 @@ namespace PrivateBlog.Web.Controllers
         private readonly IUsersService _usersService;
         private readonly IMapper _mapper;
         private readonly INotyfService _notifyService;
+        private readonly IEmailService _emailService;
 
-        public AccountController(IUsersService usersService, IMapper mapper, INotyfService notifyService)
+        public AccountController(IUsersService usersService, IMapper mapper, INotyfService notifyService, IEmailService emailService)
         {
             _usersService = usersService;
             _mapper = mapper;
             _notifyService = notifyService;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -167,11 +169,89 @@ namespace PrivateBlog.Web.Controllers
                 _notifyService.Success("Contraseña actualizada con éxito");
                 return RedirectToAction("Index", "Home");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _notifyService.Error("Ha ocurrido un error. Por favor intente mas tarde");
                 return View();
             }
+        }
+
+        [HttpGet]
+        public IActionResult RecoveryPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecoveryPassword(RecoveryPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notifyService.Error("Debe ajustar los errores de validación");
+                return View(dto);
+            }
+
+            User? user = await _usersService.GetUserAsync(dto.Email);
+
+            if (user is null)
+            {
+                _notifyService.Error("Ha ocurrido un error. Intente más tarde");
+                return View(dto);
+            }
+
+            string resetToken = await _usersService.GeneratePasswordResetTokenAsync(user);
+            string link = Url.Action("ResetPassword", "Account", new { token = resetToken }, protocol: HttpContext.Request.Scheme)!;
+
+            Response<object> emailResponse = await _emailService.SendResetPasswordEmailAsync(user.Email!, 
+                                                                                             "Para restablecer la contraseña haga click en el siguiente enlace",
+                                                                                             link);
+
+            if (!emailResponse.IsSuccess)
+            {
+                _notifyService.Error("Ha ocurrido un error. Intente más tarde");
+                return View(dto);
+            }
+
+            _notifyService.Success($"Las instrucciones para el cambio de contraseña han sido enviadas a su email ({user.Email})");
+            return RedirectToAction(nameof(Login));
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword([FromQuery] string token)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notifyService.Error("Debe ajustar los errores de validación");
+                return View(dto);
+            }
+
+            User? user = await _usersService.GetUserAsync(dto.Email);
+
+            if (user is null)
+            {
+                _notifyService.Error("Ha ocurrido un error. Intente más tarde");
+                return View(dto);
+            }
+
+            IdentityResult result = await _usersService.ResetPasswordAsync(user, dto.Token, dto.Password);
+            
+            if (!result.Succeeded)
+            {
+                string errors = string.Join(", ", result.Errors.Select(e => e.Description).ToList());
+                errors = errors.Replace("Invalid token.", "El email ingresado no coincide.");
+                ViewBag.Message = errors;
+                _notifyService.Error("Ha ocurrido un error");
+                return View(dto);
+            }
+
+            _notifyService.Success("Contraseña actualizada con éxito");
+            return RedirectToAction(nameof(Login));
         }
     }
 }

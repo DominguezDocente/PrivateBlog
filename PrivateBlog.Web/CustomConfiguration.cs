@@ -86,8 +86,10 @@ namespace PrivateBlog.Web
         private static void AddServices(WebApplicationBuilder builder)
         {
             // Servicios
+            builder.Services.AddScoped<IApiService, ApiService>();
             builder.Services.AddScoped<IBlogsService, BlogsService>();
             builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<IEmailService, MailtrapService>();
             builder.Services.AddTransient<IReadLogsService, ReadPlainTextLogsService>();
             builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<ISectionsService, SectionsService>();
