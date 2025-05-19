@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Controllers;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
@@ -38,11 +39,11 @@ namespace PrivateBlog.Tests.UnitTests.Services
             DataContext context2 = BuildContext(nameDb);
             ISectionsService service = new SectionsService(context2, mapper);
 
-            Response<List<SectionDTO>> response = await service.GetListAsync();
+            Response<PaginationResponse<SectionDTO>> response = await service.GetPaginationAsync(new PaginationRequest());
 
             // Assert
             Assert.IsTrue(response.IsSuccess);
-            Assert.AreEqual(3, response.Result.Count);
+            Assert.AreEqual(3, response.Result.List.Count);
         }
     }
 }

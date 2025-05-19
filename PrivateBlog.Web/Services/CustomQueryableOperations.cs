@@ -28,8 +28,8 @@ namespace PrivateBlog.Web.Services
 
                 await _context.AddAsync(entity);
                 await _context.SaveChangesAsync();
-
-                return ResponseHelper<TDTO>.MakeResponseSuccess(dto, "Registro creado con éxito");
+                
+                return ResponseHelper<TDTO>.MakeResponseSuccess(_mapper.Map<TDTO>(entity), "Registro creado con éxito");
             }
             catch (Exception ex)
             {
