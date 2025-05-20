@@ -26,9 +26,23 @@ app.UseAuthorization();
 
 app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.UseEndpoints(endpoints => 
+{
+    endpoints.MapControllers();
+
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    endpoints.MapGet("/api/minimal", () => 
+    {
+        return "Minimal endpoint";
+    });
+});
 
 app.AddcustomWebApplicationConfiguration();
 
