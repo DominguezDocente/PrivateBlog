@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services;
@@ -9,7 +12,8 @@ namespace PrivateBlog.Web.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SectionsController : ControllerBase
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class SectionsController : ApiController
     {
         private readonly ISectionsService _sectionsService;
 
@@ -18,12 +22,11 @@ namespace PrivateBlog.Web.Controllers.Api
             _sectionsService = sectionsService;
         }
 
+        [ApiAuthorize(permission: "showSections", module: "Secciones")]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] PaginationRequest request)
         {
-
-            Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginationAsync(request);
-            return Ok(response);
+            return ControllerBasicValidation(await _sectionsService.GetPaginationAsync(request));
         }
 
 

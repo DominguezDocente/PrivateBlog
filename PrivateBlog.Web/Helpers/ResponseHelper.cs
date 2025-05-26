@@ -35,12 +35,23 @@ namespace PrivateBlog.Web.Helpers
                 }
             };
         }
+
         public static Response<T> MakeResponseFail(string message = "Ha ocurrido un error al generar la solicitud.")
         {
             return new Response<T>
             {
                 IsSuccess = false,
                 Message = message,
+            };
+        }
+
+        public static Response<T> MakeResponseFail(string message = "Ha ocurrido un error al generar la solicitud.", List<string>? errors = null)
+        {
+            return new Response<T>
+            {
+                IsSuccess = false,
+                Message = message,
+                Errors = errors ?? []
             };
         }
     }

@@ -1,0 +1,64 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using PrivateBlog.Web.Helpers;
+using PrivateBlog.Web.Services;
+using System.Security.Claims;
+
+namespace PrivateBlog.Web.Core.Attributes
+{
+    public class ApiAuthorizeAttribute : TypeFilterAttribute
+    {
+        public ApiAuthorizeAttribute(string permission, string module)
+            : base(typeof(ApiAuthorizeFilter))
+        {
+            Arguments = [permission, module];
+        }
+
+        public class ApiAuthorizeFilter : IAsyncAuthorizationFilter
+        {
+            private readonly string _permission;
+            private readonly string _module;
+            private readonly IUsersService _usersService;
+
+            public ApiAuthorizeFilter(string permission, string module, IUsersService usersService)
+            {
+                _permission = permission;
+                _module = module;
+                _usersService = usersService;
+            }
+
+            public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+            {
+                ClaimsPrincipal user = context.HttpContext.User;
+
+                if (user?.Identity == null || !user.Identity.IsAuthenticated)
+                {
+                    Response<object> response = ResponseHelper<object>.MakeResponseFail("No autenticado", ["El token no es válido o ha expirado."]);
+
+                    context.Result = new JsonResult(response)
+                    {
+                        StatusCode = StatusCodes.Status401Unauthorized
+                    };
+
+                    return;
+                }
+
+                string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                // Puedes usar el userId en tu servicio si lo necesitas
+                bool isAuthorized = await _usersService.CurrentUserIsAuthorizedAsync(_permission, _module);
+
+                if (!isAuthorized)
+                {
+
+                    Response<object> response = ResponseHelper<object>.MakeResponseFail("Acceso denegado", ["No tiene permiso para acceder a este recurso."]);
+
+                    context.Result = new JsonResult(response)
+                    {
+                        StatusCode = StatusCodes.Status403Forbidden
+                    };
+                }
+            }
+        }
+    }
+}

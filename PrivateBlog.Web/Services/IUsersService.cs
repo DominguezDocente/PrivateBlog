@@ -1,11 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
+using PrivateBlog.Web.Helpers;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ClaimsUser = System.Security.Claims.ClaimsPrincipal;
 
 namespace PrivateBlog.Web.Services
@@ -23,6 +28,7 @@ namespace PrivateBlog.Web.Services
         Task<User?> GetCurrentUserAsync();
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
+        public Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto);
         public Task LogoutAsync();
         Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword);
         public Task<int> UpdateUserAsync(AccountUserDTO user);
@@ -37,8 +43,9 @@ namespace PrivateBlog.Web.Services
         private readonly IMapper _mapper;
         private readonly string _container = "users";
         private readonly IStorageService _storageService;
+        private readonly IConfiguration _configuration;
 
-        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor, IMapper mapper, IStorageService storageService)
+        public UsersService(DataContext context, UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor, IMapper mapper, IStorageService storageService, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
@@ -46,6 +53,7 @@ namespace PrivateBlog.Web.Services
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _storageService = storageService;
+            _configuration = configuration;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -125,6 +133,62 @@ namespace PrivateBlog.Web.Services
         public async Task<SignInResult> LoginAsync(LoginDTO dto)
         {
             return await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
+        }
+
+        public async Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto)
+        {
+            try
+            {
+                SignInResult result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
+
+                if (result.Succeeded)
+                {
+                    User user = await _userManager.FindByEmailAsync(dto.Email);
+                    UserTokenDTO token = await BuildToken(dto.Email, user.Id);
+
+                    return ResponseHelper<UserTokenDTO>.MakeResponseSuccess(token, "Token obtenido con éxito");
+                }
+                else
+                {
+                    return ResponseHelper<UserTokenDTO>.MakeResponseFail("Credenciales incorrectas");
+                }
+            }
+            catch (Exception ex)
+            {
+                return ResponseHelper<UserTokenDTO>.MakeResponseFail(ex);
+            }
+        }        
+
+        private async Task<UserTokenDTO> BuildToken(string email, string id)
+        {           
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim("userId", id),
+            };
+
+            User identityUser = await _userManager.FindByEmailAsync(email);
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            DateTime expiration = DateTime.UtcNow.AddYears(1);
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: expiration,
+                signingCredentials: creds
+            );
+
+            return new UserTokenDTO()
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = expiration
+            };
         }
 
         public async Task LogoutAsync()
