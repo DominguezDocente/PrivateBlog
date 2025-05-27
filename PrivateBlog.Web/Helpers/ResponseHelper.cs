@@ -43,5 +43,14 @@ namespace PrivateBlog.Web.Helpers
                 Message = message,
             };
         }
+        public static Response<T> MakeResponseFail(string message, List<string> errors = null)
+        {
+            return new Response<T>
+            {
+                IsSuccess = false,
+                Message = message,
+                Errors = errors ?? []
+            };
+        }
     }
 }

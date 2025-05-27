@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
@@ -8,6 +9,9 @@ using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ClaimsUser = System.Security.Claims.ClaimsPrincipal;
 
 namespace PrivateBlog.Web.Services
@@ -22,6 +26,7 @@ namespace PrivateBlog.Web.Services
         public Task<string> GenerateEmailConfirmationTokenAsync(User user);
         public Task<User> GetUserAsync(string email);
         public Task<SignInResult> LoginAsync(LoginDTO dto);
+        public Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto);
         public Task LogoutAsync();
         public Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request);
         public Task<Response<UserDTO>> CreateAsync(UserDTO dto);
@@ -43,6 +48,7 @@ namespace PrivateBlog.Web.Services
         private readonly IStorageService _localStorageService;
         private readonly IStorageService _azureStorageService;
         private readonly string _container = "users";
+        private readonly IConfiguration _configuration;
 
         public UsersService(DataContext context,
                             UserManager<User> userManager,
@@ -50,7 +56,8 @@ namespace PrivateBlog.Web.Services
                             IHttpContextAccessor httpContextAccessor,
                             IMapper mapper,
                             [FromKeyedServices("local")] IStorageService localStorageService,
-                            [FromKeyedServices("azure")] IStorageService azureStorageService)
+                            [FromKeyedServices("azure")] IStorageService azureStorageService,
+                            IConfiguration configuration)
             : base(context, mapper)
         {
             _context = context;
@@ -60,6 +67,7 @@ namespace PrivateBlog.Web.Services
             _mapper = mapper;
             _localStorageService = localStorageService;
             _azureStorageService = azureStorageService;
+            _configuration = configuration;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -193,6 +201,58 @@ namespace PrivateBlog.Web.Services
         {
             return await _context.Users.Include(u => u.PrivateBlogRole)
                                        .FirstOrDefaultAsync(u => u.Id == id.ToString());
+        }
+
+        public async Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto)
+        {
+            try
+            {
+                SignInResult result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
+
+                if (result.Succeeded) 
+                {
+                    User user = await _userManager.FindByEmailAsync(dto.Email);
+                    UserTokenDTO token = await BuildTokenAsync(dto.Email, user.Id);
+
+                    return ResponseHelper<UserTokenDTO>.MakeResponseSuccess(token, "Token obtenido con éxito");
+                }
+
+                return ResponseHelper<UserTokenDTO>.MakeResponseFail("Credenciales incorrectas.");
+            }
+            catch(Exception ex)
+            {
+                return ResponseHelper<UserTokenDTO>.MakeResponseFail(ex);
+            }
+        }
+
+        private async Task<UserTokenDTO> BuildTokenAsync(string email, string id)
+        {
+            List<Claim> claims = [
+                
+                new (ClaimTypes.Name, email),
+                new (ClaimTypes.Email, email),
+                new (ClaimTypes.NameIdentifier, id),
+                new ("userid", id),
+            ];
+
+            User identityUser = await _userManager.FindByEmailAsync(email);
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            DateTime expiration = DateTime.UtcNow.AddYears(120);
+
+            JwtSecurityToken token = new JwtSecurityToken(issuer: _configuration["Jwt:Issuer"],
+                                                          audience: _configuration["Jwt:Audience"],
+                                                          claims: claims,
+                                                          expires: expiration,
+                                                          signingCredentials: creds);
+
+            return new UserTokenDTO
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = expiration
+            };
         }
 
         public async Task<SignInResult> LoginAsync(LoginDTO dto)

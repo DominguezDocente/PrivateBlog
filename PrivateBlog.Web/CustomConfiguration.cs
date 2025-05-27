@@ -1,8 +1,10 @@
 ﻿using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Data.Seeders;
@@ -10,6 +12,7 @@ using PrivateBlog.Web.Helpers;
 using PrivateBlog.Web.Services;
 using Serilog;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace PrivateBlog.Web
 {
@@ -69,6 +72,21 @@ namespace PrivateBlog.Web
                 conf.LoginPath = "/Account/Login";
                 conf.AccessDeniedPath = "/Errors/403";
             });
+
+            builder.Services.AddAuthentication()
+                            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => 
+                            {
+                                options.TokenValidationParameters = new TokenValidationParameters
+                                {
+                                    ValidateIssuer = true,
+                                    ValidateAudience = true,
+                                    ValidateLifetime = true,
+                                    ValidateIssuerSigningKey = true,
+                                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                                };
+                            });
         }
 
         private static void AddLogConfiguration(WebApplicationBuilder builder)
