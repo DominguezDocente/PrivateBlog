@@ -47,3 +47,5 @@ app.UseEndpoints(endpoints =>
 app.AddcustomWebApplicationConfiguration();
 
 app.Run();
+
+public partial class Program { }

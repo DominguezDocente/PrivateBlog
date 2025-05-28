@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
@@ -17,7 +18,7 @@ namespace PrivateBlog.Tests.UnitTests.Services
     public class SectionsServiceTests : BaseTests
     {
         [TestMethod]
-        public async Task GetPagination_ReturnAllSections()
+        public async Task GetPagination_ReturnsAllSections()
         {
             // Arrange
             string dbName = Guid.NewGuid().ToString();
@@ -45,7 +46,7 @@ namespace PrivateBlog.Tests.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task GetPagination_ReturnTwoPages()
+        public async Task GetPagination_ReturnsTwoPages()
         {
             // Arrange
             string dbName = Guid.NewGuid().ToString();
@@ -77,6 +78,74 @@ namespace PrivateBlog.Tests.UnitTests.Services
             Assert.IsTrue(response.IsSuccess);
             Assert.AreEqual(2, response.Result.Pages.Count);
             Assert.AreEqual(2, response.Result.List.Count);
+        }
+
+        [TestMethod]
+        public async Task GetOne_ReturnsNotFoud()
+        {
+            // Arrange
+            string dbName = Guid.NewGuid().ToString();
+            DataContext context = BuildContext(dbName);
+            IMapper mapper = ConfigureAutoMapper();
+
+            // Act
+            ISectionsService service = new SectionsService(context, mapper);
+
+            Response<SectionDTO> response = await service.GetOneAsync(1);
+
+            // Assert
+            Assert.IsTrue(!response.IsSuccess); 
+            Assert.IsTrue(response.Message.StartsWith("No existe registro con id"));
+        }
+
+        [TestMethod]
+        public async Task GetOne_ReturnsSection()
+        {
+            // Arrange
+            string dbName = Guid.NewGuid().ToString();
+            DataContext context = BuildContext(dbName);
+            IMapper mapper = ConfigureAutoMapper();
+
+            Section section = new Section { Name = "Section A" };
+
+            context.Sections.Add(section);
+
+            await context.SaveChangesAsync();
+
+            // Act
+            DataContext context2 = BuildContext(dbName);
+            ISectionsService service = new SectionsService(context2, mapper);
+
+            Response<SectionDTO> response = await service.GetOneAsync(section.Id);
+
+            // Assert
+            Assert.IsTrue(response.IsSuccess);
+            Assert.AreEqual(response.Result.Name, section.Name);
+        }
+
+        [TestMethod]
+        public async Task Create_ReturnsSuccess()
+        {
+            // Arrange
+            string dbName = Guid.NewGuid().ToString();
+            DataContext context = BuildContext(dbName);
+            IMapper mapper = ConfigureAutoMapper();
+
+            SectionDTO dto = new SectionDTO { Name = "Section A" };
+
+            // Act
+            ISectionsService service = new SectionsService(context, mapper);
+            Response<SectionDTO> response = await service.CreateAsync(dto);
+
+            // Assert
+            Assert.IsTrue(response.IsSuccess);
+
+            DataContext context2 = BuildContext(dbName);
+            int quantity = await context2.Sections.CountAsync();
+            Assert.AreEqual(1, quantity);
+
+            Section section = await context2.Sections.FirstOrDefaultAsync();
+            Assert.AreEqual(section.Name, dto.Name);
         }
     }
 }

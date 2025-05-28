@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
@@ -27,26 +28,36 @@ namespace PrivateBlog.Web.Controllers.Api
         [ApiAuthorize(permission: "showSections", module: "Secciones")]
         public async Task<IActionResult> GetSections([FromQuery] PaginationRequest request)
         {
-            return ControllerBasicValidation(await _sectionsService.GetPaginationAsync(request));
+            Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginationAsync(request);
+            return ControllerBasicValidation(response);
+        }
+
+        [HttpGet("{id:int}")]
+        [ApiAuthorize(permission: "showSections", module: "Secciones")]
+        public async Task<IActionResult> GetOneSection([FromRoute] int id)
+        {
+            return ControllerBasicValidation(await _sectionsService.GetOneAsync(id));
         }
 
         [HttpPost]
+        [ApiAuthorize(permission: "createSections", module: "Secciones")]
         public async Task<IActionResult> CreateSection([FromBody] SectionDTO dto)
         {
-            if (!ModelState.IsValid)
-            {
-                //return BadRequest(ModelState);
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-            }
+            return ControllerBasicValidation(await _sectionsService.CreateAsync(dto), ModelState);
+        }
 
-            Response<SectionDTO> response = await _sectionsService.CreateAsync(dto);
+        [HttpPut]
+        [ApiAuthorize(permission: "editSections", module: "Secciones")]
+        public async Task<IActionResult> EditSection([FromBody] SectionDTO dto)
+        {
+            return ControllerBasicValidation(await _sectionsService.EditAsync(dto), ModelState);
+        }
 
-            if (response.IsSuccess)
-            {
-                return StatusCode(StatusCodes.Status201Created, response);
-            }
-
-            return StatusCode(StatusCodes.Status400BadRequest, response);
+        [HttpDelete("{id:int}")]
+        [ApiAuthorize(permission: "deleteSections", module: "Secciones")]
+        public async Task<IActionResult> DeleteSection([FromRoute] int id)
+        {
+            return ControllerBasicValidation(await _sectionsService.DeleteAsync(id), ModelState);
         }
     }
 }

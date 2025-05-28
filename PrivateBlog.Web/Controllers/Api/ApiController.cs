@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Helpers;
 
 namespace PrivateBlog.Web.Controllers.Api
 {
@@ -8,8 +10,21 @@ namespace PrivateBlog.Web.Controllers.Api
     [ApiController]
     public class ApiController : ControllerBase
     {
-        public static ObjectResult ControllerBasicValidation<T>(Response<T> response, int? statusCode = null)
+        public static ObjectResult ControllerBasicValidation<T>(Response<T> response, ModelStateDictionary? modelState = null, int? statusCode = null)
         {
+            if (modelState is not null && !modelState.IsValid)
+            {
+                List<string> errors = modelState.Values
+                                                .SelectMany(v => v.Errors)
+                                                .Select(e => e.ErrorMessage)
+                                                .ToList();
+
+                return new ObjectResult(ResponseHelper<T>.MakeResponseFail("¨Debe ajustar los errores de validaciòn", errors))
+                {
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
             if (statusCode is not null)
             {
                 return new ObjectResult(response)

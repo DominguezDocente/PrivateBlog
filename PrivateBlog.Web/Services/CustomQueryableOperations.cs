@@ -65,6 +65,11 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
+                if (id == 0) 
+                {
+                    return ResponseHelper<TDTO>.MakeResponseFail("El id es obligatorio");
+                }
+
                 TEntity entity = _mapper.Map<TEntity>(dto);
                 entity.Id = id;
 
@@ -75,6 +80,7 @@ namespace PrivateBlog.Web.Services
             }
             catch (Exception ex)
             {
+                var type = ex.GetType();
                 return ResponseHelper<TDTO>.MakeResponseFail(ex);
             }
         }
