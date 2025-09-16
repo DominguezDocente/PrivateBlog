@@ -57,5 +57,75 @@ namespace PrivateBlog.Web.Controllers
             _notyfService.Success(response.Message);
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit([FromRoute] Guid id)
+        {
+            Response<SectionDTO> response = await _sectionsService.GetOneAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(response.Result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromForm] SectionDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notyfService.Error("Debe ajustar los errores de validación");
+                return View(dto);
+            }
+
+            Response<SectionDTO> response = await _sectionsService.EditAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return View(dto);
+            }
+
+            _notyfService.Success(response.Message);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            Response<object> response = await _sectionsService.DeleteAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+            }
+            else
+            {
+                _notyfService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Toggle([FromForm] ToggleSectionStatusDTO dto)
+        {
+            Response<object> response = await _sectionsService.ToggleAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+            }
+            else
+            {
+                _notyfService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
+

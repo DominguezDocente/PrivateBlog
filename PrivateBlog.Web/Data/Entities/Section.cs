@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrivateBlog.Web.Data.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace PrivateBlog.Web.Data.Entities
 {
-    public class Section
+    public class Section : IId
     {
         [Key]
         public Guid Id { get; set; }

@@ -49,8 +49,31 @@
                             <td>
                                 <a asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
 
+                                @if (item.IsHidden)
+                                {
+                                    <form asp-action="Toggle" style="display: contents;" method="POST">
+                                        <input type="hidden" value="@item.Id" name="SectionId" />
+                                        <input type="hidden" value="false" name="Hide" />
+
+                                        <button class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Desocultar">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Toggle" style="display: contents;" method="POST">
+                                        <input type="hidden" value="@item.Id" name="SectionId" />
+                                        <input type="hidden" value="true" name="Hide" />
+
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Ocultar">
+                                            <i class="bi bi-eye-slash-fill"></i>
+                                        </button>
+                                    </form>
+                                }
+
                                 <form asp-action="Delete" asp-route-Id="@item.Id" style="display: contents;">
-                                    <button class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></button>
+                                    <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -63,3 +86,31 @@
     </div>
 </section>
 
+@section Scripts{
+    <script>
+
+        $(document).ready(function() {
+
+            $('.btnDelete').click(function(event) {
+                    
+                event.preventDefault();
+
+                Swal.fire({
+                  icon: "question",
+                  title: "¿Desea eliminar la sección?",
+                  text: "No podrá revertirlo",
+                  showCancelButton: true
+                }).then((result) => {
+                        
+                    if (result.isConfirmed) {
+                        
+                        const form = $(this).closest('form');
+
+                        form.submit();
+                    }
+                });
+            });            
+        });
+
+    </script>
+}
