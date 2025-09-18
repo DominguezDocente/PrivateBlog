@@ -2,6 +2,7 @@
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
@@ -132,6 +133,19 @@ namespace PrivateBlog.Web.Services.Implementations
             //}
 
             return await GetOneAsync<Section, SectionDTO>(id);
+        }
+
+        public async Task<Response<PaginationResponse<SectionDTO>>> GetPaginatedListAsync(PaginationRequest request)
+        {
+            IQueryable<Section> query = _context.Sections.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(request.Filter))
+            {
+                query = query.Where(s => s.Name.ToLower().Contains(request.Filter.ToLower())
+                                         || s.Description.ToLower().Contains(request.Filter.ToLower()));
+            }
+
+            return await GetPaginationAsync<Section, SectionDTO>(request, query);
         }
 
         public async Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto)

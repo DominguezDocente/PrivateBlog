@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services.Abtractions;
 
@@ -20,7 +21,13 @@ namespace PrivateBlog.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            Response<List<SectionDTO>> response = await _sectionsService.GetListAsync();
+            PaginationRequest request = new PaginationRequest
+            {
+                Page = 1,
+                RecordsPerPage = 3
+            };
+
+            Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginatedListAsync(request);
 
             if (!response.IsSuccess)
             {

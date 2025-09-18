@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Abstractions;
 using PrivateBlog.Web.DTOs;
@@ -123,6 +124,37 @@ namespace PrivateBlog.Web.Services
             catch (Exception ex)
             {
                 return Response<List<TDTO>>.Failure(ex);
+            }
+        }
+    
+        public async Task<Response<PaginationResponse<TDTO>>> GetPaginationAsync<TEntity, TDTO>(PaginationRequest request, IQueryable<TEntity> query = null)
+        where TEntity: class
+        where TDTO : class
+        {
+            try
+            {
+                if (query is null)
+                {
+                    query = _context.Set<TEntity>();
+                }
+
+                PagedList<TEntity> list = await PagedList<TEntity>.ToPagedListAsync(query, request);
+
+                PaginationResponse<TDTO> response = new PaginationResponse<TDTO>
+                {
+                    List = _mapper.Map<PagedList<TDTO>>(list),
+                    TotalCount = list.TotalCount,
+                    RecordsPerPage = list.RecordsPerPage,
+                    CurrentPage = list.CurrentPage,
+                    TotalPages = list.TotalPages,
+                    Filter = request.Filter
+                };
+
+                return Response<PaginationResponse<TDTO>>.Success(response);
+            }
+            catch (Exception ex) 
+            {
+                return Response<PaginationResponse<TDTO>>.Failure(ex);
             }
         }
     }
