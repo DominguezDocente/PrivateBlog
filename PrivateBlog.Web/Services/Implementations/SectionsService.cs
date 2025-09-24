@@ -141,6 +141,7 @@ namespace PrivateBlog.Web.Services.Implementations
 
             if (!string.IsNullOrWhiteSpace(request.Filter))
             {
+                // SELECT * FROM Sections WHERE Name LIKE '%FILTER%'
                 query = query.Where(s => s.Name.ToLower().Contains(request.Filter.ToLower())
                                          || s.Description.ToLower().Contains(request.Filter.ToLower()));
             }
