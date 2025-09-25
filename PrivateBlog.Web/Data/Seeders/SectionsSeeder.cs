@@ -24,7 +24,7 @@ namespace PrivateBlog.Web.Data.Seeders
 
             foreach (Section section in sections) 
             {
-                bool exists = await _context.Sections.AnyAsync(s => s.Id == section.Id);
+                bool exists = await _context.Sections.AnyAsync(s => s.Name == section.Name);
 
                 if (!exists)
                 {

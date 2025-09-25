@@ -12,6 +12,8 @@ namespace PrivateBlog.Web
     {
         public static WebApplicationBuilder AddCustomConfiguration(this WebApplicationBuilder builder)
         {
+            string? cnn = builder.Configuration.GetConnectionString("MyConnection");
+
             // Data Context
             builder.Services.AddDbContext<DataContext>(options =>
             {
