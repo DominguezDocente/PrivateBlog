@@ -9,6 +9,8 @@ namespace PrivateBlog.Web.Core
         public AutoMapperProfiles()
         {
             CreateMap<Section, SectionDTO>().ReverseMap();
+
+            CreateMap<Blog, BlogDTO>().ReverseMap();
         }
     }
 }

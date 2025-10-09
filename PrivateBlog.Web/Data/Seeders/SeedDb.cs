@@ -12,6 +12,7 @@
         public async Task SeedAsync()
         {
             await new SectionsSeeder(_context).SeedAsync();
+            await new BlogsSeeder(_context).SeedAsync();
         }
     }
 }

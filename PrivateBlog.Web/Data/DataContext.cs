@@ -10,6 +10,7 @@ namespace PrivateBlog.Web.Data
             
         }
 
+        public DbSet<Blog> Blogs { get; set; }
         public DbSet<Section> Sections { get; set; }
     }
 }
