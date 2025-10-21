@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace PrivateBlog.Web.Controllers
 {
+    [Authorize]
     public class BlogsController : Controller
     {
         private readonly INotyfService _notyfService;
