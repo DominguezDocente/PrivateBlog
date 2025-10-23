@@ -57,7 +57,7 @@ namespace PrivateBlog.Web.Data.Seeders
                 await _usersService.ConfirmUserAsync(user, token);
             }
 
-            // Content namager
+            // Content manager
             user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == "anad@yopmail.com");
 
             if (user is null)

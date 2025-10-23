@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
@@ -50,6 +51,12 @@ namespace PrivateBlog.Web.Services.Implementations
             return Response<string>.Success(result);
         }
 
+        public async Task<User> GetUserByEmailasync(string email)
+        {
+            return await _context.Users.Include(u => u.PrivateBlogRole)
+                                       .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public async Task<Response<SignInResult>> LoginAsync(LoginDTO dto)
         {
             SignInResult result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
@@ -64,6 +71,33 @@ namespace PrivateBlog.Web.Services.Implementations
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<Response<AccountUserDTO>> UpdateUserAsync(AccountUserDTO dto)
+        {
+            try
+            {
+                User user = await GetUserAsync(dto.Id);
+                user.PhoneNumber = dto.PhoneNumber;
+                user.Document = dto.Document;
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+
+                _context.Users.Update(user);
+
+                await _context.SaveChangesAsync();
+
+                return Response<AccountUserDTO>.Success(dto, "Datos actualizados con éxito");
+            }
+            catch(Exception ex)
+            {
+                return Response<AccountUserDTO>.Failure(ex);
+            }
+        }
+
+        private async Task<User> GetUserAsync(string? id)
+        {
+            return await _context.Users.FindAsync(id);
         }
     }
 }
