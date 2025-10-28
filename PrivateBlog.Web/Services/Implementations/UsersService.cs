@@ -5,6 +5,7 @@ using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services.Abtractions;
+using System.Security.Claims;
 
 namespace PrivateBlog.Web.Services.Implementations
 {
@@ -14,12 +15,14 @@ namespace PrivateBlog.Web.Services.Implementations
         private readonly DataContext _context;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UsersService(DataContext context, SignInManager<User> signInManager, UserManager<User> userManager)
+        public UsersService(DataContext context, SignInManager<User> signInManager, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _signInManager = signInManager;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Response<IdentityResult>> AddUserAsync(User user, string password)
@@ -42,6 +45,41 @@ namespace PrivateBlog.Web.Services.Implementations
                 Result = result,
                 IsSuccess = result.Succeeded,
             };
+        }
+
+        public bool CurrentUserIsAuthenticaded()
+        {
+            ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
+            return user?.Identity is not null && user.Identity.IsAuthenticated;
+        }
+
+        public async Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module)
+        {
+            ClaimsPrincipal? claimsUser = _httpContextAccessor.HttpContext?.User;
+
+            // Valida si hay sesión
+            if (claimsUser is null)
+            {
+                return false;
+            }
+
+            string userName = claimsUser.Identity!.Name!;
+
+            User? user = await GetUserByEmailasync(userName);
+
+            if (user is null)
+            {
+                return false;
+            }
+
+            if (user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME)
+            {
+                return true;
+            }
+
+            return await _context.Permissions.Include(p => p.RolePermissions)
+                                             .AnyAsync(p => (p.Module == module && p.Name == permission)
+                                                            && p.RolePermissions.Any(rp => rp.PrivateBlogRoleId == user.PrivateBlogRoleId));
         }
 
         public async Task<Response<string>> GenerateConfirmationTokenAsync(User user)

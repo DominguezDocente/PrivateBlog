@@ -41,6 +41,8 @@ namespace PrivateBlog.Web
             // Services
             AddServices(builder);
 
+            builder.Services.AddHttpContextAccessor();
+
             return builder;
         }
 

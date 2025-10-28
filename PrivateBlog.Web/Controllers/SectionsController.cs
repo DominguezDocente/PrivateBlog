@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services.Abtractions;
 
 namespace PrivateBlog.Web.Controllers
 {
-    [Authorize]
     public class SectionsController : Controller
     {
         private readonly ISectionsService _sectionsService;
@@ -21,6 +21,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "showSections", module: "Secciones")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginatedListAsync(request);
@@ -35,12 +36,14 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize("Secciones", "createSections")]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
+        [CustomAuthorize("createSections", "Secciones")]
         public async Task<IActionResult> Create([FromForm] SectionDTO dto)
         {
             if (!ModelState.IsValid)
@@ -62,6 +65,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize("updateSections", "Secciones")]
         public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
             Response<SectionDTO> response = await _sectionsService.GetOneAsync(id);
@@ -76,6 +80,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("updateSections", "Secciones")]
         public async Task<IActionResult> Edit([FromForm] SectionDTO dto)
         {
             if (!ModelState.IsValid)
@@ -97,6 +102,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("deleteSections", "Secciones")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             Response<object> response = await _sectionsService.DeleteAsync(id);
@@ -114,6 +120,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("updateSections", "Secciones")]
         public async Task<IActionResult> Toggle([FromForm] ToggleSectionStatusDTO dto)
         {
             Response<object> response = await _sectionsService.ToggleAsync(dto);

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Helpers.Abstractions;
@@ -26,6 +27,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "showBlogs", module: "Blogs")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<BlogDTO>> response = await _blogsService.GetPaginatedListAsync(request);
@@ -40,6 +42,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permission: "createBlogs", module: "Blogs")]
         public async Task<IActionResult> Create()
         {
             BlogDTO dto = new BlogDTO
@@ -51,6 +54,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permission: "createBlogs", module: "Blogs")]
         public async Task<IActionResult> Create(BlogDTO dto)
         {
             if (!ModelState.IsValid)
