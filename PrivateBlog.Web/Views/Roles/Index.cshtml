@@ -1,43 +1,46 @@
-﻿@inject PrivateBlog.Web.Services.Abtractions.IUsersService _usersService
-@model PaginationResponse<BlogDTO>
+﻿@model PaginationResponse<PrivateBlogRoleDTO>
+
+@inject PrivateBlog.Web.Services.Abtractions.IUsersService _usersService
+
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Roles";
 }
 
 <div class="pagetitle">
     <h1>Dashboard</h1>
     <nav>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
-            <li class="breadcrumb-item active">Blogs</li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Roles</li>
         </ol>
     </nav>
 </div>
 
 <section class="section dashboard">
+
     <div class="card">
 
-        <div class="card-header">
-
+        <div class="card-header py-3">
             <div class="row">
-                <h3 class="m-0 font-weight-bold text-primary col-md-11">Blogs</h3>
-                @if (await _usersService.CurrentUserIsAuthorizedAsync("createBlogs", "Blogs"))
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">Roles</h3>
+
+                @if (await _usersService.CurrentUserIsAuthorizedAsync("createRoles", "Roles"))
                 {
                     <div class="col-md-1">
                         <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
-                    </div>                    
+                    </div>
                 }
+
             </div>
         </div>
 
-        <div class="card-body mt-3">
+        <div class="card-body mt-2">
 
             <form asp-action="Index" class="navbar-search" method="GET">
 
                 <input type="hidden" name="Page" value="@Model.CurrentPage" />
 
                 <div class="row mt-3">
-
                     <div class="col-md-auto">
 
                         <select name="RecordsPerPage" class="form-select bg-light border-0 small" asp-for="RecordsPerPage">
@@ -51,56 +54,60 @@
                     </div>
 
                     <div class="col-md-10">
-                        <div class="input-group mb-3">
+                        <div class="input-group-mb-3">
                             <input type="text"
                                    class="form-control bg-light border-0 small"
                                    placeholder="Buscar..."
-                                   aria-label="serach"
-                                   asp-for="Filter" />
+                                   aria-label="search"
+                                   asp-for="Filter">
+                        </div>
+                    </div>
+
+                    <div class="col-md-auto">
+
+                        <div class="input-group-mb-3">
                             <button class="btn btn-primary"><i class="bi bi-search"></i></button>
                         </div>
                     </div>
+
                 </div>
 
             </form>
 
-            <table class="table table-bordered">
-
+            <table class="table table-bordered mt-2">
                 <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Titulo</th>
-                        <th>Sección</th>
+                        <th> Rol </th>
                         <th></th>
                     </tr>
                 </thead>
-
                 <tbody>
-
-                    @foreach (BlogDTO item in Model.List)
+                    @foreach (var item in Model.List)
                     {
                         <tr>
-                            <td>@item.Id</td>
-                            <td>@item.Name</td>
-                            <td>@item.Section.Name</td>
+                            <td> @Html.DisplayFor(modelItem => item.Name) </td>
+
                             <td>
-                                @if (await _usersService.CurrentUserIsAuthorizedAsync("updateBlogs", "Blogs"))
+
+                                @if (item.Name != Env.SUPER_ADMIN_ROLE_NAME)
                                 {
-                                    <a asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
-                                }
-                                
-                                @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteBlogs", "Blogs"))
-                                {
-                                    <form asp-action="Delete" asp-route-Id="@item.Id" style="display: contents;">
-                                        <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
-                                    </form>
+                                    @if (await _usersService.CurrentUserIsAuthorizedAsync("updateRoles", "Roles"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
+                                    }
+
+                                    @if (await _usersService.CurrentUserIsAuthorizedAsync("deleteRoles", "Roles"))
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@item.Id" style="display:contents">
+                                            <button class="btn btn-danger btn-sm btnDelete"><i class="bi bi-trash-fill"></i></button>
+                                        </form>
+                                    }
                                 }
                             </td>
+
                         </tr>
                     }
-
                 </tbody>
-
             </table>
 
             @await Html.PartialAsync("_PaginationComponent", Model)
@@ -112,17 +119,17 @@
 @section Scripts {
     <script>
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            $('.btnDelete').click(function(event) {
+            $('.btnDelete').click(function (event) {
 
                 event.preventDefault();
 
                 Swal.fire({
-                  icon: "question",
-                  title: "¿Desea eliminar la sección?",
-                  text: "No podrá revertirlo",
-                  showCancelButton: true
+                    title: "¿Desea eliminar el Rol?",
+                    text: "No prodrá revertirlo",
+                    icon: "question",
+                    showCancelButton: true,
                 }).then((result) => {
 
                     if (result.isConfirmed) {
@@ -131,10 +138,12 @@
 
                         form.submit();
                     }
+
                 });
+
             });
+
         });
 
     </script>
 }
-

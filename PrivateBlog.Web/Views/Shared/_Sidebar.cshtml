@@ -1,4 +1,5 @@
-﻿<!-- ======= Sidebar ======= -->
+﻿@inject PrivateBlog.Web.Services.Abtractions.IUsersService _usersService
+
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -10,17 +11,32 @@
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="Sections" asp-action="Index">
-                <i class="bi bi-book"></i> <span>Secciones</span>
-            </a>
-        </li>
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showSections" , "Secciones"))
+        {
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Sections" asp-action="Index">
+                    <i class="bi bi-book"></i> <span>Secciones</span>
+                </a>
+            </li>
+        }
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="Blogs" asp-action="Index">
-                <i class="bi bi-file-earmark-post"></i> <span>Blogs</span>
-            </a>
-        </li>
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showBlogs", "Blogs"))
+        {
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Blogs" asp-action="Index">
+                    <i class="bi bi-file-earmark-post"></i> <span>Blogs</span>
+                </a>
+            </li>
+        }
+
+        @if (await _usersService.CurrentUserIsAuthorizedAsync("showRoles", "Roles"))
+        {
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Roles" asp-action="Index">
+                    <i class="bi bi-lock"></i> <span>Roles</span>
+                </a>
+            </li>
+        }
 
 
     </ul>

@@ -9,6 +9,7 @@ using PrivateBlog.Web.Helpers.Abstractions;
 using PrivateBlog.Web.Helpers.Implementations;
 using PrivateBlog.Web.Services.Abtractions;
 using PrivateBlog.Web.Services.Implementations;
+using PrivateRole.Web.Services.Abtractions;
 
 namespace PrivateBlog.Web
 {
@@ -73,6 +74,7 @@ namespace PrivateBlog.Web
         {
             builder.Services.AddScoped<ISectionsService, SectionsService>();
             builder.Services.AddScoped<IBlogsService, BlogsService>();
+            builder.Services.AddScoped<IRolesService, RolesService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             builder.Services.AddTransient<SeedDb>();
