@@ -155,5 +155,23 @@ namespace PrivateBlog.Web.Controllers
             dto.Permissions = permissionsResponse2.Result;
             return View(dto);
         }
+
+        [HttpPost]
+        [CustomAuthorize("deleteRoles", "Roles")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            Response<object> response = await _rolesService.DeleteAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+            }
+            else
+            {
+                _notyfService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

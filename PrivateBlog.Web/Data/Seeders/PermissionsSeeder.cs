@@ -14,7 +14,7 @@ namespace PrivateBlog.Web.Data.Seeders
 
         public async Task SeedAsync()
         {
-            List<Permission> permissions = [ ..Blogs(), ..Sections(), .. Roles()];
+            List<Permission> permissions = [ ..Blogs(), ..Sections(), .. Roles(), ..Users()];
 
             foreach(Permission permission in permissions)
             {
@@ -58,6 +58,17 @@ namespace PrivateBlog.Web.Data.Seeders
                 new Permission { Name = "createSections", Description = "Crear Secciones", Module = "Secciones"},
                 new Permission { Name = "updateSections", Description = "Editar Secciones", Module = "Secciones"},
                 new Permission { Name = "deleteSections", Description = "Eliminar Secciones", Module = "Secciones"},
+            };
+        }
+
+        private List<Permission> Users()
+        {
+            return new List<Permission>
+            {
+                new Permission { Name = "showUsers", Description = "Ver Usuarios", Module = "Usuarios"},
+                new Permission { Name = "createUsers", Description = "Crear Usuarios", Module = "Usuarios"},
+                new Permission { Name = "updateUsers", Description = "Editar Usuarios", Module = "Usuarios"},
+                new Permission { Name = "deleteUsers", Description = "Eliminar Usuarios", Module = "Usuarios"},
             };
         }
     }

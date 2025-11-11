@@ -49,7 +49,7 @@ namespace PrivateBlog.Web.Services.Implementations
                     {
                         RolePermission rolePermission = new RolePermission
                         {
-                            PrivateBlogRoleId = newRoleId,
+                            PrivateBlogRoleId = role.Id,
                             PermissionId = permissionId
                         };
 
@@ -72,6 +72,11 @@ namespace PrivateBlog.Web.Services.Implementations
 
         public async Task<Response<object>> DeleteAsync(Guid id)
         {
+            if (_context.Users.Any(u => u.PrivateBlogRoleId == id))
+            {
+                return Response<object>.Failure("No puede eliminar el rol ya que existen usuarios que lo contienen");
+            }
+
             return await DeleteAsync<PrivateBlogRole>(id);
         }
 

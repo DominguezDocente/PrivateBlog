@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 
@@ -12,9 +13,17 @@ namespace PrivateBlog.Web.Services.Abtractions
         public bool CurrentUserIsAuthenticaded();
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<Response<string>> GenerateConfirmationTokenAsync(User user);
-        public Task<User> GetUserByEmailasync(string email);
+        public Task<User> GetUserByEmailAsync(string email);
+        public Task<User> GetUserByIdAsync(Guid id);
         public Task<Response<SignInResult>> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
         public Task<Response<AccountUserDTO>> UpdateUserAsync(AccountUserDTO dto);
+
+        // For Management
+        public Task<Response<UserDTO>> CreateAsync(UserDTO dto);
+        //public Task<Response<object>> DeleteAsync(Guid id);
+        public Task<Response<UserDTO>> EditAsync(UserDTO dto);
+        //public Task<Response<UserDTO>> GetOneAsync(Guid id);
+        public Task<Response<PaginationResponse<UserDTO>>> GetPaginatedListAsync(PaginationRequest request);
     }
 }

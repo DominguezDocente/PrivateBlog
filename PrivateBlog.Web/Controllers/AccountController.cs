@@ -59,7 +59,7 @@ namespace PrivateBlog.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateUser()
         {
-            User user = await _usersService.GetUserByEmailasync(User.Identity.Name);
+            User user = await _usersService.GetUserByEmailAsync(User.Identity.Name);
 
             if (user is null)
             {

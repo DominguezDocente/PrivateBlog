@@ -14,6 +14,15 @@ namespace PrivateBlog.Web.Helpers.Implementations
             _context = context;
         }
 
+        public async Task<IEnumerable<SelectListItem>> GetComboRoles()
+        {
+            return await _context.PrivateBlogRoles.Select(r => new SelectListItem
+            {
+                Text = r.Name,
+                Value = r.Id.ToString()
+            }).ToListAsync();
+        }
+
         public async Task<List<SelectListItem>> GetComboSections()
         {
             return await _context.Sections.Select(s => new SelectListItem

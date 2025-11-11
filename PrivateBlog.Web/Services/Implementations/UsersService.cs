@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
@@ -10,19 +13,25 @@ using System.Security.Claims;
 namespace PrivateBlog.Web.Services.Implementations
 {
     // TODO: Mejorar mensajes de error
-    public class UsersService : IUsersService
+    public class UsersService : CustomQueryableOperationsService, IUsersService
     {
         private readonly DataContext _context;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public UsersService(DataContext context, SignInManager<User> signInManager, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
+        public UsersService(DataContext context,
+                            SignInManager<User> signInManager,
+                            UserManager<User> userManager, 
+                            IHttpContextAccessor httpContextAccessor,
+                            IMapper mapper) : base(context, mapper)
         {
             _context = context;
             _signInManager = signInManager;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
         public async Task<Response<IdentityResult>> AddUserAsync(User user, string password)
@@ -47,6 +56,28 @@ namespace PrivateBlog.Web.Services.Implementations
             };
         }
 
+        public async Task<Response<UserDTO>> CreateAsync(UserDTO dto)
+        {
+            try
+            {
+                User user = _mapper.Map<User>(dto);
+                user.Id = Guid.NewGuid().ToString();
+
+                Response<IdentityResult> response = await AddUserAsync(user, dto.Document);
+
+                // TODO: Envío de email para confirmación
+                Response<string> token = await GenerateConfirmationTokenAsync(user);
+
+                await ConfirmUserAsync(user, token.Result);
+
+                return Response<UserDTO>.Success(_mapper.Map<UserDTO>(user), "Usuario creado con éxito");
+            } 
+            catch(Exception ex)
+            {
+                return Response<UserDTO>.Failure(ex);
+            }
+        }
+
         public bool CurrentUserIsAuthenticaded()
         {
             ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
@@ -65,7 +96,7 @@ namespace PrivateBlog.Web.Services.Implementations
 
             string userName = claimsUser.Identity!.Name!;
 
-            User? user = await GetUserByEmailasync(userName);
+            User? user = await GetUserByEmailAsync(userName);
 
             if (user is null)
             {
@@ -82,6 +113,40 @@ namespace PrivateBlog.Web.Services.Implementations
                                                             && p.RolePermissions.Any(rp => rp.PrivateBlogRoleId == user.PrivateBlogRoleId));
         }
 
+        //public Task<Response<object>> DeleteAsync(Guid id)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public async Task<Response<UserDTO>> EditAsync(UserDTO dto)
+        {
+            try
+            {
+                User? user = await GetUserAsync(dto.Id.ToString());    
+
+                if (user == null)
+                {
+                    return Response<UserDTO>.Failure("No existe usuario.");
+                }
+
+                user.PhoneNumber = dto.PhoneNumber;
+                user.Document = dto.Document;
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+                user.PrivateBlogRoleId = Guid.Parse(dto.PrivateBlogRoleId);
+
+                _context.Users.Update(user);
+
+                await _context.SaveChangesAsync();
+
+                return Response<UserDTO>.Success(dto, "Usuario actualizado con éxito");
+            } 
+            catch(Exception ex)
+            {
+                return Response<UserDTO>.Failure(ex);
+            }
+        }
+
         public async Task<Response<string>> GenerateConfirmationTokenAsync(User user)
         {
             string result = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -89,10 +154,37 @@ namespace PrivateBlog.Web.Services.Implementations
             return Response<string>.Success(result);
         }
 
-        public async Task<User> GetUserByEmailasync(string email)
+        //public Task<Response<UserDTO>> GetOneAsync(Guid id)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public async Task<Response<PaginationResponse<UserDTO>>> GetPaginatedListAsync(PaginationRequest request)
+        {
+            IQueryable<User> queryable = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.Filter))
+            {
+                queryable = queryable.Where(u => u.FirstName.ToLower().Contains(request.Filter.ToLower())
+                                                || u.LastName.ToLower().Contains(request.Filter.ToLower())
+                                                || u.Document.ToLower().Contains(request.Filter.ToLower())
+                                                || u.Email.ToLower().Contains(request.Filter.ToLower())
+                                                || u.PhoneNumber.ToLower().Contains(request.Filter.ToLower()));
+            }
+
+            return await GetPaginationAsync<User, UserDTO>(request, queryable);
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
         {
             return await _context.Users.Include(u => u.PrivateBlogRole)
                                        .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User> GetUserByIdAsync(Guid id)
+        {
+            return await _context.Users.Include(u => u.PrivateBlogRole)
+                                       .FirstOrDefaultAsync(u => u.Id == id.ToString());
         }
 
         public async Task<Response<SignInResult>> LoginAsync(LoginDTO dto)
