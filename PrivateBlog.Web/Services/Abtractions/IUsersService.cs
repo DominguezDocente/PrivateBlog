@@ -11,6 +11,7 @@ namespace PrivateBlog.Web.Services.Abtractions
         public Task<Response<IdentityResult>> AddUserAsync(User user, string password);
         public Task<Response<IdentityResult>> ConfirmUserAsync(User user, string token);
         public bool CurrentUserIsAuthenticaded();
+        public Task<bool> CurrentUserIsSuperAdminAsync();
         public Task<bool> CurrentUserIsAuthorizedAsync(string permission, string module);
         public Task<Response<string>> GenerateConfirmationTokenAsync(User user);
         public Task<User> GetUserByEmailAsync(string email);

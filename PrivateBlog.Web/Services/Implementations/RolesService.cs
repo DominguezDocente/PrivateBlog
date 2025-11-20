@@ -56,6 +56,25 @@ namespace PrivateBlog.Web.Services.Implementations
                         await _context.RolePermissions.AddAsync(rolePermission);
                     }
 
+                    // Sections
+                    List<Guid> sectionIds = new();
+
+                    if (!string.IsNullOrEmpty(dto.SectionIds))
+                    {
+                        sectionIds = JsonConvert.DeserializeObject<List<Guid>>(dto.SectionIds);
+                    }
+
+                    foreach (Guid sectionId in sectionIds)
+                    {
+                        RoleSection roleSection = new RoleSection
+                        {
+                            PrivateBlogRoleId = role.Id,
+                            SectionId = sectionId
+                        };
+
+                        await _context.RoleSections.AddAsync(roleSection);
+                    }
+
                     await _context.SaveChangesAsync();
 
                     transaction.Commit();
@@ -117,6 +136,30 @@ namespace PrivateBlog.Web.Services.Implementations
                     await _context.RolePermissions.AddAsync(rolePermission);
                 }
 
+                // Sections
+                List<Guid> sectionIds = new();
+
+                if (!string.IsNullOrEmpty(dto.SectionIds))
+                {
+                    sectionIds = JsonConvert.DeserializeObject<List<Guid>>(dto.SectionIds);
+                }
+
+                // Delete old
+                List<RoleSection> oldRoleSections = await _context.RoleSections.Where(rp => rp.PrivateBlogRoleId == dto.Id).ToListAsync();
+                _context.RoleSections.RemoveRange(oldRoleSections);
+
+                // Create new ones
+                foreach (Guid sectionId in sectionIds)
+                {
+                    RoleSection roleSection = new RoleSection
+                    {
+                        PrivateBlogRoleId = role.Id,
+                        SectionId = sectionId
+                    };
+
+                    await _context.RoleSections.AddAsync(roleSection);
+                }
+
                 await _context.SaveChangesAsync();
 
                 return Response<PrivateBlogRoleDTO>.Success(dto, "Rol actualizado con éxito");
@@ -147,6 +190,15 @@ namespace PrivateBlog.Web.Services.Implementations
             }).ToListAsync();
 
             dto.Permissions = permissions;
+
+            List<SectionsForRoleDTO> sections = await _context.Sections.Select(p => new SectionsForRoleDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Selected = _context.RoleSections.Any(rs => rs.SectionId == p.Id && rs.PrivateBlogRoleId == dto.Id)
+            }).ToListAsync();
+
+            dto.Sections = sections;
 
             return Response<PrivateBlogRoleDTO>.Success(dto, "Rol obtenido con éxito");
         }
@@ -182,6 +234,26 @@ namespace PrivateBlog.Web.Services.Implementations
             }).ToList();
 
             return Response<List<PermissionsForRoleDTO>>.Success(dto);
+        }
+
+        public async Task<Response<List<SectionsForRoleDTO>>> GetSectionsAsync()
+        {
+            Response<List<SectionDTO>> sectionsResponse = await GetCompleteListAsync<Section, SectionDTO>();
+
+            if (!sectionsResponse.IsSuccess)
+            {
+                return Response<List<SectionsForRoleDTO>>.Failure(sectionsResponse.Message);
+            }
+
+            List<SectionsForRoleDTO> dto = sectionsResponse.Result.Select(p => new SectionsForRoleDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Selected = false
+            }).ToList();
+
+            return Response<List<SectionsForRoleDTO>>.Success(dto);
         }
     }
 }

@@ -12,5 +12,6 @@ namespace PrivateRole.Web.Services.Abtractions
         public Task<Response<PrivateBlogRoleDTO>> GetOneAsync(Guid id);
         public Task<Response<PaginationResponse<PrivateBlogRoleDTO>>> GetPaginatedListAsync(PaginationRequest request);
         public Task<Response<List<PermissionsForRoleDTO>>> GetPermissionsAsync();
+        public Task<Response<List<SectionsForRoleDTO>>> GetSectionsAsync();
     }
 }

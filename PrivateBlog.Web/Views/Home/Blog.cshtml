@@ -1,0 +1,29 @@
+﻿@model BlogDTO
+
+@{
+    ViewData["Title"] = "Blog";
+}
+
+<div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-action="Section" asp-route-id="@Model.SectionId">Sección</a></li>
+            <li class="breadcrumb-item active">Blog</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+
+    <div class="card">
+
+        <div class="card-header">@Model.Name</div>
+
+        <div class="card-body mt-2">
+            @Html.Raw(Model.Content)
+        </div>
+
+    </div>
+</section>

@@ -41,16 +41,23 @@ namespace PrivateBlog.Web.Controllers
         public async Task<IActionResult> Create()
         {
             Response<List<PermissionsForRoleDTO>> permissionsResponse = await _rolesService.GetPermissionsAsync();
-
             if (!permissionsResponse.IsSuccess)
             {
                 _notyfService.Error(permissionsResponse.Message);
                 return RedirectToAction(nameof(Index));
             }
 
+            Response<List<SectionsForRoleDTO>> sectionsResponse = await _rolesService.GetSectionsAsync();
+            if (!sectionsResponse.IsSuccess)
+            {
+                _notyfService.Error(sectionsResponse.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
             PrivateBlogRoleDTO dto = new PrivateBlogRoleDTO
             {
-                Permissions = permissionsResponse.Result
+                Permissions = permissionsResponse.Result,
+                Sections = sectionsResponse.Result
             };
 
             return View(dto);
@@ -65,14 +72,21 @@ namespace PrivateBlog.Web.Controllers
                 _notyfService.Error("Debe ajustar los errores de validación");
 
                 Response<List<PermissionsForRoleDTO>> permissionsResponse = await _rolesService.GetPermissionsAsync();
-
                 if (!permissionsResponse.IsSuccess)
                 {
                     _notyfService.Error(permissionsResponse.Message);
                     return RedirectToAction(nameof(Index));
                 }
 
+                Response<List<SectionsForRoleDTO>> sectionsResponse = await _rolesService.GetSectionsAsync();
+                if (!sectionsResponse.IsSuccess)
+                {
+                    _notyfService.Error(sectionsResponse.Message);
+                    return RedirectToAction(nameof(Index));
+                }
+
                 dto.Permissions = permissionsResponse.Result;
+                dto.Sections = sectionsResponse.Result;
 
                 return View(dto);
             }
@@ -87,14 +101,21 @@ namespace PrivateBlog.Web.Controllers
             _notyfService.Error(createResponse.Message);
 
             Response<List<PermissionsForRoleDTO>> permissionsResponse2 = await _rolesService.GetPermissionsAsync();
-
             if (!permissionsResponse2.IsSuccess)
             {
                 _notyfService.Error(permissionsResponse2.Message);
                 return RedirectToAction(nameof(Index));
             }
 
+            Response<List<SectionsForRoleDTO>> sectionsResponse2 = await _rolesService.GetSectionsAsync();
+            if (!sectionsResponse2.IsSuccess)
+            {
+                _notyfService.Error(sectionsResponse2.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
             dto.Permissions = permissionsResponse2.Result;
+            dto.Sections = sectionsResponse2.Result;
             return View(dto);
         }
 
@@ -104,7 +125,6 @@ namespace PrivateBlog.Web.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             Response<PrivateBlogRoleDTO> response = await _rolesService.GetOneAsync(id);
-
             if (!response.IsSuccess)
             {
                 _notyfService.Error(response.Message);
@@ -123,14 +143,21 @@ namespace PrivateBlog.Web.Controllers
                 _notyfService.Error("Debe ajustar los errores de validación");
 
                 Response<List<PermissionsForRoleDTO>> permissionsResponse = await _rolesService.GetPermissionsAsync();
-
                 if (!permissionsResponse.IsSuccess)
                 {
                     _notyfService.Error(permissionsResponse.Message);
                     return RedirectToAction(nameof(Index));
                 }
 
+                Response<List<SectionsForRoleDTO>> sectionsResponse = await _rolesService.GetSectionsAsync();
+                if (!sectionsResponse.IsSuccess)
+                {
+                    _notyfService.Error(sectionsResponse.Message);
+                    return RedirectToAction(nameof(Index));
+                }
+
                 dto.Permissions = permissionsResponse.Result;
+                dto.Sections = sectionsResponse.Result;
 
                 return View(dto);
             }
@@ -152,7 +179,15 @@ namespace PrivateBlog.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            Response<List<SectionsForRoleDTO>> sectionsResponse2 = await _rolesService.GetSectionsAsync();
+            if (!sectionsResponse2.IsSuccess)
+            {
+                _notyfService.Error(sectionsResponse2.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
             dto.Permissions = permissionsResponse2.Result;
+            dto.Sections = sectionsResponse2.Result;
             return View(dto);
         }
 

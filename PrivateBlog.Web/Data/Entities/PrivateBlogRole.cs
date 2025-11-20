@@ -13,5 +13,6 @@ namespace PrivateBlog.Web.Data.Entities
         public required string Name { get; set; }
 
         public ICollection<RolePermission>? RolePermissions { get; set; }
+        public ICollection<RoleSection>? RoleSections { get; set; }
     }
 }

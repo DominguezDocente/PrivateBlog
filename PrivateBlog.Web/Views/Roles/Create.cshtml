@@ -29,7 +29,9 @@
 
 
         </div>
-     </div>
+    </div>
+
+    @await Html.PartialAsync("_Sections", Model)
 
     @await Html.PartialAsync("_Permissions", Model)
 
@@ -62,7 +64,18 @@
                     permissionIds.push(permissionId);
                 });
 
+                const sections = $('.section:checked');
+
+                let sectionIds = [];
+
+                sections.each(function() {
+
+                    const sectionId = $(this).data('section-id');
+                    sectionIds.push(sectionId);
+                });
+
                 $('#permissionIds').val( JSON.stringify(permissionIds));
+                $('#sectionIds').val( JSON.stringify(sectionIds));
             });
 
         });

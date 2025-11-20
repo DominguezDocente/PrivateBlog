@@ -17,5 +17,6 @@ namespace PrivateBlog.Web.Data.Entities
         public bool IsHidden { get; set; } = false;
 
         public List<Blog>? Blogs { get; set; }
+        public ICollection<RoleSection>? RoleSections { get; set; }
     }
 }

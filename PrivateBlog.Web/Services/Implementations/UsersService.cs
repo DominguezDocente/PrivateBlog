@@ -113,6 +113,28 @@ namespace PrivateBlog.Web.Services.Implementations
                                                             && p.RolePermissions.Any(rp => rp.PrivateBlogRoleId == user.PrivateBlogRoleId));
         }
 
+        public async Task<bool> CurrentUserIsSuperAdminAsync()
+        {
+            ClaimsPrincipal? claimsUser = _httpContextAccessor.HttpContext?.User;
+
+            // Valida si hay sesión
+            if (claimsUser is null)
+            {
+                return false;
+            }
+
+            string userName = claimsUser.Identity!.Name!;
+
+            User? user = await GetUserByEmailAsync(userName);
+
+            if (user is null)
+            {
+                return false;
+            }
+
+            return user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME;
+        }
+
         //public Task<Response<object>> DeleteAsync(Guid id)
         //{
         //    throw new NotImplementedException();

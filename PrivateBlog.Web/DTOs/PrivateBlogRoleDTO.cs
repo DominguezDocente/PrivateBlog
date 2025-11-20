@@ -15,9 +15,18 @@ namespace PrivateBlog.Web.DTOs
         public List<PermissionsForRoleDTO>? Permissions { get; set; }
 
         public string? PermissionIds { get; set; }
+
+        public List<SectionsForRoleDTO>? Sections { get; set; }
+
+        public string? SectionIds { get; set; }
     }
 
     public class PermissionsForRoleDTO : PermissionDTO
+    {
+        public bool Selected { get; set; }
+    }
+
+    public class SectionsForRoleDTO : SectionDTO
     {
         public bool Selected { get; set; }
     }

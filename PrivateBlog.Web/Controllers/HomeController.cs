@@ -1,26 +1,48 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
+using PrivateBlog.Web.Core.Pagination;
+using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Models;
+using PrivateBlog.Web.Services.Abtractions;
+using PrivateBlog.Web.Services.Implementations;
+using System.Diagnostics;
 
 namespace PrivateBlog.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IHomeService _homeService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IHomeService homeService)
         {
-            _logger = logger;
+            _homeService = homeService;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
-            return View();
+            Response<PaginationResponse<SectionDTO>> response = await _homeService.GetSectionsAsync(request);
+            return View(response.Result);
         }
 
-        public IActionResult Privacy()
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Section([FromRoute] Guid id, [FromQuery] PaginationRequest request)
         {
-            return View();
+            Response<SectionDTO> response = await _homeService.GetSectionAsync(id, request);
+            return View(response.Result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Blog([FromRoute] Guid id)
+        {
+            Response<BlogDTO> response = await _homeService.GetBlogAsync(id);
+            return View(response.Result);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -77,5 +77,63 @@ namespace PrivateBlog.Web.Controllers
             dto.Sections = await _combosHelper.GetComboSections();
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        [CustomAuthorize(permission: "updateBlogs", module: "Blogs")]
+        public async Task<IActionResult> Edit([FromRoute] Guid id)
+        {
+            Response<BlogDTO> response = await _blogsService.GetOneAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
+            response.Result.Sections = await _combosHelper.GetComboSections();
+            return View(response.Result);
+        }
+
+        [HttpPost]
+        [CustomAuthorize(permission: "updateBlogs", module: "Blogs")]
+        public async Task<IActionResult> Edit(BlogDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notyfService.Error("Debe ajustar los errores de validación");
+                dto.Sections = await _combosHelper.GetComboSections();
+                return View(dto);
+            }
+
+            Response<BlogDTO> response = await _blogsService.EditAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                dto.Sections = await _combosHelper.GetComboSections();
+                return View(dto);
+            }
+
+            _notyfService.Success(response.Message);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [CustomAuthorize(permission: "deleteBlogs", module: "Blogs")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            Response<object> response = await _blogsService.DeleteAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+            }
+            else
+            {
+                _notyfService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

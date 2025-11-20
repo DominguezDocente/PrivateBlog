@@ -15,6 +15,7 @@ namespace PrivateBlog.Web.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<PrivateBlogRole> PrivateBlogRoles { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<RoleSection> RoleSections { get; set; }
         public DbSet<Section> Sections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -38,6 +39,16 @@ namespace PrivateBlog.Web.Data
             builder.Entity<RolePermission>().HasOne(rp => rp.Permission)
                                             .WithMany(p => p.RolePermissions)
                                             .HasForeignKey(rp => rp.PermissionId);
+            // Role Sections
+            builder.Entity<RoleSection>().HasKey(rs => new { rs.SectionId, rs.PrivateBlogRoleId });
+
+            builder.Entity<RoleSection>().HasOne(rs => rs.PrivateBlogRole)
+                                            .WithMany(r => r.RoleSections)
+                                            .HasForeignKey(rs => rs.PrivateBlogRoleId);
+
+            builder.Entity<RoleSection>().HasOne(rs => rs.Section)
+                                            .WithMany(s => s.RoleSections)
+                                            .HasForeignKey(rs => rs.SectionId);
         }
 
         private void ConfigureIndexes(ModelBuilder builder)
