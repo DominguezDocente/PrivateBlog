@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
@@ -8,7 +9,9 @@ using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs;
 using PrivateBlog.Web.Services.Abtractions;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace PrivateBlog.Web.Services.Implementations
 {
@@ -20,18 +23,21 @@ namespace PrivateBlog.Web.Services.Implementations
         private readonly UserManager<User> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
         public UsersService(DataContext context,
                             SignInManager<User> signInManager,
-                            UserManager<User> userManager, 
+                            UserManager<User> userManager,
                             IHttpContextAccessor httpContextAccessor,
-                            IMapper mapper) : base(context, mapper)
+                            IMapper mapper,
+                            IConfiguration configuration) : base(context, mapper)
         {
             _context = context;
             _signInManager = signInManager;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public async Task<Response<IdentityResult>> AddUserAsync(User user, string password)
@@ -43,6 +49,11 @@ namespace PrivateBlog.Web.Services.Implementations
                 Result = result,
                 IsSuccess = result.Succeeded,
             };
+        }
+
+        public async Task<bool> CheckPasswordAsync(User user, string password)
+        {
+            return await _userManager.CheckPasswordAsync(user, password);
         }
 
         public async Task<Response<IdentityResult>> ConfirmUserAsync(User user, string token)
@@ -176,6 +187,11 @@ namespace PrivateBlog.Web.Services.Implementations
             return Response<string>.Success(result);
         }
 
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
         //public Task<Response<UserDTO>> GetOneAsync(Guid id)
         //{
         //    throw new NotImplementedException();
@@ -209,6 +225,61 @@ namespace PrivateBlog.Web.Services.Implementations
                                        .FirstOrDefaultAsync(u => u.Id == id.ToString());
         }
 
+        public async Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto)
+        {
+            try
+            {
+
+                SignInResult result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
+
+                if (result.Succeeded)
+                { 
+                    User user = await _userManager.FindByEmailAsync(dto.Email);
+                    UserTokenDTO token = await BuildTokenAsync(dto.Email, user.Id);
+
+                    return Response<UserTokenDTO>.Success(token, "Token obtenido con éxito");
+                }
+
+                return Response<UserTokenDTO>.Failure("Usuario o contraseña incorrectos");
+            }
+            catch(Exception ex)
+            {
+                return Response<UserTokenDTO>.Failure(ex);
+            }
+        }
+
+        private async Task<UserTokenDTO> BuildTokenAsync(string email, string id)
+        {
+            List<Claim> claims = [
+                
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim("userId", id)
+            ];
+
+            User identityUser = await _userManager.FindByEmailAsync(email);
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            DateTime expiration = DateTime.UtcNow.AddYears(100);
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: expiration,
+                signingCredentials: creds
+            );
+
+            return new UserTokenDTO
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = expiration
+            };
+        }
+
         public async Task<Response<SignInResult>> LoginAsync(LoginDTO dto)
         {
             SignInResult result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
@@ -223,6 +294,11 @@ namespace PrivateBlog.Web.Services.Implementations
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
         }
 
         public async Task<Response<AccountUserDTO>> UpdateUserAsync(AccountUserDTO dto)

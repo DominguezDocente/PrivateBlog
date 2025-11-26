@@ -1,7 +1,9 @@
 ﻿using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.Data.Seeders;
@@ -68,6 +70,22 @@ namespace PrivateBlog.Web
                 conf.LoginPath = "/Account/Login";
                 conf.AccessDeniedPath = "/Error/403";
             });
+
+            builder.Services.AddAuthentication()
+                            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => 
+                            {
+                                options.TokenValidationParameters = new TokenValidationParameters
+                                {
+                                    ValidateIssuer = true,
+                                    ValidateAudience = true,
+                                    ValidateLifetime = true,
+                                    ValidateIssuerSigningKey = true,
+                                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
+                                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                                    ClockSkew = TimeSpan.Zero
+                                };
+                            });
         }
 
         private static void AddServices(WebApplicationBuilder builder)
@@ -80,7 +98,7 @@ namespace PrivateBlog.Web
 
             builder.Services.AddTransient<SeedDb>();
 
-            builder.Services.AddTransient<ICombosHelper, CombosHelper>(); 
+            builder.Services.AddTransient<ICombosHelper, CombosHelper>();
         }
 
         public static WebApplication AddCustomWebApplicationConfiguration(this WebApplication app)

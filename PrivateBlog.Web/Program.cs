@@ -21,9 +21,23 @@ app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.UseEndpoints(endpoints => 
+{
+    endpoints.MapControllers();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    endpoints.MapGet("/api/minimal", () => 
+    {
+        return "Minimal API is working!";
+    });
+});
 
 app.AddCustomWebApplicationConfiguration();
 

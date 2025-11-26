@@ -68,6 +68,11 @@ namespace PrivateBlog.Web.Services
         {
             try
             {
+                if (id == Guid.Empty)
+                {
+                    return Response<TDTO>.Failure("El id es obligatorio");
+                }
+
                 TEntity entity = _mapper.Map<TEntity>(dto);
 
                 entity.Id = id;
