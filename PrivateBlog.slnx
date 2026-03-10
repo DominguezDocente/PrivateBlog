@@ -1,1 +1,15 @@
-<Solution />
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="PrivateBlog.Application/PrivateBlog.Application.csproj" />
+    <Project Path="PrivateBlog.Domain/PrivateBlog.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="PrivateBlog.Persistence/PrivateBlog.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/Presenters/">
+    <Project Path="PrivateBlog.Web/PrivateBlog.Web.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="PrivateBlog.Tests/PrivateBlog.Tests.csproj" />
+  </Folder>
+</Solution>
