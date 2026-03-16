@@ -1,15 +1,28 @@
-var builder = WebApplication.CreateBuilder(args);
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
+using PrivateBlog.Persistence;
+using PrivateBlog.Application;
 
-// Add services to the container.
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
+builder.Services.AddApplicationServices();
+builder.Services.AddPersistenceServices();
 
-// Configure the HTTP request pipeline.
+builder.Services.AddNotyf(config => 
+{ 
+    config.DurationInSeconds = 10; 
+    config.IsDismissable = true; 
+    config.Position = NotyfPosition.BottomRight; 
+});
+
+
+WebApplication app = builder.Build();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -25,5 +38,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.UseNotyf();
 
 app.Run();
