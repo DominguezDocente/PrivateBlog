@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList.SectionListItemDTO>
+@model IEnumerable<PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList.SectionListItemDTO>
 @{
     ViewData["Title"] = "Index";
 }
@@ -21,7 +21,11 @@
             <div class="row">
                 <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>                               
                 <div class="col-md-1">
-                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
+                    <a asp-action="Create"
+                       class="btn btn-primary"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="left"
+                       title="Nueva sección"><i class="bi bi-plus-circle"></i></a>
                 </div>                
             </div>
         </div>
@@ -34,7 +38,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Sección</th>
-                        <th>Descripción</th>
+                        <th>Activa</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -46,13 +50,52 @@
                         <tr>
                             <td>@item.Id</td>
                             <td>@item.Name</td>
+                            <td>@(item.IsActive ? "Sí" : "No")</td>
                             <td>
-                                <a asp-action="Edit" asp-route-Id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-fill"></i></a>
-                                                                
-                                <form asp-action="Delete" asp-route-Id="@item.Id" style="display: contents;">
-                                    <button class="btn btn-sm btn-danger btnDelete"><i class="bi bi-trash-fill"></i></button>
+                                @if (item.IsActive)
+                                {
+                                    <form asp-action="Deactivate" asp-route-id="@item.Id" method="post" style="display: contents;">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-info"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Desactivar esta sección"
+                                                aria-label="Desactivar sección">
+                                            <i class="bi bi-toggle-on"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Activate" asp-route-id="@item.Id" method="post" style="display: contents;">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-secondary"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Activar esta sección"
+                                                aria-label="Activar sección">
+                                            <i class="bi bi-toggle-off"></i>
+                                        </button>
+                                    </form>
+                                }
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-warning"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Editar sección"
+                                   aria-label="Editar"><i class="bi bi-pencil-fill"></i></a>
+
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: contents;">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger btnDelete"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Eliminar sección"
+                                            aria-label="Eliminar"><i class="bi bi-trash-fill"></i></button>
                                 </form>
-                                
+
                             </td>
                         </tr>
                     }
@@ -69,6 +112,10 @@
     <script>
 
         $(document).ready(function() {
+
+            $('[data-bs-toggle="tooltip"]').each(function () {
+                new bootstrap.Tooltip(this);
+            });
 
             $('.btnDelete').click(function(event) {
                     

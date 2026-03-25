@@ -1,4 +1,4 @@
-﻿using PrivateBlog.Application.Contracts.Repositories;
+using PrivateBlog.Application.Contracts.Repositories;
 using PrivateBlog.Application.Utils.Mediator;
 using PrivateBlog.Domain.Entities.Sections;
 using System;
@@ -19,7 +19,10 @@ namespace PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList
         public async Task<IEnumerable<SectionListItemDTO>> Handle(GetSectionsListQuery request)
         {
             IEnumerable<Section> sections = await _sectionsRepository.GetListAsync();
-            List<SectionListItemDTO> sectionsDTO = sections.Select(c => c.ToDTO()).ToList();
+            List<SectionListItemDTO> sectionsDTO = sections
+                .OrderBy(s => s.Name)
+                .Select(c => c.ToDTO())
+                .ToList();
 
             return sectionsDTO;
         }

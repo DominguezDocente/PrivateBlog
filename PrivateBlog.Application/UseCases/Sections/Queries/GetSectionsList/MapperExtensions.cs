@@ -1,4 +1,4 @@
-﻿using PrivateBlog.Domain.Entities.Sections;
+using PrivateBlog.Domain.Entities.Sections;
 
 namespace PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList
 {
@@ -10,6 +10,7 @@ namespace PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList
             {
                 Id = section.Id,
                 Name = section.Name,
+                IsActive = section.IsActive,
             };
         }
     }
