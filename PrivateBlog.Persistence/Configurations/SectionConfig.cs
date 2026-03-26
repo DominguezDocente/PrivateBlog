@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PrivateBlog.Domain.Entities.Sections;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PrivateBlog.Persistence.Configurations
 {

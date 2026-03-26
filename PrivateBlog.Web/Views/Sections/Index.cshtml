@@ -1,0 +1,103 @@
+﻿@model IEnumerable<PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList.SectionListItemDTO>
+
+@{
+    ViewData["Title"] = "Secciones";
+}
+
+<div class="pagetitle">
+    <h1>@ViewData["Title"]</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+
+    <div class="card">
+
+        <div class="card-header">
+            <div class="row">
+
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
+
+                <div class="col-md-1">
+                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body mt-3">
+
+            <table class="table table-bordered">
+                    
+                <thead>
+                    <tr>
+                        <th>Sección</th>
+                        <th>Activa</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach(var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@(item.IsActive ? "Si" : "No")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="POST" style="display: contents;">                                    
+                                    <button type="submit" class="btn btn-sm btn-danger btnDelete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function(){
+        
+             $('.btnDelete').click(function(event) {
+                    
+                event.preventDefault();
+
+                Swal.fire({
+                  icon: "question",
+                  title: "¿Desea eliminar la sección?",
+                  text: "No podrá revertirlo",
+                  showCancelButton: true
+                }).then((result) => {
+                        
+                    if (result.isConfirmed) {
+                        
+                        const form = $(this).closest('form');
+
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+    </script>
+}

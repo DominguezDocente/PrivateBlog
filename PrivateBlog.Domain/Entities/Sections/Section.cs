@@ -5,8 +5,12 @@ namespace PrivateBlog.Domain.Entities.Sections
     public sealed class Section
     {
         public Guid Id { get; private set; }
-        public string Name { get; private set; }
+        public string Name { get; private set; } = null!;
         public bool IsActive { get; private set; }
+
+        private Section()
+        {            
+        }
 
         public Section(string name)
         {
@@ -46,7 +50,7 @@ namespace PrivateBlog.Domain.Entities.Sections
 
             if (name.Length > 64)
             {
-                throw new BussinesRuleException($"El {nameof(name)} debe ser menor a 32 letras.");
+                throw new BussinesRuleException($"El {nameof(name)} debe ser menor a 64 letras.");
             }
         }
     }

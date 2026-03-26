@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PrivateBlog.Persistence.Respositories
+namespace PrivateBlog.Persistence.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {

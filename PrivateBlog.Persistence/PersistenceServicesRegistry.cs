@@ -2,11 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.Contracts.Persisntece;
 using PrivateBlog.Application.Contracts.Repositories;
-using PrivateBlog.Persistence.Respositories;
+using PrivateBlog.Persistence.Repositories;
 using PrivateBlog.Persistence.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PrivateBlog.Persistence
 {

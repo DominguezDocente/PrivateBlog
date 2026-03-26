@@ -1,9 +1,18 @@
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 using PrivateBlog.Application;
 using PrivateBlog.Persistence;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 10;
+    config.IsDismissable = true;
+    config.Position = NotyfPosition.BottomRight;
+});
 
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices();
@@ -28,5 +37,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.UseNotyf();
 
 app.Run();
