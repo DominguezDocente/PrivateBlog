@@ -21,7 +21,7 @@ namespace PrivateBlog.Persistence.Repositories
             return Task.FromResult(entity);
         }
 
-        public Task DeleteteAsync(T entity)
+        public Task DeleteAsync(T entity)
         {
             _context.Remove(entity);
             return Task.FromResult(entity);

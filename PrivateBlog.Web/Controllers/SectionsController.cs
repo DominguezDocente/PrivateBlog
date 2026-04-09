@@ -1,6 +1,9 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
+using PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSeccion;
+using PrivateBlog.Application.UseCases.Sections.Commands.DeleteSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.UpdateSection;
 using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionById;
 using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList;
@@ -56,7 +59,7 @@ namespace PrivateBlog.Web.Controllers
                 Guid newSectionId = await _mediator.Send(command);
                 _notifyService.Success("Sección creada exitosamente.");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _notifyService.Error($"Error al crear la sección: {ex.Message}");
             }
@@ -98,8 +101,8 @@ namespace PrivateBlog.Web.Controllers
                     return View(dto);
                 }
 
-                UpdateSectionCommand command = new UpdateSectionCommand 
-                { 
+                UpdateSectionCommand command = new UpdateSectionCommand
+                {
                     Name = dto.Name,
                     Id = dto.Id,
                     IsActive = dto.IsActive
@@ -112,6 +115,57 @@ namespace PrivateBlog.Web.Controllers
             {
                 _notifyService.Error($"Error al editar la sección: {ex.Message}");
                 return View(dto);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new DeleteSectionCommand { Id = id });
+                _notifyService.Success("Sección eliminada exitosamente.");
+            }
+
+            catch (Exception ex)
+            {
+                _notifyService.Error($"Error al eliminar la sección: {ex.Message}");
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Activate([FromRoute] Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new ActivateSectionCommand { Id = id });
+                _notifyService.Success("Sección activada exitosamente.");
+            }
+
+            catch (Exception ex)
+            {
+                _notifyService.Error($"Error al activar la sección: {ex.Message}");
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Deactivate([FromRoute] Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new DeactivateSeccionCommand { Id = id });
+                _notifyService.Success("Sección desactivada exitosamente.");
+            }
+
+            catch (Exception ex)
+            {
+                _notifyService.Error($"Error al desactivar la sección: {ex.Message}");
             }
 
             return RedirectToAction(nameof(Index));

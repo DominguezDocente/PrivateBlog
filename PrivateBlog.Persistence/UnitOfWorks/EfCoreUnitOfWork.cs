@@ -1,7 +1,4 @@
 ﻿using PrivateBlog.Application.Contracts.Persisntece;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PrivateBlog.Persistence.UnitOfWorks
 {

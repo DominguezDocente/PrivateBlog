@@ -47,8 +47,44 @@
                     {
                         <tr>
                             <td>@item.Name</td>
-                            <td>@(item.IsActive ? "Si" : "No")</td>
                             <td>
+                                @if(item.IsActive)
+                                {
+                                    <span class="text-success"><i class="bi bi-bookmark-check-fill"></i></span>
+                                }
+                                else
+                                {
+                                    <span class="text-secondary"><i class="bi bi-bookmark-x-fill"></i></span>
+                                }                             
+
+                            </td>
+                            <td>
+
+                                @if (item.IsActive)
+                                {
+                                    <form method="POST" asp-action="Deactivate" asp-route-id="@item.Id" style="display: contents;">
+                                        <button type="submit"
+                                                class="btn btn-info"
+                                                data-bs-toogle="tooltip"
+                                                data-bs-placement="top" 
+                                                title="Activar sección">
+                                            <i class="bi bi-toggle-on"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form method="POST" asp-action="Activate" asp-route-id="@item.Id" style="display: contents;">
+                                        <button type="submit"
+                                                class="btn btn-secondary"
+                                                data-bs-toogle="tooltip"
+                                                data-bs-placement="top" 
+                                                title="Desctivar sección">
+                                            <i class="bi bi-toggle-off"></i>
+                                        </button>
+                                    </form>
+                                }
+
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>
@@ -96,6 +132,11 @@
                         form.submit();
                     }
                 });
+            });
+
+            $('[data-bs-toggle="tooltip"]').each(function() {
+
+                new bootstrap.Tooltip(this);
             });
         });
 
