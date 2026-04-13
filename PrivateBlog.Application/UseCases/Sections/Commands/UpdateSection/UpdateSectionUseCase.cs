@@ -23,7 +23,7 @@ namespace PrivateBlog.Application.UseCases.Sections.Commands.UpdateSection
 
             if (section is null)
             {
-                throw new BussinesRuleException("La sección no existe.");
+                throw new BusinessRuleException("La sección no existe.");
             }
 
             section.UpdateName(command.Name);

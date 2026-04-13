@@ -43,17 +43,17 @@ namespace PrivateBlog.Domain.Entities.Sections
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new BussinesRuleException($"El {nameof(name)} es requerido.");
+                throw new BusinessRuleException($"El {nameof(name)} es requerido.");
             }
 
             if (name.Length < 4)
             {
-                throw new BussinesRuleException($"El {nameof(name)} debe ser mayor a 4 letras.");
+                throw new BusinessRuleException($"El {nameof(name)} debe ser mayor a 4 letras.");
             }
 
             if (name.Length > 64)
             {
-                throw new BussinesRuleException($"El {nameof(name)} debe tener como máximo 64 caracteres.");
+                throw new BusinessRuleException($"El {nameof(name)} debe tener como máximo 64 caracteres.");
             }
         }
     }

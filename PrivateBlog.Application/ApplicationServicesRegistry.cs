@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
@@ -14,6 +15,8 @@ namespace PrivateBlog.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            services.AddValidatorsFromAssemblyContaining<CreateSectionCommandValidator>();
+
             services.AddTransient<IMediator, SimpleMediator>();
 
             services.AddScoped<IRequestHandler<CreateSectionCommand, Guid>, CreateSectionUseCase>();

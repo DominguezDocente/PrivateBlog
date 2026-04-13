@@ -29,8 +29,8 @@ namespace PrivateBlog.Web.Controllers
             IEnumerable<SectionListItemDTO> list = new List<SectionListItemDTO>();
             try
             {
-                GetSectionsListQuery command = new GetSectionsListQuery();
-                list = await _mediator.Send(command);
+                GetSectionsListQuery query = new GetSectionsListQuery();
+                list = await _mediator.Send(query);
             }
             catch (Exception ex)
             {
@@ -47,18 +47,18 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateSectionDTO dto)
+        public async Task<IActionResult> Create(CreateSectionDTO createSectionDto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
                     _notifyService.Error("Debe corregir los errores de validación.");
-                    return View(dto);
+                    return View(createSectionDto);
                 }
 
-                CreateSectionCommand command = new CreateSectionCommand { Name = dto.Name };
-                Guid newSectionId = await _mediator.Send(command);
+                CreateSectionCommand createCommand = new CreateSectionCommand { Name = createSectionDto.Name };
+                await _mediator.Send(createCommand);
                 _notifyService.Success("Sección creada con éxito");
             }
             catch(Exception ex)
@@ -82,14 +82,14 @@ namespace PrivateBlog.Web.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                EditSectionDTO dto = new EditSectionDTO
+                EditSectionDTO editSectionDto = new EditSectionDTO
                 {
                     Id = section.Id,
                     Name = section.Name,
                     IsActive = section.IsActive,
                 };
 
-                return View(dto);
+                return View(editSectionDto);
             }
             catch (Exception ex)
             {
@@ -99,30 +99,30 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditSectionDTO dto)
+        public async Task<IActionResult> Edit(EditSectionDTO editSectionDto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
                     _notifyService.Error("Debe corregir los errores de validación.");
-                    return View(dto);
+                    return View(editSectionDto);
                 }
 
-                UpdateSectionCommand command = new UpdateSectionCommand
+                UpdateSectionCommand updateCommand = new UpdateSectionCommand
                 {
-                    Id = dto.Id,
-                    Name = dto.Name,
-                    IsActive = dto.IsActive,
+                    Id = editSectionDto.Id,
+                    Name = editSectionDto.Name,
+                    IsActive = editSectionDto.IsActive,
                 };
 
-                await _mediator.Send(command);
+                await _mediator.Send(updateCommand);
                 _notifyService.Success("Sección actualizada con éxito");
             }
             catch (Exception ex)
             {
                 _notifyService.Error(ex.Message);
-                return View(dto);
+                return View(editSectionDto);
             }
 
             return RedirectToAction(nameof(Index));

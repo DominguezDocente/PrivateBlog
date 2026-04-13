@@ -4,9 +4,9 @@ using System.Text;
 
 namespace PrivateBlog.Domain.Exceptions
 {
-    public class BussinesRuleException : Exception
+    public class BusinessRuleException : Exception
     {
-        public BussinesRuleException(string message) : base(message)
+        public BusinessRuleException(string message) : base(message)
         {
             
         }

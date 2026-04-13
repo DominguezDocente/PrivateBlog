@@ -1,9 +1,7 @@
-﻿using PrivateBlog.Application.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using FluentValidation.Results;
+using PrivateBlog.Application.Exceptions;
 using System.Reflection;
-using System.Text;
 
 namespace PrivateBlog.Application.Utils.Mediator
 {
@@ -18,7 +16,7 @@ namespace PrivateBlog.Application.Utils.Mediator
 
         public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request)
         {
-            //await ValidateRequest(request);
+            await ValidateRequestAsync(request).ConfigureAwait(false);
 
             Type useCaseType = typeof(IRequestHandler<,>).MakeGenericType(request.GetType(), typeof(TResponse));
 
@@ -36,7 +34,7 @@ namespace PrivateBlog.Application.Utils.Mediator
 
         public async Task Send(IRequest request)
         {
-            //await ValidateRequest(request);
+            await ValidateRequestAsync(request).ConfigureAwait(false);
 
             Type useCaseType = typeof(IRequestHandler<>).MakeGenericType(request.GetType());
 
@@ -52,29 +50,48 @@ namespace PrivateBlog.Application.Utils.Mediator
             await (Task)method.Invoke(useCase, new object[] { request })!;
         }
 
-        //private async Task ValidateRequest(object request)
-        //{
-        //    Type validatorType = typeof(IValidator<>).MakeGenericType(request.GetType());
+        /// <summary>
+        /// Si existe un <see cref="IValidator{T}"/> registrado para el tipo del request, ejecuta la validación.
+        /// </summary>
+        private async Task ValidateRequestAsync(object request)
+        {
+            Type requestType = request.GetType();
+            Type validatorInterface = typeof(IValidator<>).MakeGenericType(requestType);
+            object? validator = _serviceProvider.GetService(validatorInterface);
 
-        //    var validator = _serviceProvider.GetService(validatorType);
+            if (validator is null)
+            {
+                return;
+            }
 
-        //    if (validator is not null)
-        //    {
-        //        MethodInfo validatorMethod = validatorType.GetMethod("ValidateAsync")!;
+            MethodInfo? validateMethod = validatorInterface.GetMethod(
+                "ValidateAsync",
+                new[] { requestType, typeof(CancellationToken) });
 
-        //        Task validationTask = (Task)validatorMethod.Invoke(validator, new object[] { request, default })!;
+            if (validateMethod is null)
+            {
+                return;
+            }
 
-        //        await validationTask.ConfigureAwait(false);
+            object? invokeResult = validateMethod.Invoke(validator, new object[] { request, CancellationToken.None });
 
-        //        PropertyInfo result = validationTask.GetType().GetProperty("Result")!;
-        //        ValidationResult validationResult = (ValidationResult)result!.GetValue(validationTask)!;
+            if (invokeResult is not Task task)
+            {
+                return;
+            }
 
-        //        if (!validationResult.IsValid)
-        //        {
-        //            throw new CustomValidationException(validationResult);
-        //        }
-        //    }
-        //}
+            await task.ConfigureAwait(false);
+
+            PropertyInfo? resultProperty = task.GetType().GetProperty("Result");
+            if (resultProperty?.GetValue(task) is not ValidationResult validationResult)
+            {
+                return;
+            }
+
+            if (!validationResult.IsValid)
+            {
+                throw new CustomValidationException(validationResult);
+            }
+        }
     }
-
 }

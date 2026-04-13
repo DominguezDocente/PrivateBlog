@@ -23,7 +23,7 @@ namespace PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSection
 
             if (section is null)
             {
-                throw new BussinesRuleException("La sección no existe.");
+                throw new BusinessRuleException("La sección no existe.");
             }
 
             section.Deactivate();
