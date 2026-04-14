@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Web.Middlewares;
 using PrivateBlog.Web.Models;
 using System.Diagnostics;
 
@@ -19,7 +20,10 @@ namespace PrivateBlog.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            string? message = HttpContext.Session.GetString(ExceptionHandlerMiddleware.ERROR_MESSAGE_SESSION_KEY);
+            HttpContext.Session.Remove(ExceptionHandlerMiddleware.ERROR_MESSAGE_SESSION_KEY);
+
+            return View(new ErrorViewModel { Message = message });
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
@@ -39,8 +40,10 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            CreateSectionCommand command = new CreateSectionCommand { Name = "123" };
+            Guid newSectionId = await _mediator.Send(command);
             return View();
         }
 

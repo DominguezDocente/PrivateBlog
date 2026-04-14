@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSeccion;
@@ -14,8 +15,10 @@ namespace PrivateBlog.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            // Mediator
             services.AddTransient<IMediator, SimpleMediator>();
 
+            // Use cases
             services.AddScoped<IRequestHandler<GetSectionsListQuery, IEnumerable<SectionListItemDTO>>, GetSectionsListUseCase>();
             services.AddScoped<IRequestHandler<GetSectionByIdQuery, SectionDetailDTO>, GetSectionByIdUseCase>();
             services.AddScoped<IRequestHandler<CreateSectionCommand, Guid>, CreateSectionUseCase>();
@@ -23,6 +26,10 @@ namespace PrivateBlog.Application
             services.AddScoped<IRequestHandler<DeleteSectionCommand>, DeleteSectionUseCase>();
             services.AddScoped<IRequestHandler<ActivateSectionCommand>, ActivateSectionUseCase>();
             services.AddScoped<IRequestHandler<DeactivateSeccionCommand>, DeactivateSeccionUseCase>();
+
+            // Validators
+            services.AddValidatorsFromAssemblyContaining<CreateSectionCommandValidator>();
+            services.AddValidatorsFromAssemblyContaining<UpdateSectionCommandValidator>();
 
             return services;
         }
