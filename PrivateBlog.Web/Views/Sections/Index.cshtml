@@ -1,6 +1,6 @@
-@model IEnumerable<PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList.SectionListItemDTO>
+@model SectionsIndexViewModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Secciones";
 }
 
 <div class="pagetitle">
@@ -8,7 +8,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
-            <li class="breadcrumb-item active">Secciones</li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
         </ol>
     </nav>
 </div>
@@ -19,18 +19,82 @@
         <div class="card-header">
 
             <div class="row">
-                <h3 class="m-0 font-weight-bold text-primary col-md-11">Secciones</h3>                               
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
                 <div class="col-md-1">
                     <a asp-action="Create"
                        class="btn btn-primary"
                        data-bs-toggle="tooltip"
                        data-bs-placement="left"
                        title="Nueva sección"><i class="bi bi-plus-circle"></i></a>
-                </div>                
+                </div>
             </div>
         </div>
 
         <div class="card-body mt-3">
+
+            <form method="get" asp-action="Index" class="row g-2 align-items-end mb-4">
+                <input type="hidden" name="page" value="1" />
+                <div class="col-md-3">
+                    <label class="form-label small text-muted mb-0">Nombre</label>
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           value="@Model.FilterName"
+                           placeholder="Buscar por nombre"
+                           maxlength="64" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-0">Estado</label>
+                    <select name="isActive" class="form-select">
+                        @if (Model.FilterIsActive == null)
+                        {
+                            <option value="" selected>Todas</option>
+                            <option value="true">Activas</option>
+                            <option value="false">Inactivas</option>
+                        }
+                        else if (Model.FilterIsActive == true)
+                        {
+                            <option value="">Todas</option>
+                            <option value="true" selected>Activas</option>
+                            <option value="false">Inactivas</option>
+                        }
+                        else
+                        {
+                            <option value="">Todas</option>
+                            <option value="true">Activas</option>
+                            <option value="false" selected>Inactivas</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-0">Por página</label>
+                    @{
+                        int[] pageSizePresets = new[] { 5, 10, 20, 50 };
+                        int currentPageSize = Model.List.PageSize;
+                    }
+                    <select name="pageSize" class="form-select">
+                        @if (Array.IndexOf(pageSizePresets, currentPageSize) < 0)
+                        {
+                            <option value="@currentPageSize" selected>@currentPageSize</option>
+                        }
+                        @foreach (int size in pageSizePresets)
+                        {
+                            @if (currentPageSize == size)
+                            {
+                                <option value="@size" selected>@size</option>
+                            }
+                            else
+                            {
+                                <option value="@size">@size</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-1">Limpiar</a>
+                </div>
+            </form>
 
             <table class="table table-bordered">
 
@@ -45,7 +109,7 @@
 
                 <tbody>
 
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.List.Items)
                     {
                         <tr>
                             <td>@item.Id</td>
@@ -104,21 +168,47 @@
 
             </table>
 
+            @if (Model.List.TotalPages > 1)
+            {
+                <nav aria-label="Paginación">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item @(Model.List.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(Model.List.PageNumber - 1)"
+                               asp-route-pageSize="@Model.List.PageSize"
+                               asp-route-name="@Model.FilterName"
+                               asp-route-isActive="@Model.FilterIsActive">Anterior</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">@Model.List.PageNumber / @Model.List.TotalPages</span>
+                        </li>
+                        <li class="page-item @(Model.List.HasNextPage ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(Model.List.PageNumber + 1)"
+                               asp-route-pageSize="@Model.List.PageSize"
+                               asp-route-name="@Model.FilterName"
+                               asp-route-isActive="@Model.FilterIsActive">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+                <p class="text-muted text-center small mt-2 mb-0">Total: @Model.List.TotalCount registros</p>
+            }
+
         </div>
+
     </div>
+
 </section>
 
 @section Scripts {
     <script>
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            $('[data-bs-toggle="tooltip"]').each(function () {
-                new bootstrap.Tooltip(this);
-            });
+            $('.btnDelete').click(function (event) {
 
-            $('.btnDelete').click(function(event) {
-                    
                 event.preventDefault();
 
                 Swal.fire({
@@ -127,14 +217,19 @@
                   text: "No podrá revertirlo",
                   showCancelButton: true
                 }).then((result) => {
-                        
+
                     if (result.isConfirmed) {
-                        
+
                         const form = $(this).closest('form');
 
                         form.submit();
                     }
                 });
+            });
+
+            $('[data-bs-toggle="tooltip"]').each(function () {
+
+                new bootstrap.Tooltip(this);
             });
         });
 

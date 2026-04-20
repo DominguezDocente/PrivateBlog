@@ -1,5 +1,6 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSection;
@@ -24,20 +25,41 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            int page = 1,
+            int pageSize = PaginationRequest.DefaultPageSize,
+            string? name = null,
+            bool? isActive = null)
         {
-            IEnumerable<SectionListItemDTO> list = new List<SectionListItemDTO>();
             try
             {
-                GetSectionsListQuery query = new GetSectionsListQuery();
-                list = await _mediator.Send(query);
+                PaginationResponse<SectionListItemDTO> result = await _mediator.Send(new GetSectionsListQuery
+                {
+                    Pagination = new PaginationRequest(page, pageSize),
+                    NameFilter = name,
+                    IsActiveFilter = isActive,
+                });
+
+                return View(new SectionsIndexViewModel
+                {
+                    List = result,
+                    FilterName = name ?? string.Empty,
+                    FilterIsActive = isActive,
+                });
             }
             catch (Exception ex)
             {
-                _notifyService.Error(ex.Message);
+                _notifyService.Error($"Error al cargar las secciones: {ex.Message}");
+                return View(new SectionsIndexViewModel
+                {
+                    List = PaginationResponse<SectionListItemDTO>.Create(
+                        Array.Empty<SectionListItemDTO>(),
+                        0,
+                        new PaginationRequest()),
+                    FilterName = string.Empty,
+                    FilterIsActive = null,
+                });
             }
-
-            return View(list);
         }
 
         [HttpGet]
@@ -61,12 +83,12 @@ namespace PrivateBlog.Web.Controllers
                 await _mediator.Send(createCommand);
                 _notifyService.Success("Sección creada con éxito");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _notifyService.Error(ex.Message);
             }
-            
-            return RedirectToAction("Index");            
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]

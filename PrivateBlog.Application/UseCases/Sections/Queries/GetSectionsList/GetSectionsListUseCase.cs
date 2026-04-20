@@ -1,13 +1,11 @@
+using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.Contracts.Repositories;
 using PrivateBlog.Application.Utils.Mediator;
 using PrivateBlog.Domain.Entities.Sections;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList
 {
-    public class GetSectionsListUseCase : IRequestHandler<GetSectionsListQuery, IEnumerable<SectionListItemDTO>>
+    public class GetSectionsListUseCase : IRequestHandler<GetSectionsListQuery, PaginationResponse<SectionListItemDTO>>
     {
         private readonly ISectionsRepository _sectionsRepository;
 
@@ -16,15 +14,19 @@ namespace PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList
             _sectionsRepository = sectionsRepository;
         }
 
-        public async Task<IEnumerable<SectionListItemDTO>> Handle(GetSectionsListQuery request)
+        public async Task<PaginationResponse<SectionListItemDTO>> Handle(GetSectionsListQuery request)
         {
-            IEnumerable<Section> sections = await _sectionsRepository.GetListAsync();
-            List<SectionListItemDTO> sectionsDTO = sections
-                .OrderBy(s => s.Name)
-                .Select(c => c.ToDTO())
-                .ToList();
+            PaginationRequest pagination = request.Pagination.Normalized();
 
-            return sectionsDTO;
+            (IReadOnlyList<Section> sections, int totalCount) =
+                await _sectionsRepository.GetPagedByNameAsync(
+                    pagination,
+                    request.NameFilter,
+                    request.IsActiveFilter);
+
+            List<SectionListItemDTO> items = sections.Select(s => s.ToDTO()).ToList();
+
+            return PaginationResponse<SectionListItemDTO>.Create(items, totalCount, pagination);
         }
     }
 }

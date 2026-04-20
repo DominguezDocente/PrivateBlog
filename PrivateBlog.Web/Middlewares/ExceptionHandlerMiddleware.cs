@@ -3,10 +3,6 @@ using PrivateBlog.Domain.Exceptions;
 
 namespace PrivateBlog.Web.Middlewares
 {
-    /// <summary>
-    /// Guarda el mensaje en sesión (no en TempData): TempData solo se “confirma” al final
-    /// de una acción MVC, así que desde middleware el cookie de TempData no llegaba a guardarse.
-    /// </summary>
     public class ExceptionHandlerMiddleware
     {
         public const string ErrorMessageSessionKey = "ErrorMessage";
@@ -31,23 +27,21 @@ namespace PrivateBlog.Web.Middlewares
                     throw;
                 }
 
-                string message;
+                string message = "Ha ocurrido un error inesperado.";
+
                 switch (ex)
                 {
-                    case BusinessRuleException businessRule:
-                        message = businessRule.Message;
+                    case BusinessRuleException rule:
+                        message = rule.Message;
                         break;
-                    case MediatorException mediator:
-                        message = mediator.Message;
+                    case MediatorException mediatorEx:
+                        message = mediatorEx.Message;
                         break;
                     case CustomValidationException validation when validation.ValidationErrors.Count > 0:
                         message = string.Join(" ", validation.ValidationErrors);
                         break;
-                    case CustomValidationException validationException:
-                        message = validationException.Message;
-                        break;
-                    default:
-                        message = "Ha ocurrido un error inesperado.";
+                    case CustomValidationException validationEx:
+                        message = validationEx.Message;
                         break;
                 }
 

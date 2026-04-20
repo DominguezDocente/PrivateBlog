@@ -1,6 +1,7 @@
 using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
 using PrivateBlog.Persistence;
+using PrivateBlog.Persistence.Seeding;
 using PrivateBlog.Application;
 using PrivateBlog.Web.Middlewares;
 
@@ -27,6 +28,12 @@ builder.Services.AddNotyf(config =>
 
 
 WebApplication app = builder.Build();
+
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    await SeedDb.SeedAsync(db);
+}
 
 if (!app.Environment.IsDevelopment())
 {
