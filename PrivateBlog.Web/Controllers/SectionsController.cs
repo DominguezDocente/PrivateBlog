@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSeccion;
@@ -24,13 +25,31 @@ namespace PrivateBlog.Web.Controllers
             _mediator = mediator;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] int page = 1,
+                                               [FromQuery] int pageSize = PaginationRequest.DEFAULT_PAGE_SIZE,
+                                               [FromQuery] string? nameFilter = null,
+                                               [FromQuery] bool? isActiveFilter = null)
         {
             try
             {
-                IEnumerable<SectionListItemDTO> list = await _mediator.Send(new GetSectionsListQuery());
+                PaginationRequest paginationRequest = new PaginationRequest(page, pageSize);
+                GetSectionsListQuery query = new GetSectionsListQuery
+                {
+                    Pagination = paginationRequest,
+                    NameFilter = nameFilter,
+                    IsActiveFilter = isActiveFilter
+                };
 
-                return View(list);
+                PaginationResponse<SectionListItemDTO> list = await _mediator.Send(query);
+
+                SectionsIndexViewModel viewModel = new SectionsIndexViewModel
+                {
+                    List = list,
+                    FilterName = nameFilter ?? string.Empty,
+                    FilterIsActive = isActiveFilter
+                };
+
+                return View(viewModel);
             }
             catch (Exception ex)
             {

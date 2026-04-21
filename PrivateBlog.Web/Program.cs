@@ -2,6 +2,7 @@ using AspNetCoreHero.ToastNotification;
 using AspNetCoreHero.ToastNotification.Extensions;
 using PrivateBlog.Application;
 using PrivateBlog.Persistence;
+using PrivateBlog.Persistence.Seeding;
 using PrivateBlog.Web.Middlewares;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,12 @@ builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices();
 
 WebApplication app = builder.Build();
+
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    SeedDb service = scope.ServiceProvider.GetRequiredService<SeedDb>();
+    await service.SeedAsync();
+}
 
 if (!app.Environment.IsDevelopment())
 {

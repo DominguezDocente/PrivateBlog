@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSeccion;
@@ -19,7 +20,7 @@ namespace PrivateBlog.Application
             services.AddTransient<IMediator, SimpleMediator>();
 
             // Use cases
-            services.AddScoped<IRequestHandler<GetSectionsListQuery, IEnumerable<SectionListItemDTO>>, GetSectionsListUseCase>();
+            services.AddScoped<IRequestHandler<GetSectionsListQuery, PaginationResponse<SectionListItemDTO>>, GetSectionsListUseCase>();
             services.AddScoped<IRequestHandler<GetSectionByIdQuery, SectionDetailDTO>, GetSectionByIdUseCase>();
             services.AddScoped<IRequestHandler<CreateSectionCommand, Guid>, CreateSectionUseCase>();
             services.AddScoped<IRequestHandler<UpdateSectionCommand>, UpdateSectionUseCase>();

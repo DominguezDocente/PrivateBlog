@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.Contracts.Persisntece;
 using PrivateBlog.Application.Contracts.Repositories;
 using PrivateBlog.Persistence.Repositories;
+using PrivateBlog.Persistence.Seeding;
 using PrivateBlog.Persistence.UnitOfWorks;
 
 namespace PrivateBlog.Persistence
@@ -18,6 +19,8 @@ namespace PrivateBlog.Persistence
 
             services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
             services.AddScoped<ISectionsRepository, SectionsRepository>();
+
+            services.AddTransient<SeedDb>();
 
             return services;
         }
