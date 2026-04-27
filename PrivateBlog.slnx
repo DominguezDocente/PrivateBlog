@@ -4,6 +4,7 @@
     <Project Path="PrivateBlog.Domain/PrivateBlog.Domain.csproj" />
   </Folder>
   <Folder Name="/Infrastructure/">
+    <Project Path="PrivateBlog.Infrastructure/PrivateBlog.Infrastructure.csproj" />
     <Project Path="PrivateBlog.Persistence/PrivateBlog.Persistence.csproj" />
   </Folder>
   <Folder Name="/Presenters/">

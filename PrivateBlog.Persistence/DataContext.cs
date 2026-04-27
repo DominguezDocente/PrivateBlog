@@ -1,22 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using PrivateBlog.Domain.Entities.Blogs;
 using PrivateBlog.Domain.Entities.Sections;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using PrivateBlog.Persistence.Entities;
 
 namespace PrivateBlog.Persistence
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<ApplicationUser>
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        public DataContext(DbContextOptions<DataContext> options)
+            : base(options)
         {
         }
 
-        protected DataContext() { }
+        protected DataContext()
+        {
+        }
 
         public DbSet<Section> Sections { get; set; }
 
-        override protected void OnModelCreating(ModelBuilder modelBuilder)
+        public DbSet<Blog> Blogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
 

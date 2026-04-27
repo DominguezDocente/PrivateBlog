@@ -1,46 +1,44 @@
-using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Domain.Entities.Sections;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace PrivateBlog.Persistence.Seeding
 {
-    public sealed class SectionsSeeder : EntitySeederBase
+    internal class SectionsSeeder
     {
-        private static readonly string[] SeedNames =
-        [
-            "General",
-            "Noticias",
-            "Tutoriales",
-            "Recursos",
-        ];
+        private readonly DataContext _context;
 
-        public override async Task SeedAsync(DataContext db, CancellationToken cancellationToken = default)
+        public SectionsSeeder(DataContext context)
         {
-            List<string> existingNames = await db.Sections
-                .Select(s => s.Name)
-                .ToListAsync(cancellationToken);
+            _context = context;
+        }
 
-            HashSet<string> existing = new(existingNames, StringComparer.OrdinalIgnoreCase);
+        public async Task SeedAsync()
+        {
+            string[] sections =
+            [
+                "Technology",
+                "Lifestyle",
+                "Travel",
+                "Food",
+                "Health",
+                "Education",
+                "Entertainment",
+                "Business",
+                "Sports",
+                "Politics"
+            ];
 
-            List<Section> toAdd = [];
-
-            foreach (string name in SeedNames)
+            foreach (string section in sections)
             {
-                if (existing.Contains(name))
+                if (!_context.Sections.Any(s => s.Name == section))
                 {
-                    continue;
+                    await _context.Sections.AddAsync(new Section(section));
                 }
-
-                toAdd.Add(new Section(name));
-                existing.Add(name);
             }
 
-            if (toAdd.Count == 0)
-            {
-                return;
-            }
-
-            db.Sections.AddRange(toAdd);
-            await db.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync();
         }
     }
 }

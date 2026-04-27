@@ -1,21 +1,29 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using PrivateBlog.Persistence.Entities;
+
 namespace PrivateBlog.Persistence.Seeding
 {
-    /// <summary>
-    /// Orquesta todos los seeders por entidad (orden = orden del array).
-    /// </summary>
-    public static class SeedDb
+    public class SeedDb
     {
-        private static readonly EntitySeederBase[] Seeders =
-        [
-            new SectionsSeeder(),
-        ];
+        private readonly DataContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public static async Task SeedAsync(DataContext db, CancellationToken cancellationToken = default)
+        public SeedDb(
+            DataContext context,
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration)
         {
-            foreach (EntitySeederBase seeder in Seeders)
-            {
-                await seeder.SeedAsync(db, cancellationToken);
-            }
+            _context = context;
+            _userManager = userManager;
+            _configuration = configuration;
+        }
+
+        public async Task SeedAsync()
+        {
+            await new SectionsSeeder(_context).SeedAsync();
+            await new UsersSeeder(_userManager, _configuration).SeedAsync();
         }
     }
 }

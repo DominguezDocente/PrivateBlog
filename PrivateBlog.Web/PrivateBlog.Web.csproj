@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PrivateBlog.Application\PrivateBlog.Application.csproj" />
     <ProjectReference Include="..\PrivateBlog.Domain\PrivateBlog.Domain.csproj" />
+    <ProjectReference Include="..\PrivateBlog.Infrastructure\PrivateBlog.Infrastructure.csproj" />
     <ProjectReference Include="..\PrivateBlog.Persistence\PrivateBlog.Persistence.csproj" />
   </ItemGroup>
 

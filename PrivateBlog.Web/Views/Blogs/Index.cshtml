@@ -1,0 +1,240 @@
+@model BlogsIndexViewModel
+@{
+    ViewData["Title"] = "Blogs";
+}
+
+<div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="row">
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
+                <div class="col-md-1">
+                    <a asp-action="Create"
+                       class="btn btn-primary"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="left"
+                       title="Nuevo blog"><i class="bi bi-plus-circle"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body mt-3">
+
+            <form method="get" asp-action="Index" class="row g-2 align-items-end mb-4">
+                <input type="hidden" name="page" value="1" />
+                <div class="col-md-3">
+                    <label class="form-label small text-muted mb-0">Título</label>
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           value="@Model.FilterName"
+                           placeholder="Buscar por título"
+                           maxlength="200" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-0">Sección</label>
+                    <select name="sectionId" class="form-select">
+                        @if (Model.FilterSectionId == null || Model.FilterSectionId == Guid.Empty)
+                        {
+                            <option value="" selected>Todas</option>
+                        }
+                        else
+                        {
+                            <option value="">Todas</option>
+                        }
+                        @foreach (var sec in Model.SectionOptions)
+                        {
+                            bool selected = Model.FilterSectionId.HasValue && Model.FilterSectionId.Value == sec.Id;
+                            if (selected)
+                            {
+                                <option value="@sec.Id" selected>@sec.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@sec.Id">@sec.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-0">Estado</label>
+                    <select name="isPublished" class="form-select">
+                        @if (Model.FilterIsPublished == null)
+                        {
+                            <option value="" selected>Todos</option>
+                            <option value="true">Publicados</option>
+                            <option value="false">Borradores</option>
+                        }
+                        else if (Model.FilterIsPublished == true)
+                        {
+                            <option value="">Todos</option>
+                            <option value="true" selected>Publicados</option>
+                            <option value="false">Borradores</option>
+                        }
+                        else
+                        {
+                            <option value="">Todos</option>
+                            <option value="true">Publicados</option>
+                            <option value="false" selected>Borradores</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-0">Por página</label>
+                    @{
+                        int[] pageSizePresets = new[] { 5, 10, 20, 50 };
+                        int currentPageSize = Model.List.PageSize;
+                    }
+                    <select name="pageSize" class="form-select">
+                        @if (Array.IndexOf(pageSizePresets, currentPageSize) < 0)
+                        {
+                            <option value="@currentPageSize" selected>@currentPageSize</option>
+                        }
+                        @foreach (int size in pageSizePresets)
+                        {
+                            @if (currentPageSize == size)
+                            {
+                                <option value="@size" selected>@size</option>
+                            }
+                            else
+                            {
+                                <option value="@size">@size</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-1">Limpiar</a>
+                </div>
+            </form>
+
+            <table class="table table-bordered">
+
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Sección</th>
+                        <th>Estado</th>
+                        <th>Actualizado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model.List.Items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.SectionName</td>
+                            <td>@(item.IsPublished ? "Publicado" : "Borrador")</td>
+                            <td>@item.UpdatedAtUtc.ToLocalTime().ToString("g")</td>
+                            <td>
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-warning"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Editar blog"
+                                   aria-label="Editar"><i class="bi bi-pencil-fill"></i></a>
+
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: contents;">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger btnDelete"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Eliminar blog"
+                                            aria-label="Eliminar"><i class="bi bi-trash-fill"></i></button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+            @if (Model.List.TotalPages > 1)
+            {
+                <nav aria-label="Paginación">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item @(Model.List.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(Model.List.PageNumber - 1)"
+                               asp-route-pageSize="@Model.List.PageSize"
+                               asp-route-name="@Model.FilterName"
+                               asp-route-sectionId="@Model.FilterSectionId"
+                               asp-route-isPublished="@Model.FilterIsPublished">Anterior</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">@Model.List.PageNumber / @Model.List.TotalPages</span>
+                        </li>
+                        <li class="page-item @(Model.List.HasNextPage ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(Model.List.PageNumber + 1)"
+                               asp-route-pageSize="@Model.List.PageSize"
+                               asp-route-name="@Model.FilterName"
+                               asp-route-sectionId="@Model.FilterSectionId"
+                               asp-route-isPublished="@Model.FilterIsPublished">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+
+            <p class="text-muted text-center small mt-2 mb-0">Total: @Model.List.TotalCount registros</p>
+
+        </div>
+
+    </div>
+
+</section>
+
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+
+            $('.btnDelete').click(function (event) {
+
+                event.preventDefault();
+
+                Swal.fire({
+                  icon: "question",
+                  title: "¿Desea eliminar este blog?",
+                  text: "No podrá revertirlo",
+                  showCancelButton: true
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        const form = $(this).closest('form');
+
+                        form.submit();
+                    }
+                });
+            });
+
+            $('[data-bs-toggle="tooltip"]').each(function () {
+
+                new bootstrap.Tooltip(this);
+            });
+        });
+
+    </script>
+}

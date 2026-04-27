@@ -3,6 +3,7 @@ using AspNetCoreHero.ToastNotification.Extensions;
 using PrivateBlog.Persistence;
 using PrivateBlog.Persistence.Seeding;
 using PrivateBlog.Application;
+using PrivateBlog.Infrastructure;
 using PrivateBlog.Web.Middlewares;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices();
+builder.Services.AddInfrastructureServices();
 
 builder.Services.AddNotyf(config => 
 { 
@@ -31,8 +33,8 @@ WebApplication app = builder.Build();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
-    await SeedDb.SeedAsync(db);
+    SeedDb service = scope.ServiceProvider.GetRequiredService<SeedDb>();
+    await service.SeedAsync();
 }
 
 if (!app.Environment.IsDevelopment())
@@ -45,6 +47,7 @@ app.UseRouting();
 
 app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseNotyf();

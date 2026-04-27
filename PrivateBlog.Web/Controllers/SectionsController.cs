@@ -1,4 +1,5 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
@@ -13,6 +14,7 @@ using PrivateBlog.Web.DTOs.Sections;
 
 namespace PrivateBlog.Web.Controllers
 {
+    [Authorize]
     public class SectionsController : Controller
     {
         private readonly IMediator _mediator;
