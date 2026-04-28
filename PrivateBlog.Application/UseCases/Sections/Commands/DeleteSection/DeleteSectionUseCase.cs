@@ -29,7 +29,10 @@ namespace PrivateBlog.Application.UseCases.Sections.Commands.DeleteSection
                 throw new BussinesRuleException($"No existe sección con id '{command.Id}'");
             }
 
-            // TODO: Validar que no tenga articulos asociados
+            if (await _repository.HasArticlesAsync(command.Id))
+            {
+                throw new BussinesRuleException($"La sección con id '{command.Id}' tiene artículos asociados.");
+            }
 
             try
             {

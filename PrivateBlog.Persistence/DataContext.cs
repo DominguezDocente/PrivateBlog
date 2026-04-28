@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PrivateBlog.Domain.Entities.Blogs;
 using PrivateBlog.Domain.Entities.Sections;
 
 namespace PrivateBlog.Persistence
@@ -11,6 +12,7 @@ namespace PrivateBlog.Persistence
         }
 
         public DbSet<Section> Sections { get; set; }
+        public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,4 +1,5 @@
-﻿using PrivateBlog.Application.Contracts.Pagination;
+﻿using Microsoft.EntityFrameworkCore;
+using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.Contracts.Repositories;
 using PrivateBlog.Domain.Entities.Sections;
 using PrivateBlog.Persistence.Extensions;
@@ -36,6 +37,11 @@ namespace PrivateBlog.Persistence.Repositories
                                                                .ToPagedListAsync(request, cancellationToken);
 
             return (items, totalCount);
+        }
+
+        public async Task<bool> HasArticlesAsync(Guid id)
+        {
+            return await _context.Blogs.AnyAsync(b => b.SectionId == id);
         }
     }
 }

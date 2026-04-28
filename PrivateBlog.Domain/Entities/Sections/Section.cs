@@ -1,4 +1,5 @@
-﻿using PrivateBlog.Domain.Exceptions;
+﻿using PrivateBlog.Domain.Entities.Blogs;
+using PrivateBlog.Domain.Exceptions;
 
 namespace PrivateBlog.Domain.Entities.Sections
 {
@@ -7,6 +8,7 @@ namespace PrivateBlog.Domain.Entities.Sections
         public Guid Id { get; private set; }
         public string Name { get; private set; } = null!;
         public bool IsActive { get; private set; }
+        public ICollection<Blog> Blogs { get; private set; } = new List<Blog>();
 
         private Section()
         {            

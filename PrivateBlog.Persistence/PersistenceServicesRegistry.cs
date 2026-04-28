@@ -19,6 +19,7 @@ namespace PrivateBlog.Persistence
 
             services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
             services.AddScoped<ISectionsRepository, SectionsRepository>();
+            services.AddScoped<IBlogsRepository, BlogsRepository>();
 
             services.AddTransient<SeedDb>();
 

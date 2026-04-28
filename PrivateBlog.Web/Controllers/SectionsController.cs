@@ -61,8 +61,6 @@ namespace PrivateBlog.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            CreateSectionCommand command = new CreateSectionCommand { Name = "123" };
-            Guid newSectionId = await _mediator.Send(command);
             return View();
         }
 

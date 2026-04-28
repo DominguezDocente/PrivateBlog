@@ -9,5 +9,7 @@ namespace PrivateBlog.Application.Contracts.Repositories
                                                                  string? nameFilter, 
                                                                  bool? isActiveFilter,
                                                                  CancellationToken cancellationToken = default);
+
+        Task<bool> HasArticlesAsync(Guid id);
     }
 }
