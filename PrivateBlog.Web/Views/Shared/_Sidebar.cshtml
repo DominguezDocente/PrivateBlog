@@ -1,3 +1,9 @@
+@inject IMediator Mediator
+
+@{
+    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -9,18 +15,23 @@
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Sections" ? "" : "collapsed")" asp-controller="Sections" asp-action="Index">
-                <i class="bi bi-book"></i> <span>Secciones</span>
-            </a>
-        </li>
+        @if (userId != null && await Mediator.Send(new UserHasPermissionQuery { UserId = userId, PermissionCode = PermissionCodes.ShowSections }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Sections" ? "" : "collapsed")" asp-controller="Sections" asp-action="Index">
+                    <i class="bi bi-book"></i> <span>Secciones</span>
+                </a>
+            </li>
+        }
 
-        <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Blogs" ? "" : "collapsed")" asp-controller="Blogs" asp-action="Index">
-                <i class="bi bi-journal-text"></i> <span>Blogs</span>
-            </a>
-        </li>
-
+        @if (userId != null && await Mediator.Send(new UserHasPermissionQuery { UserId = userId, PermissionCode = PermissionCodes.ShowBlogs }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Blogs" ? "" : "collapsed")" asp-controller="Blogs" asp-action="Index">
+                    <i class="bi bi-journal-text"></i> <span>Blogs</span>
+                </a>
+            </li>
+        }
 
     </ul>
 

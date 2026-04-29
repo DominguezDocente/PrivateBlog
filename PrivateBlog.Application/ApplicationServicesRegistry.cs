@@ -1,9 +1,12 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using PrivateBlog.Application.Contracts.Account;
 using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.Contracts.Authentication;
 using PrivateBlog.Application.UseCases.Account.Commands.Login;
 using PrivateBlog.Application.UseCases.Account.Commands.Logout;
+using PrivateBlog.Application.UseCases.Account.Queries.GetUserHeaderInfo;
+using PrivateBlog.Application.UseCases.Account.Queries.UserHasPermission;
 using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.DeleteBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.UpdateBlog;
@@ -46,6 +49,8 @@ namespace PrivateBlog.Application
             services.AddScoped<IRequestHandler<DeleteBlogCommand>, DeleteBlogUseCase>();
             services.AddScoped<IRequestHandler<LoginCommand, AccountSignInResult>, LoginUseCase>();
             services.AddScoped<IRequestHandler<LogoutCommand>, LogoutUseCase>();
+            services.AddScoped<IRequestHandler<UserHasPermissionQuery, bool>, UserHasPermissionUseCase>();
+            services.AddScoped<IRequestHandler<GetUserHeaderInfoQuery, UserHeaderInfoDTO?>, GetUserHeaderInfoUseCase>();
 
             return services;
         }

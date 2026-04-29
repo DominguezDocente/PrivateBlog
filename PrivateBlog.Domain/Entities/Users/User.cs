@@ -8,6 +8,7 @@ namespace PrivateBlog.Domain.Entities.Users
     public sealed class User
     {
         public string Id { get; private set; } = null!;
+        public Guid RoleId { get; private set; }
 
         public string Email { get; private set; } = null!;
 
@@ -27,6 +28,7 @@ namespace PrivateBlog.Domain.Entities.Users
 
         public static User Reconstitute(
             string id,
+            Guid roleId,
             string email,
             string userName,
             bool emailConfirmed,
@@ -35,12 +37,14 @@ namespace PrivateBlog.Domain.Entities.Users
             DateTimeOffset? lockoutEndUtc)
         {
             ValidateId(id);
+            ValidateRoleId(roleId);
             ValidateEmail(email);
             ValidateUserName(userName);
 
             return new User
             {
                 Id = id.Trim(),
+                RoleId = roleId,
                 Email = email.Trim(),
                 UserName = userName.Trim(),
                 EmailConfirmed = emailConfirmed,
@@ -88,6 +92,14 @@ namespace PrivateBlog.Domain.Entities.Users
             if (trimmed.Length > 256)
             {
                 throw new BusinessRuleException("El correo no puede superar los 256 caracteres.");
+            }
+        }
+
+        private static void ValidateRoleId(Guid roleId)
+        {
+            if (roleId == Guid.Empty)
+            {
+                throw new BusinessRuleException("El rol del usuario es requerido.");
             }
         }
 

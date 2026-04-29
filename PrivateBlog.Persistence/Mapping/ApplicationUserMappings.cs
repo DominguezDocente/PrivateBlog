@@ -11,6 +11,7 @@ namespace PrivateBlog.Persistence.Mapping
 
             return User.Reconstitute(
                 user.Id,
+                user.RoleId,
                 user.Email ?? string.Empty,
                 user.UserName ?? string.Empty,
                 user.EmailConfirmed,

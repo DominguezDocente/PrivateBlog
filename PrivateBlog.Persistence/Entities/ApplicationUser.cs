@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using PrivateBlog.Domain.Entities.Users;
 
 namespace PrivateBlog.Persistence.Entities
 {
@@ -7,5 +8,11 @@ namespace PrivateBlog.Persistence.Entities
     /// </summary>
     public class ApplicationUser : IdentityUser
     {
+        public string? FirstName { get; set; }
+
+        public string? LastName { get; set; }
+
+        public Guid RoleId { get; set; }
+        public Role Role { get; set; } = null!;
     }
 }

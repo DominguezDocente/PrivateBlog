@@ -1,6 +1,7 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Application.Contracts.Permissions;
 using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.DeleteBlog;
@@ -9,6 +10,7 @@ using PrivateBlog.Application.UseCases.Blogs.Queries.GetBlogById;
 using PrivateBlog.Application.UseCases.Blogs.Queries.GetBlogsList;
 using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionOptions;
 using PrivateBlog.Application.Utils.Mediator;
+using PrivateBlog.Web.Authorization;
 using PrivateBlog.Web.DTOs.Blogs;
 
 namespace PrivateBlog.Web.Controllers
@@ -26,6 +28,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(PermissionCodes.ShowBlogs)]
         public async Task<IActionResult> Index(
             int page = 1,
             int pageSize = PaginationRequest.DefaultPageSize,

@@ -14,9 +14,17 @@ namespace PrivateBlog.Infrastructure
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
             services.AddScoped<IAccountService, IdentityAccountService>();
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+                })
+                .AddIdentityCookies();
 
             services
-                .AddIdentity<ApplicationUser, IdentityRole>(options =>
+                .AddIdentityCore<ApplicationUser>(options =>
                 {
                     options.Password.RequiredLength = 4;
                     options.Password.RequireDigit = true;
@@ -25,6 +33,7 @@ namespace PrivateBlog.Infrastructure
                     options.SignIn.RequireConfirmedEmail = false;
                     options.User.RequireUniqueEmail = true;
                 })
+                .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<DataContext>()
                 .AddDefaultTokenProviders();
 

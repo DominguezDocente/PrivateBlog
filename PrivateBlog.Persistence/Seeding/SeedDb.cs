@@ -23,7 +23,8 @@ namespace PrivateBlog.Persistence.Seeding
         public async Task SeedAsync()
         {
             await new SectionsSeeder(_context).SeedAsync();
-            await new UsersSeeder(_userManager, _configuration).SeedAsync();
+            await new PermissionsSeeder(_context).SeedAsync();
+            await new UserRolesSeeder(_context, _userManager, _configuration).SeedAsync();
         }
     }
 }

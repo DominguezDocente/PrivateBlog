@@ -103,5 +103,12 @@ namespace PrivateBlog.Web.Controllers
         {
             return View();
         }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult UpdateUser()
+        {
+            return View();
+        }
     }
 }
