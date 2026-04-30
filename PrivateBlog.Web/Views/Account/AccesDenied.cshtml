@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="pagetitle">
+    <h1>@ViewData["Title"]</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+    <div class="alert alert-warning" role="alert">
+        No tiene permiso para ver este recurso.
+    </div>
+    <p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Volver al inicio</a>
+    </p>
+</section>

@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.Contracts.Pagination;
+using PrivateBlog.Application.UseCases.Account.Commands.Login;
+using PrivateBlog.Application.UseCases.Account.Commands.Logout;
 using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.DeleteBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.UpdateBlog;
@@ -42,13 +44,19 @@ namespace PrivateBlog.Application
             services.AddScoped<IRequestHandler<UpdateBlogCommand>, UpdateBlogUseCase>();
             services.AddScoped<IRequestHandler<DeleteBlogCommand>, DeleteBlogUseCase>();
 
+
+            services.AddScoped<IRequestHandler<LoginCommand, AccountSignInResult>, LoginUseCase>();
+            services.AddScoped<IRequestHandler<LogoutCommand>, LogoutUseCase>();
+
             // Validators
             services.AddValidatorsFromAssemblyContaining<CreateSectionCommandValidator>();
             services.AddValidatorsFromAssemblyContaining<UpdateSectionCommandValidator>();
 
             services.AddValidatorsFromAssemblyContaining<CreateBlogCommandValidator>();
             services.AddValidatorsFromAssemblyContaining<UpdateBlogCommandValidator>();
-            services.AddValidatorsFromAssemblyContaining<DeleteBlogCommandValidator>(); 
+            services.AddValidatorsFromAssemblyContaining<DeleteBlogCommandValidator>();
+
+            services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
             return services;
         }

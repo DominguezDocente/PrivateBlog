@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Domain.Entities.Blogs;
 using PrivateBlog.Domain.Entities.Sections;
+using PrivateBlog.Persistence.Entitities;
 
 namespace PrivateBlog.Persistence
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityUserContext<ApplicationUser>
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {

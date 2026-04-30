@@ -16,4 +16,8 @@
     <ProjectReference Include="..\PrivateBlog.Domain\PrivateBlog.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UseCases\Account\Queries\" />
+  </ItemGroup>
+
 </Project>

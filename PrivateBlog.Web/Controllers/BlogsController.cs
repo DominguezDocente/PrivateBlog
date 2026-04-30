@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Application.Contracts.Pagination;
 using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
@@ -23,6 +24,7 @@ namespace PrivateBlog.Web.Controllers
             _notifyService = notifyService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Index(
             int page = 1,
