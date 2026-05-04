@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Application.Contracts.Pagination;
+using PrivateBlog.Application.Contracts.Security;
 using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.DeleteBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.UpdateBlog;
@@ -10,6 +11,7 @@ using PrivateBlog.Application.UseCases.Blogs.Queries.GetBlogsList;
 using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsOptions;
 using PrivateBlog.Application.Utilities.Mediator;
 using PrivateBlog.Web.DTOs.Blogs;
+using PrivateBlog.Web.Security;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -24,8 +26,8 @@ namespace PrivateBlog.Web.Controllers
             _notifyService = notifyService;
         }
 
-        [Authorize]
         [HttpGet]
+        [RequirePermission(PermissionCodesCatalog.ShowBlogs)]
         public async Task<IActionResult> Index(
             int page = 1,
             int pageSize = PaginationRequest.DEFAULT_PAGE_SIZE,

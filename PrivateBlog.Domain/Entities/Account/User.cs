@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PrivateBlog.Domain.Entities.Users
+namespace PrivateBlog.Domain.Entities.Account
 {
     public class User
     {
@@ -14,16 +14,19 @@ namespace PrivateBlog.Domain.Entities.Users
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
         public string? PhoneNumber { get; set; }
+        public Guid RoleId { get; private set; }
 
         private User()
         {            
         }
 
-        public static User Reconstitute(string id, string firstName, string lastName, string userName, string email, bool emailConfirmed, string? phoneNumber)
+        public static User Reconstitute(string id,
+            Guid roleId, string firstName, string lastName, string userName, string email, bool emailConfirmed, string? phoneNumber)
         {
             ValideteId(id);
             ValideteNames(firstName, lastName);
             ValideteEmail(email);
+            ValidateRoleId(roleId);
 
             return new User
             {
@@ -33,7 +36,8 @@ namespace PrivateBlog.Domain.Entities.Users
                 UserName = userName,
                 Email = email,
                 EmailConfirmed = emailConfirmed,
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                RoleId = roleId,
             };
         }
 
@@ -76,6 +80,14 @@ namespace PrivateBlog.Domain.Entities.Users
             }
 
             // TODO: Validar el formato del correo electrónico
+        }
+
+        private static void ValidateRoleId(Guid roleId)
+        {
+            if (roleId == Guid.Empty)
+            {
+                throw new BussinesRuleException("El rol del usuario es requerido.");
+            }
         }
     }
 }

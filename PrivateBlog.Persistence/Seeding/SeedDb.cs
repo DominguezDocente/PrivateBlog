@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using PrivateBlog.Persistence.Entitities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.AspNetCore.Identity;
+using PrivateBlog.Persistence.Entities;
 
 namespace PrivateBlog.Persistence.Seeding
 {
-    public class SeedDb
+    public sealed class SeedDb
     {
         private readonly DataContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -20,7 +17,8 @@ namespace PrivateBlog.Persistence.Seeding
         public async Task SeedAsync()
         {
             await new SectionsSeeder(_context).SeedAsync();
-            await new UsersSeeder(_userManager).SeedAsync();
+            await new PermissionsSeeder(_context).SeedAsync();
+            await new UsersSeeder(_userManager, _context).SeedAsync();
         }
     }
 }
