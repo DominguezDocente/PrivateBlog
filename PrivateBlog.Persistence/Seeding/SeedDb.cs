@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using PrivateBlog.Persistence.Entitities;
+using PrivateBlog.Persistence.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +20,8 @@ namespace PrivateBlog.Persistence.Seeding
         public async Task SeedAsync()
         {
             await new SectionsSeeder(_context).SeedAsync();
-            await new UsersSeeder(_userManager).SeedAsync();
+            await new PermissionsSeeder(_context).SeedAsync();
+            await new UsersSeeder(_userManager, _context).SeedAsync();
         }
     }
 }

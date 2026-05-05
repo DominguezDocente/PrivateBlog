@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PrivateBlog.Domain.Entities.Users
+namespace PrivateBlog.Domain.Entities.Account
 {
     public class User
     {
@@ -14,16 +14,25 @@ namespace PrivateBlog.Domain.Entities.Users
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
         public string? PhoneNumber { get; set; }
+        public Guid RoleId { get; set; }
 
         private User()
         {            
         }
 
-        public static User Reconstitute(string id, string firstName, string lastName, string userName, string email, bool emailConfirmed, string? phoneNumber)
+        public static User Reconstitute(string id, 
+                                        string firstName, 
+                                        string lastName, 
+                                        string userName, 
+                                        string email, 
+                                        bool emailConfirmed, 
+                                        string? phoneNumber,
+                                        Guid roleId)
         {
             ValideteId(id);
             ValideteNames(firstName, lastName);
             ValideteEmail(email);
+            ValideteRoleId(roleId);
 
             return new User
             {
@@ -42,6 +51,14 @@ namespace PrivateBlog.Domain.Entities.Users
             if (string.IsNullOrWhiteSpace(id)) 
             {
                 throw new BussinesRuleException("El id es requerido");
+            }
+        }
+
+        private static void ValideteRoleId(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new BussinesRuleException("El rol es requerido");
             }
         }
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.Contracts.Persisntece;
 using PrivateBlog.Application.Contracts.Repositories;
-using PrivateBlog.Persistence.Entitities;
+using PrivateBlog.Persistence.Entities;
 using PrivateBlog.Persistence.Repositories;
 using PrivateBlog.Persistence.Seeding;
 using PrivateBlog.Persistence.UnitOfWorks;
