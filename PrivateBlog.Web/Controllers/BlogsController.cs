@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Application.Contracts.Pagination;
+using PrivateBlog.Application.Contracts.Security;
 using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.DeleteBlog;
 using PrivateBlog.Application.UseCases.Blogs.Commands.UpdateBlog;
@@ -10,6 +11,7 @@ using PrivateBlog.Application.UseCases.Blogs.Queries.GetBlogsList;
 using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsOptions;
 using PrivateBlog.Application.Utilities.Mediator;
 using PrivateBlog.Web.DTOs.Blogs;
+using PrivateBlog.Web.Security;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -24,8 +26,8 @@ namespace PrivateBlog.Web.Controllers
             _notifyService = notifyService;
         }
 
-        [Authorize]
-        [HttpGet]
+        [HttpGet] 
+        [RequirePermission(PermissionCodesCatalog.SHOW_BLOGS)]
         public async Task<IActionResult> Index(
             int page = 1,
             int pageSize = PaginationRequest.DEFAULT_PAGE_SIZE,
@@ -62,6 +64,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(PermissionCodesCatalog.CREATE_BLOGS)]
         public async Task<IActionResult> Create()
         {
             IReadOnlyList<SectionOptionDTO> sectionOptions =
@@ -71,6 +74,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(PermissionCodesCatalog.CREATE_BLOGS)]
         public async Task<IActionResult> Create([Bind(Prefix = "Blog")] CreateBlogDTO dto)
         {
             IReadOnlyList<SectionOptionDTO> sectionOptions =
@@ -105,6 +109,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(PermissionCodesCatalog.EDIT_BLOGS)]
         public async Task<IActionResult> Edit(Guid id)
         {
             try
@@ -139,6 +144,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(PermissionCodesCatalog.EDIT_BLOGS)]
         public async Task<IActionResult> Edit([Bind(Prefix = "Blog")] EditBlogDTO dto)
         {
             IReadOnlyList<SectionOptionDTO> sectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
@@ -173,6 +179,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(PermissionCodesCatalog.DELETE_BLOGS)]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
