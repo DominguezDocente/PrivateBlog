@@ -1,4 +1,4 @@
-﻿using PrivateBlog.Domain.Exceptions;
+using PrivateBlog.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,6 +25,16 @@ namespace PrivateBlog.Domain.Entities.Account
 
             Name = name.Trim();
             Id = Guid.CreateVersion7();
+        }
+
+        public void UpdateName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new BussinesRuleException("El nombre del rol es requerido.");
+            }
+
+            Name = name.Trim();
         }
     }
 }

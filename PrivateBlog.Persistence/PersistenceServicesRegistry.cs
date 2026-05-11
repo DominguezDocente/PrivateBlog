@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PrivateBlog.Application.Contracts.Persisntece;
@@ -23,6 +23,8 @@ namespace PrivateBlog.Persistence
             services.AddScoped<ISectionsRepository, SectionsRepository>();
             services.AddScoped<IBlogsRepository, BlogsRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IRolesRepository, RolesRepository>();
 
             services.AddTransient<SeedDb>();
 

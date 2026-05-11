@@ -1,4 +1,4 @@
-﻿@{
+@{
     string controller = ViewContext.RouteData.Values["controller"]?.ToString();
 }
 
@@ -26,6 +26,30 @@
                 <span>Blogs</span>
             </a>
         </li>
+
+        @{
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        @if (userId != null && await Mediator.Send(new UserHasPermissionQuery { UserId = userId, PermissionCode = PermissionCodesCatalog.ShowRoles }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(controller == "Roles" ? "" : "collapsed")" asp-controller="Roles" asp-action="Index">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Roles</span>
+                </a>
+            </li>
+        }
+
+        @if (userId != null && await Mediator.Send(new UserHasPermissionQuery { UserId = userId, PermissionCode = PermissionCodesCatalog.ShowUsers }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(controller == "Users" ? "" : "collapsed")" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+        }
     </ul>
 
 </aside>
