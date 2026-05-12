@@ -1,5 +1,7 @@
-﻿@{
+﻿@inject IMediator Mediator
+@{
     string controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 <aside id="sidebar" class="sidebar">
@@ -12,20 +14,48 @@
                 <span>Dashboard</span>
             </a>
         </li>
-        
-        <li class="nav-item">
-            <a class="nav-link @(controller == "Sections" ? "" : "collapsed")" asp-controller="Sections" asp-action="Index">
-                <i class="bi bi-grid"></i>
-                <span>Secciones</span>
-            </a>
-        </li>
 
-        <li class="nav-item">
-            <a class="nav-link @(controller == "Blogs" ? "" : "collapsed")" asp-controller="Blogs" asp-action="Index">
-                <i class="bi bi-journal-text"></i>
-                <span>Blogs</span>
-            </a>
-        </li>
+        @if (userId != null && await Mediator.Send(new UserHasPermissionQuery 
+                { 
+                    UserId = userId,
+                    PermissionCode = PermissionCodesCatalog.SHOW_SECTIONS 
+                }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(controller == "Sections" ? "" : "collapsed")" asp-controller="Sections" asp-action="Index">
+                    <i class="bi bi-grid"></i>
+                    <span>Secciones</span>
+                </a>
+            </li>
+        }
+
+        @if (userId != null &&  await Mediator.Send(new UserHasPermissionQuery 
+                { 
+                    UserId = userId,
+                    PermissionCode = PermissionCodesCatalog.SHOW_BLOGS 
+                }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(controller == "Blogs" ? "" : "collapsed")" asp-controller="Blogs" asp-action="Index">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+        }
+
+        @if (userId != null &&  await Mediator.Send(new UserHasPermissionQuery 
+                { 
+                    UserId = userId,
+                    PermissionCode = PermissionCodesCatalog.SHOW_USERS 
+                }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(controller == "Users" ? "" : "collapsed")" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+        }
     </ul>
 
 </aside>

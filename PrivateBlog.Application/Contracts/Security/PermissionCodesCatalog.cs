@@ -16,6 +16,11 @@ namespace PrivateBlog.Application.Contracts.Security
         public const string EDIT_SECTIONS = "editSections";
         public const string DELETE_SECTIONS = "deleteSections";
 
+        public const string SHOW_USERS = "showUsers";
+        public const string CREATE_USERS = "createUsers";
+        public const string EDIT_USERS = "editUsers";
+        public const string DELETE_USERS = "deleteUsers";
+
         public readonly record struct PermissionSeed(string Code, string Description, string Module);
 
         public static IReadOnlyList<PermissionSeed> All { get; } = new List<PermissionSeed>
@@ -28,7 +33,12 @@ namespace PrivateBlog.Application.Contracts.Security
             new PermissionSeed(SHOW_SECTIONS, "Show Sections", "Secciones"),
             new PermissionSeed(CREATE_SECTIONS, "Create Sections", "Secciones"),
             new PermissionSeed(EDIT_SECTIONS, "Edit Sections", "Secciones"),
-            new PermissionSeed(DELETE_SECTIONS, "Delete Sections", "Secciones")
+            new PermissionSeed(DELETE_SECTIONS, "Delete Sections", "Secciones"),
+
+            new PermissionSeed(SHOW_USERS, "Ver Usuarios", "Usuarios"),
+            new PermissionSeed(CREATE_USERS, "Create Users", "Usuarios"),
+            new PermissionSeed(EDIT_USERS, "Edit Users", "Usuarios"),
+            new PermissionSeed(DELETE_USERS, "Delete Users", "Usuarios"),
         };
 
         public static IReadOnlyList<string> AllCodes { get; } = All.Select(p => p.Code).ToList();

@@ -42,7 +42,8 @@ namespace PrivateBlog.Domain.Entities.Account
                 UserName = userName,
                 Email = email,
                 EmailConfirmed = emailConfirmed,
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                RoleId = roleId,
             };
         }
 
