@@ -2,6 +2,7 @@
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Application.Contracts.Pagination;
+using PrivateBlog.Application.Contracts.Security;
 using PrivateBlog.Application.UseCases.Sections.Commands.ActivateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.CreateSection;
 using PrivateBlog.Application.UseCases.Sections.Commands.DeactivateSeccion;
@@ -11,6 +12,7 @@ using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionById;
 using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsList;
 using PrivateBlog.Application.Utilities.Mediator;
 using PrivateBlog.Web.DTOs.Sections;
+using PrivateBlog.Web.Security;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -25,6 +27,7 @@ namespace PrivateBlog.Web.Controllers
             _mediator = mediator;
         }
 
+        [RequirePermission(PermissionCodesCatalog.SHOW_SECTIONS)]
         public async Task<IActionResult> Index([FromQuery] int page = 1,
                                                [FromQuery] int pageSize = PaginationRequest.DEFAULT_PAGE_SIZE,
                                                [FromQuery] string? nameFilter = null,
@@ -59,12 +62,14 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(PermissionCodesCatalog.CREATE_SECTIONS)]
         public async Task<IActionResult> Create()
         {
             return View();
         }
 
         [HttpPost]
+        [RequirePermission(PermissionCodesCatalog.CREATE_SECTIONS)]
         public async Task<IActionResult> Create(CreateSectionDTO dto)
         {
             try
@@ -88,6 +93,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(PermissionCodesCatalog.EDIT_SECTIONS)]
         public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
             try
@@ -111,6 +117,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(PermissionCodesCatalog.EDIT_SECTIONS)]
         public async Task<IActionResult> Edit(EditSectionDTO dto)
         {
             try
@@ -141,6 +148,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(PermissionCodesCatalog.DELETE_SECTIONS)]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             try

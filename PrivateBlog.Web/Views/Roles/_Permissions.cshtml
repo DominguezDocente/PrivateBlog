@@ -1,0 +1,37 @@
+﻿@model IRolePermissionsForm 
+
+<div class="row">
+
+    @foreach(var group in Model.PermissionModules)
+    {
+        <div class="col-md-4 mb-3">
+            
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <span class="fw-bold">@group.Module</span>
+                </div>
+
+                <div class="card-body py-2">
+
+                    @foreach (var permission in group.Permissions)
+                    {
+                        bool isChecked = Model.PermissionIds.Contains(permission.Id);
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="PermissionIds"
+                                   value="@permission.Id"
+                                   id="perm_@permission.Id"
+                                   checked="@isChecked" />
+                            <label class="form-check-label" for="perm_@permission.Id">
+                                @permission.Description
+                            </label>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

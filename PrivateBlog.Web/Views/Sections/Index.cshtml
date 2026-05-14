@@ -1,4 +1,5 @@
 ﻿@model SectionsIndexViewModel
+@inject IMediator Mediator
 
 @{
     ViewData["Title"] = "Secciones";
@@ -22,10 +23,16 @@
             <div class="row">
 
                 <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
-
-                <div class="col-md-1">
-                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
-                </div>
+                @if (await Mediator.Send(new UserHasPermissionQuery 
+                { 
+                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    PermissionCode = PermissionCodesCatalog.CREATE_SECTIONS 
+                }))
+                {
+                    <div class="col-md-1">
+                        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
+                    </div>
+                }
             </div>
         </div>
 
@@ -125,41 +132,55 @@
 
                             </td>
                             <td>
-
-                                @if (item.IsActive)
+                                
+                                @if (await Mediator.Send(new UserHasPermissionQuery 
+                                { 
+                                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                                    PermissionCode = PermissionCodesCatalog.EDIT_SECTIONS 
+                                }))
                                 {
-                                    <form method="POST" asp-action="Deactivate" asp-route-id="@item.Id" style="display: contents;">
-                                        <button type="submit"
-                                                class="btn btn-info"
-                                                data-bs-toogle="tooltip"
-                                                data-bs-placement="top" 
-                                                title="Activar sección">
-                                            <i class="bi bi-toggle-on"></i>
+                                    @if (item.IsActive)
+                                    {
+                                        <form method="POST" asp-action="Deactivate" asp-route-id="@item.Id" style="display: contents;">
+                                            <button type="submit"
+                                                    class="btn btn-info"
+                                                    data-bs-toogle="tooltip"
+                                                    data-bs-placement="top" 
+                                                    title="Activar sección">
+                                                <i class="bi bi-toggle-on"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form method="POST" asp-action="Activate" asp-route-id="@item.Id" style="display: contents;">
+                                            <button type="submit"
+                                                    class="btn btn-secondary"
+                                                    data-bs-toogle="tooltip"
+                                                    data-bs-placement="top" 
+                                                    title="Desctivar sección">
+                                                <i class="bi bi-toggle-off"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                }
+
+                                @if (await Mediator.Send(new UserHasPermissionQuery 
+                                { 
+                                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                                    PermissionCode = PermissionCodesCatalog.DELETE_SECTIONS 
+                                }))
+                                {
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="POST" style="display: contents;">                                    
+                                        <button type="submit" class="btn btn-sm btn-danger btnDelete">
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 }
-                                else
-                                {
-                                    <form method="POST" asp-action="Activate" asp-route-id="@item.Id" style="display: contents;">
-                                        <button type="submit"
-                                                class="btn btn-secondary"
-                                                data-bs-toogle="tooltip"
-                                                data-bs-placement="top" 
-                                                title="Desctivar sección">
-                                            <i class="bi bi-toggle-off"></i>
-                                        </button>
-                                    </form>
-                                }
-
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </a>
-
-                                <form asp-action="Delete" asp-route-id="@item.Id" method="POST" style="display: contents;">                                    
-                                    <button type="submit" class="btn btn-sm btn-danger btnDelete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     }

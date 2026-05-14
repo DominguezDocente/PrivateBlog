@@ -1,7 +1,9 @@
-﻿@model UsersIndexViewModel
+﻿@model RolesIndexViewModel
 @inject IMediator Mediator
+
 @{
-    ViewData["Title"] = "Usuarios";
+    ViewData["Title"] = "Roles";
+    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 <div class="pagetitle">
@@ -15,18 +17,17 @@
 </div>
 
 <section class="section dashboard">
-
     <div class="card">
-
         <div class="card-header">
             <div class="row">
                 <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
 
-                @if (await Mediator.Send(new UserHasPermissionQuery 
+                @if (userId != null && await Mediator.Send(new UserHasPermissionQuery 
                 { 
-                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                    PermissionCode = PermissionCodesCatalog.CREATE_USERS
+                    UserId = userId,
+                    PermissionCode = PermissionCodesCatalog.CREATE_ROLES 
                 }))
+                
                 {
                     <div class="col-md-1">
                         <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
@@ -41,23 +42,12 @@
                 <input type="hidden" name="page" value="1" />
 
                 <div class="col-md-3">
-                    <label class="form-label small text-muted mb-0">Nombre / Correo:</label>
+                    <label class="form-label small text-muted mb-0">Nombre:</label>
                     <input type="text"
                            name="nameFilter"
                            class="form-control"
                            value="@Model.FilterName"
                            placeholder="Buscar..." />
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label small text-muted mb-0">Rol</label>
-                    <select name="roleIdFilter" class="form-select">
-                        <option value="">Todos</option>
-                        @foreach (var role in Model.Roles)
-                        {
-                            <option value="@role.Id" selected="@(Model.FilterRoleId == role.Id)">@role.Name</option>
-                        }
-                    </select>
                 </div>
 
                 <div class="col-md-2">
@@ -83,9 +73,8 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Correo</th>
                         <th>Rol</th>
+                        <th>Permisos</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -93,26 +82,27 @@
                     @foreach (var item in Model.List.Items)
                     {
                         <tr>
-                            <td>@item.FirstName @item.LastName</td>
-                            <td>@item.Email</td>
-                            <td>@item.RoleName</td>
+                            <td>@item.Name</td>
+                            <td>@item.PermissionCount</td>
                             <td>
-                                @if (await Mediator.Send(new UserHasPermissionQuery 
+                                @if (userId != null && await Mediator.Send(new UserHasPermissionQuery 
                                 { 
-                                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                                    PermissionCode = PermissionCodesCatalog.EDIT_USERS
+                                    UserId = userId,
+                                    PermissionCode = PermissionCodesCatalog.EDIT_ROLES 
                                 }))
+                
                                 {
                                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
                                         <i class="bi bi-pencil-fill"></i>
                                     </a>
                                 }
 
-                                @if (await Mediator.Send(new UserHasPermissionQuery 
+                                @if (userId != null && await Mediator.Send(new UserHasPermissionQuery 
                                 { 
-                                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                                    PermissionCode = PermissionCodesCatalog.DELETE_USERS
+                                    UserId = userId,
+                                    PermissionCode = PermissionCodesCatalog.DELETE_ROLES 
                                 }))
+                
                                 {
                                     <form asp-action="Delete" asp-route-id="@item.Id" method="POST" style="display: contents;">
                                         <button type="submit" class="btn btn-sm btn-danger btnDelete">
@@ -135,8 +125,7 @@
                                asp-action="Index"
                                asp-route-page="@(Model.List.PageNumber - 1)"
                                asp-route-pageSize="@Model.List.PageSize"
-                               asp-route-nameFilter="@Model.FilterName"
-                               asp-route-roleIdFilter="@Model.FilterRoleId">
+                               asp-route-nameFilter="@Model.FilterName">
                                 <span aria-hidden="true">Anterior</span>
                             </a>
                         </li>
@@ -148,8 +137,7 @@
                                asp-action="Index"
                                asp-route-page="@(Model.List.PageNumber + 1)"
                                asp-route-pageSize="@Model.List.PageSize"
-                               asp-route-nameFilter="@Model.FilterName"
-                               asp-route-roleIdFilter="@Model.FilterRoleId">
+                               asp-route-nameFilter="@Model.FilterName">
                                 <span aria-hidden="true">Siguiente</span>
                             </a>
                         </li>
@@ -157,7 +145,6 @@
                 </nav>
                 <p class="text-muted text-center small mt-2 mb-0">@Model.List.TotalCount registros</p>
             }
-
         </div>
     </div>
 </section>
@@ -169,7 +156,7 @@
                 event.preventDefault();
                 Swal.fire({
                     icon: "question",
-                    title: "¿Desea eliminar el usuario?",
+                    title: "¿Desea eliminar el rol?",
                     text: "No podrá revertirlo",
                     showCancelButton: true
                 }).then((result) => {

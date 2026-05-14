@@ -153,25 +153,38 @@
                             <td>@(item.IsPublished ? "Publicado" : "Borrador")</td>
                             <td>@item.CreatedAt.ToLocalTime().ToString("g")</td>
                             <td>
-                                <a asp-action="Edit"
-                                   asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-warning"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-placement="top"
-                                   title="Editar blog"
-                                   aria-label="Editar"><i class="bi bi-pencil-fill"></i></a>
+                                @if (await Mediator.Send(new UserHasPermissionQuery 
+                                { 
+                                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                                    PermissionCode = PermissionCodesCatalog.EDIT_BLOGS 
+                                }))
+                                {
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-warning"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Editar blog"
+                                       aria-label="Editar"><i class="bi bi-pencil-fill"></i></a>
+                                }
 
-                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: contents;">
-                                    <button type="submit"
-                                            class="btn btn-sm btn-danger btnDelete"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Eliminar blog"
-                                            aria-label="Eliminar">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
-
+                                @if (await Mediator.Send(new UserHasPermissionQuery 
+                                { 
+                                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                                    PermissionCode = PermissionCodesCatalog.DELETE_BLOGS 
+                                }))
+                                {
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: contents;">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger btnDelete"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Eliminar blog"
+                                                aria-label="Eliminar">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

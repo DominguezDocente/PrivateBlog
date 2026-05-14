@@ -15,13 +15,35 @@ namespace PrivateBlog.Domain.Entities.Account
 
         public Role(string name)
         {
+            CheckNameValidation(name);
+
+            Id = Guid.CreateVersion7();
+            Name = name;
+        }
+
+        public void UpdateName(string name)
+        {
+            CheckNameValidation(name);
+
+            Name = name;
+        }
+
+        private void CheckNameValidation(string name)
+        {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new BussinesRuleException("El nombre es requerido.");
             }
 
-            Id = Guid.CreateVersion7();
-            Name = name;
+            if (name.Length > 64)
+            {
+                throw new BussinesRuleException("El nombre no puede exceder los 64 caracteres.");
+            }
+
+            if (name.Length < 3)
+            {
+                throw new BussinesRuleException("El nombre debe tener al menos 3 caracteres.");
+            }
         }
     }
 }

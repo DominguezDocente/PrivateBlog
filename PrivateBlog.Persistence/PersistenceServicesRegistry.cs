@@ -24,6 +24,7 @@ namespace PrivateBlog.Persistence
             services.AddScoped<IBlogsRepository, BlogsRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IRolesRepository, RolesRepository>();
 
             services.AddTransient<SeedDb>();
 

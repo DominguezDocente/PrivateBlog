@@ -56,6 +56,20 @@
                 </a>
             </li>
         }
+
+        @if (userId != null &&  await Mediator.Send(new UserHasPermissionQuery 
+                { 
+                    UserId = userId,
+                    PermissionCode = PermissionCodesCatalog.SHOW_ROLES 
+                }))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(controller == "Roles" ? "" : "collapsed")" asp-controller="Roles" asp-action="Index">
+                    <i class="bi bi-lock"></i>
+                    <span>Roles</span>
+                </a>
+            </li>
+        }
     </ul>
 
 </aside>
