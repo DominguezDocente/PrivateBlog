@@ -8,6 +8,7 @@ using PrivateBlog.Application.UseCases.Roles.Commands.UpdateRole;
 using PrivateBlog.Application.UseCases.Roles.Queries.GetPermissionsByModule;
 using PrivateBlog.Application.UseCases.Roles.Queries.GetRoleById;
 using PrivateBlog.Application.UseCases.Roles.Queries.GetRolesList;
+using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsOptions;
 using PrivateBlog.Application.Utilities.Mediator;
 using PrivateBlog.Web.DTOs.Roles;
 using PrivateBlog.Web.Security;
@@ -64,10 +65,12 @@ namespace PrivateBlog.Web.Controllers
         public async Task<IActionResult> Create()
         {
             IReadOnlyList<PermissionModuleGroupDTO> modules = await _mediator.Send(new GetPermissionsByModuleQuery());
+            IReadOnlyList<SectionOptionDTO> sectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
 
             CreateRoleDTO dto = new CreateRoleDTO
             {
                 PermissionModules = modules,
+                SectionOptions = sectionOptions,
             };
 
             return View(dto);
@@ -83,6 +86,7 @@ namespace PrivateBlog.Web.Controllers
                 {
                     _notifyService.Error("Debe corregir los errores de validación.");
                     dto.PermissionModules = await _mediator.Send(new GetPermissionsByModuleQuery());
+                    dto.SectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
                     return View(dto);
                 }
 
@@ -90,6 +94,7 @@ namespace PrivateBlog.Web.Controllers
                 {
                     Name = dto.Name,
                     PermissionIds = dto.PermissionIds,
+                    SectionIds = dto.SectionIds,
                 };
 
                 await _mediator.Send(command);
@@ -99,6 +104,7 @@ namespace PrivateBlog.Web.Controllers
             {
                 _notifyService.Error($"Error al crear el rol: {ex.Message}");
                 dto.PermissionModules = await _mediator.Send(new GetPermissionsByModuleQuery());
+                dto.SectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
                 return View(dto);
             }
 
@@ -113,13 +119,16 @@ namespace PrivateBlog.Web.Controllers
             {
                 RoleDetailDTO role = await _mediator.Send(new GetRoleByIdQuery { Id = id });
                 IReadOnlyList<PermissionModuleGroupDTO> modules = await _mediator.Send(new GetPermissionsByModuleQuery());
+                IReadOnlyList<SectionOptionDTO> sectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
 
                 EditRoleDTO editDto = new EditRoleDTO
                 {
                     Id = role.Id,
                     Name = role.Name,
                     PermissionIds = role.PermissionIds,
+                    SectionIds = role.SectionIds,
                     PermissionModules = modules,
+                    SectionOptions = sectionOptions,
                 };
 
                 return View(editDto);
@@ -141,6 +150,7 @@ namespace PrivateBlog.Web.Controllers
                 {
                     _notifyService.Error("Debe corregir los errores de validación.");
                     dto.PermissionModules = await _mediator.Send(new GetPermissionsByModuleQuery());
+                    dto.SectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
                     return View(dto);
                 }
 
@@ -149,6 +159,7 @@ namespace PrivateBlog.Web.Controllers
                     Id = dto.Id,
                     Name = dto.Name,
                     PermissionIds = dto.PermissionIds,
+                    SectionIds = dto.SectionIds,
                 };
 
                 await _mediator.Send(command);
@@ -158,6 +169,7 @@ namespace PrivateBlog.Web.Controllers
             {
                 _notifyService.Error($"Error al actualizar el rol: {ex.Message}");
                 dto.PermissionModules = await _mediator.Send(new GetPermissionsByModuleQuery());
+                dto.SectionOptions = await _mediator.Send(new GetSectionOptionsQuery());
                 return View(dto);
             }
 

@@ -1,0 +1,31 @@
+@model PrivateBlog.Application.UseCases.Account.Queries.GetAccessibleBlogById.AccessibleBlogDetailDTO
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="pagetitle">
+    <h1>@Model.Name</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-action="Section" asp-route-id="@Model.SectionId">@Model.SectionName</a></li>
+            <li class="breadcrumb-item active">@Model.Name</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div class="mb-4">
+                <span class="badge bg-primary me-2">@Model.SectionName</span>
+                <span class="text-muted">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+
+            <article class="blog-content">
+                @Html.Raw(Model.Content)
+            </article>
+        </div>
+    </div>
+</section>

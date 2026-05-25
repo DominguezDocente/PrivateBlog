@@ -51,6 +51,7 @@ namespace PrivateBlog.Persistence.Repositories
         public async Task<Role?> GetByIdWithPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.Roles.Include(r => r.RolePermissions)
+                                       .Include(r => r.RoleSections)
                                        .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         }
 
@@ -79,54 +80,52 @@ namespace PrivateBlog.Persistence.Repositories
             return await _context.Users.AnyAsync(u => u.RoleId == roleId, cancellationToken);
         }
 
-        public async Task UpdateAsync(Role role, List<Guid> permissionIds, CancellationToken cancellationToken = default)
+        public async Task UpdateAsync(Role role, List<Guid> permissionIds, List<Guid> sectionIds, CancellationToken cancellationToken = default)
         {
             List<RolePermission> existing = await _context.RolePermissions.Where(rp => rp.RoleId == role.Id)
                                                                           .ToListAsync(cancellationToken);
+            List<RoleSection> existingSections = await _context.RoleSections.Where(rs => rs.RoleId == role.Id)
+                                                                            .ToListAsync(cancellationToken);
 
             _context.RolePermissions.RemoveRange(existing);
+            _context.RoleSections.RemoveRange(existingSections);
 
-            foreach (Guid permissionId in permissionIds)
+            foreach (Guid permissionId in permissionIds.Distinct())
             {
                 _context.RolePermissions.Add(new RolePermission(role.Id, permissionId));
+            }
+
+            foreach (Guid sectionId in sectionIds.Distinct())
+            {
+                _context.RoleSections.Add(new RoleSection(role.Id, sectionId));
             }
 
             _context.Roles.Update(role);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task CreateAsync(Role role, List<Guid> permissionIds, CancellationToken cancellationToken = default)
+        public async Task CreateAsync(Role role, List<Guid> permissionIds, List<Guid> sectionIds, CancellationToken cancellationToken = default)
         {
-            //using (var transaction = await _context.Database.BeginTransactionAsync()) 
-            //{
-            //    try
-            //    {
-            //        await _context.Roles.AddAsync(role);
-            //        await _context.SaveChangesAsync(cancellationToken);
-
-            //        foreach (Guid permissionId in permissionIds)
-            //        {
-            //            _context.RolePermissions.Add(new RolePermission(role.Id, permissionId));
-            //        }
-
-            //        await _context.SaveChangesAsync(cancellationToken);
-            //        await transaction.CommitAsync(cancellationToken);
-            //    }
-            //    catch
-            //    {
-            //        await transaction.RollbackAsync(cancellationToken);
-            //        throw;
-            //    }
-            //}
-
-            await _context.Roles.AddAsync(role);
-
-            foreach (Guid permissionId in permissionIds)
+            try
             {
-                _context.RolePermissions.Add(new RolePermission(role.Id, permissionId));
-            }
+                await _context.Roles.AddAsync(role);
 
-            await _context.SaveChangesAsync(cancellationToken);
+                foreach (Guid permissionId in permissionIds.Distinct())
+                {
+                    _context.RolePermissions.Add(new RolePermission(role.Id, permissionId));
+                }
+
+                foreach (Guid sectionId in sectionIds.Distinct())
+                {
+                    _context.RoleSections.Add(new RoleSection(role.Id, sectionId));
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

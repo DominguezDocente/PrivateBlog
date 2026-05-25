@@ -15,9 +15,9 @@ namespace PrivateBlog.Application.Contracts.Repositories
 
         Task<bool> ExistsByNameAsync(string name, Guid? excludeId = null, CancellationToken cancellationToken = default);
 
-        Task CreateAsync(Role role, List<Guid> permissionIds, CancellationToken cancellationToken = default);
+        Task CreateAsync(Role role, List<Guid> permissionIds, List<Guid> sectionIds, CancellationToken cancellationToken = default);
 
-        Task UpdateAsync(Role role, List<Guid> permissionIds, CancellationToken cancellationToken = default);
+        Task UpdateAsync(Role role, List<Guid> permissionIds, List<Guid> sectionIds, CancellationToken cancellationToken = default);
 
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
