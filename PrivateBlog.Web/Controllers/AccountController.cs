@@ -1,13 +1,14 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrivateBlog.Application.UseCases.Account.Commands.ChangePassword;
 using PrivateBlog.Application.UseCases.Account.Commands.Login;
 using PrivateBlog.Application.UseCases.Account.Commands.Logout;
-using PrivateBlog.Application.UseCases.Blogs.Commands.CreateBlog;
-using PrivateBlog.Application.UseCases.Sections.Queries.GetSectionsOptions;
+using PrivateBlog.Application.UseCases.Account.Commands.UpdateProfile;
+using PrivateBlog.Application.UseCases.Account.Queries.GetAccountProfile;
 using PrivateBlog.Application.Utilities.Mediator;
 using PrivateBlog.Web.DTOs.Account;
-using PrivateBlog.Web.DTOs.Blogs;
+using System.Security.Claims;
 
 namespace PrivateBlog.Web.Controllers
 {
@@ -96,9 +97,126 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            try
+            {
+                EditProfileDTO dto = await BuildProfileDtoAsync(userId);
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                _notifyService.Error(ex.Message);
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Profile(EditProfileDTO dto)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _notifyService.Error("Debe corregir los errores de validación.");
+                    return View(await BuildProfileDtoAsync(userId, dto));
+                }
+
+                await _mediator.Send(new UpdateProfileCommand
+                {
+                    UserId = userId,
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    PhoneNumber = dto.PhoneNumber,
+                });
+
+                _notifyService.Success("Perfil actualizado exitosamente.");
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (Exception ex)
+            {
+                _notifyService.Error(ex.Message);
+                return View(await BuildProfileDtoAsync(userId, dto));
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View(new ChangePasswordDTO());
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO dto)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _notifyService.Error("Debe corregir los errores de validación.");
+                return View(dto);
+            }
+
+            try
+            {
+                await _mediator.Send(new ChangePasswordCommand
+                {
+                    UserId = userId,
+                    CurrentPassword = dto.CurrentPassword,
+                    NewPassword = dto.NewPassword,
+                });
+
+                _notifyService.Success("Contraseña actualizada exitosamente.");
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (Exception ex)
+            {
+                _notifyService.Error(ex.Message);
+                return View(dto);
+            }
+        }
+
+        [HttpGet]
         public IActionResult AccessDenied()
         {
             return View("Forbbiden");
+        }
+
+        private async Task<EditProfileDTO> BuildProfileDtoAsync(string userId, EditProfileDTO? posted = null)
+        {
+            AccountProfileDTO profile = await _mediator.Send(new GetAccountProfileQuery { UserId = userId });
+
+            return new EditProfileDTO
+            {
+                FirstName = posted?.FirstName ?? profile.FirstName,
+                LastName = posted?.LastName ?? profile.LastName,
+                Email = profile.Email,
+                PhoneNumber = posted?.PhoneNumber ?? profile.PhoneNumber,
+                RoleName = profile.RoleName,
+            };
         }
     }
 }
