@@ -1,5 +1,6 @@
 ﻿using PrivateBlog.Application.UseCases.Account.Commands.Login;
 using PrivateBlog.Application.UseCases.Account.Queries.GetAccountUserInfo;
+using PrivateBlog.Application.UseCases.Account.Queries.GetProfile;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,5 +16,11 @@ namespace PrivateBlog.Application.Contracts.Repositories
         Task<UserAccountInfoDTO> GetUserInfoAsync(string userId, CancellationToken cancellationToken = default);
 
         Task<bool> UserHasPermissionAsync(string userId, string permissionCode, CancellationToken cancellationToken = default);
+
+        Task<AccountProfileDTO> GetProfileAsync(string userId, CancellationToken cancellationToken = default);
+
+        Task UpdateProfileAsync(string userId, string firstName, string lastName, string? phoneNumber, CancellationToken cancellationToken = default);
+
+        Task ChangePasswordAsync(string userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
     }
 }
