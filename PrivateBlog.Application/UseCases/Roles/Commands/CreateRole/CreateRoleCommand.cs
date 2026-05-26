@@ -9,5 +9,6 @@ namespace PrivateBlog.Application.UseCases.Roles.Commands.CreateRole
     {
         public required string Name { get; set; }
         public List<Guid> PermissionIds { get; set; } = [];
+        public List<Guid> SectionsIds { get; set; } = [];
     }
 }

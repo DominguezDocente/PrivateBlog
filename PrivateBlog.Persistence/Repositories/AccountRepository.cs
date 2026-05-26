@@ -2,8 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Application.Contracts.Repositories;
 using PrivateBlog.Application.UseCases.Account.Commands.Login;
+using PrivateBlog.Application.UseCases.Account.Queries.GetAccessibleSections;
 using PrivateBlog.Application.UseCases.Account.Queries.GetAccountUserInfo;
+using PrivateBlog.Application.UseCases.Account.Queries.GetBlogById;
+using PrivateBlog.Application.UseCases.Account.Queries.GetBlogsBySection;
 using PrivateBlog.Application.UseCases.Account.Queries.GetProfile;
+using PrivateBlog.Domain.Entities.Blogs;
+using PrivateBlog.Domain.Entities.Sections;
 using PrivateBlog.Domain.Exceptions;
 using PrivateBlog.Persistence.Entities;
 
@@ -38,6 +43,111 @@ namespace PrivateBlog.Persistence.Repositories
             {
                 throw new BussinesRuleException(string.Join("; ", result.Errors.Select(e => e.Description)));
             }
+        }
+
+        public async Task<AccessibleBlogDetailDTO> GetAccessibleBlogByIdAsync(string userId, Guid blogId, CancellationToken cancellationToken = default)
+        {
+            Guid roleId = await GetRoleIdAsync(userId, cancellationToken);
+
+            Blog? blog = await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Section)
+                .FirstOrDefaultAsync(
+                    b => b.Id == blogId
+                         && b.IsPublished
+                         && b.Section.IsActive
+                         && b.Section.RoleSections.Any(rs => rs.RoleId == roleId),
+                    cancellationToken);
+
+            if (blog is null)
+            {
+                throw new BussinesRuleException("No tiene acceso a este blog.");
+            }
+
+            return new AccessibleBlogDetailDTO
+            {
+                Id = blog.Id,
+                Name = blog.Name,
+                Content = blog.Content,
+                SectionId = blog.SectionId,
+                SectionName = blog.Section.Name,
+                CreatedAt = blog.CreatedAt,
+            };
+        }
+
+        public async Task<AccessibleSectionBlogsDTO> GetAccessibleBlogsBySectionAsync(string userId, Guid sectionId, CancellationToken cancellationToken = default)
+        {
+            Guid roleId = await GetRoleIdAsync(userId, cancellationToken);
+
+            Section? section = await _context.Sections
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    s => s.Id == sectionId
+                         && s.IsActive
+                         && s.RoleSections.Any(rs => rs.RoleId == roleId),
+                    cancellationToken);
+
+            if (section is null)
+            {
+                throw new BussinesRuleException("No tiene acceso a esta sección.");
+            }
+
+            List<AccessibleBlogListItemDTO> blogs = await _context.Blogs
+                .AsNoTracking()
+                .Where(b => b.SectionId == sectionId && b.IsPublished)
+                .OrderByDescending(b => b.CreatedAt)
+                .Select(b => new AccessibleBlogListItemDTO
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    CreatedAt = b.CreatedAt,
+                })
+                .ToListAsync(cancellationToken);
+
+            return new AccessibleSectionBlogsDTO
+            {
+                SectionId = section.Id,
+                SectionName = section.Name,
+                Blogs = blogs,
+            };
+        }
+
+        public async Task<IReadOnlyList<AccessibleSectionItemDTO>> GetAccessibleSectionsAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            Guid roleId = await GetRoleIdAsync(userId, cancellationToken);
+
+            return await _context.Sections.AsNoTracking()
+                                          .Where(s => s.IsActive && s.RoleSections.Any(rs => rs.RoleId == roleId))
+                                          .OrderBy(s => s.Name)
+                                          .Select(s => new AccessibleSectionItemDTO
+                                          {
+                                              Id = s.Id,
+                                              Name = s.Name,
+                                              PublishedBlogsCount = s.Blogs.Count(b => b.IsPublished)
+
+                                          })
+                                          .ToListAsync();
+        }
+
+        private async Task<Guid> GetRoleIdAsync(string userId, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new BussinesRuleException("El usuario es requerido.");
+            }
+
+            Guid roleId = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => u.RoleId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (roleId == Guid.Empty)
+            {
+                throw new BussinesRuleException("El usuario no existe.");
+            }
+
+            return roleId;
         }
 
         public async Task<AccountProfileDTO> GetProfileAsync(string userId, CancellationToken cancellationToken = default)

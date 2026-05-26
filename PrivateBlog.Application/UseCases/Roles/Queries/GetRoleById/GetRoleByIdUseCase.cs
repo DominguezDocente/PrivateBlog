@@ -30,8 +30,12 @@ namespace PrivateBlog.Application.UseCases.Roles.Queries.GetRoleById
             {
                 Id = role.Id,
                 Name = role.Name,
+
                 PermissionIds = role.RolePermissions.Select(rp => rp.PermissionId)
                                                     .ToList(),
+
+                SectionIds = role.RoleSections.Select(rs => rs.SectionId)
+                                               .ToList()
             };
         }
     }

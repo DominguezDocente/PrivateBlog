@@ -131,6 +131,30 @@ namespace PrivateBlog.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoleSections",
+                columns: table => new
+                {
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SectionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleSections", x => new { x.RoleId, x.SectionId });
+                    table.ForeignKey(
+                        name: "FK_RoleSections_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoleSections_Sections_SectionId",
+                        column: x => x.SectionId,
+                        principalTable: "Sections",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -239,6 +263,11 @@ namespace PrivateBlog.Persistence.Migrations
                 table: "Roles",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoleSections_SectionId",
+                table: "RoleSections",
+                column: "SectionId");
         }
 
         /// <inheritdoc />
@@ -260,13 +289,16 @@ namespace PrivateBlog.Persistence.Migrations
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
+                name: "RoleSections");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Sections");
+                name: "Permissions");
 
             migrationBuilder.DropTable(
-                name: "Permissions");
+                name: "Sections");
 
             migrationBuilder.DropTable(
                 name: "Roles");

@@ -26,7 +26,7 @@ namespace PrivateBlog.Application.UseCases.Roles.Commands.CreateRole
 
             Role role = new Role(command.Name);
 
-            await _rolesRepository.CreateAsync(role, command.PermissionIds);
+            await _rolesRepository.CreateAsync(role, command.PermissionIds, command.SectionsIds);
 
             return role.Id;
         }

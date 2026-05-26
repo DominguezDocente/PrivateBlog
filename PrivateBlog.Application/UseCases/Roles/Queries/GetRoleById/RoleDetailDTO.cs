@@ -5,5 +5,6 @@
         public required Guid Id { get; init; }
         public required string Name { get; init; }
         public required List<Guid> PermissionIds { get; init; }
+        public required List<Guid> SectionIds { get; init; }
     }
 }

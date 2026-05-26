@@ -1,0 +1,53 @@
+﻿@model PrivateBlog.Application.UseCases.Account.Queries.GetBlogsBySection.AccessibleSectionBlogsDTO
+
+@{
+    ViewData["Title"] = Model.SectionName;
+}
+
+<div class="pagetitle">
+    <h1>@Model.SectionName</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Mis Secciones</a></li>
+            <li class="breadcrumb-item active">@Model.SectionName</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+    <div class="row">
+        @if (!Model.Blogs.Any())
+        {
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body py-5 text-center">
+                        <i class="bi bi-journal-x fs-1 text-muted"></i>
+                        <h4 class="mt-3 mb-1">No hay blogs publicados</h4>
+                        <p class="text-muted mb-0">Esta sección todavía no tiene contenido visible.</p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var blog in Model.Blogs)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <a asp-action="Blog" asp-route-id="@blog.Id" class="text-decoration-none">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="badge bg-primary">Blog</span>
+                                    <i class="bi bi-box-arrow-up-right text-muted"></i>
+                                </div>
+                                <h5 class="card-title mb-2">@blog.Name</h5>
+                                <p class="text-muted mb-0">@blog.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+</section>

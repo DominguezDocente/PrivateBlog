@@ -151,6 +151,21 @@ namespace PrivateBlog.Persistence.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("PrivateBlog.Domain.Entities.Account.RoleSection", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "SectionId");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("RoleSections");
+                });
+
             modelBuilder.Entity("PrivateBlog.Domain.Entities.Blogs.Blog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -327,6 +342,25 @@ namespace PrivateBlog.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("PrivateBlog.Domain.Entities.Account.RoleSection", b =>
+                {
+                    b.HasOne("PrivateBlog.Domain.Entities.Account.Role", "Role")
+                        .WithMany("RoleSections")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PrivateBlog.Domain.Entities.Sections.Section", "Section")
+                        .WithMany("RoleSections")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Section");
+                });
+
             modelBuilder.Entity("PrivateBlog.Domain.Entities.Blogs.Blog", b =>
                 {
                     b.HasOne("PrivateBlog.Domain.Entities.Sections.Section", "Section")
@@ -357,11 +391,15 @@ namespace PrivateBlog.Persistence.Migrations
             modelBuilder.Entity("PrivateBlog.Domain.Entities.Account.Role", b =>
                 {
                     b.Navigation("RolePermissions");
+
+                    b.Navigation("RoleSections");
                 });
 
             modelBuilder.Entity("PrivateBlog.Domain.Entities.Sections.Section", b =>
                 {
                     b.Navigation("Blogs");
+
+                    b.Navigation("RoleSections");
                 });
 #pragma warning restore 612, 618
         }

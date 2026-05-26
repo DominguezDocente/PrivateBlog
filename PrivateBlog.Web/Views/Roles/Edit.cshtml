@@ -38,6 +38,10 @@
                 <h5 class="mb-3">Permisos</h5>
 
                 @await Html.PartialAsync("_Permissions", Model)
+                
+                <h5 class="mb-3 mt-4">Secciones</h5>
+
+                @await Html.PartialAsync("_Sections", Model)
 
                 <div class="text-center mt-3">
                     <button type="submit" class="btn btn-primary">Guardar</button>

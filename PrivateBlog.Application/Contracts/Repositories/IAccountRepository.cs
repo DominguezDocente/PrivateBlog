@@ -1,5 +1,8 @@
 ﻿using PrivateBlog.Application.UseCases.Account.Commands.Login;
+using PrivateBlog.Application.UseCases.Account.Queries.GetAccessibleSections;
 using PrivateBlog.Application.UseCases.Account.Queries.GetAccountUserInfo;
+using PrivateBlog.Application.UseCases.Account.Queries.GetBlogById;
+using PrivateBlog.Application.UseCases.Account.Queries.GetBlogsBySection;
 using PrivateBlog.Application.UseCases.Account.Queries.GetProfile;
 using System;
 using System.Collections.Generic;
@@ -22,5 +25,11 @@ namespace PrivateBlog.Application.Contracts.Repositories
         Task UpdateProfileAsync(string userId, string firstName, string lastName, string? phoneNumber, CancellationToken cancellationToken = default);
 
         Task ChangePasswordAsync(string userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<AccessibleSectionItemDTO>> GetAccessibleSectionsAsync(string userId, CancellationToken cancellationToken = default);
+
+        Task<AccessibleSectionBlogsDTO> GetAccessibleBlogsBySectionAsync(string userId, Guid sectionId, CancellationToken cancellationToken = default);
+
+        Task<AccessibleBlogDetailDTO> GetAccessibleBlogByIdAsync(string userId, Guid blogId, CancellationToken cancellationToken = default);
     }
 }

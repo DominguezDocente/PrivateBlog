@@ -1,0 +1,29 @@
+﻿@model IRolePermissionsForm
+
+<div class="card mb-4">
+    <div class="card-header py-2">
+        <span class="fw-bold">Secciones visibles</span>
+    </div>
+    <div class="card-body py-3">
+        <div class="row">
+            @foreach (var item in Model.SectionOptions)
+            {
+                bool isChecked = Model.SectionIds.Contains(item.Id);
+
+                <div class="col-md-4 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="SectionIds"
+                               value="@item.Id"
+                               id="section_@item.Id"
+                               checked="@isChecked" />
+                        <label class="form-check-label" for="section_@item.Id">
+                            @item.Name
+                        </label>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
