@@ -1,0 +1,78 @@
+@PrivateBlog.Api_HostAddress = https://localhost:7294
+@token = 
+
+### Login JWT (por defecto)
+# @name login
+POST {{PrivateBlog.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "adminuser@yopmail.com",
+  "password": "1234",
+  "rememberMe": false,
+  "useCookie": false
+}
+
+###
+@token = {{login.response.body.accessToken}}
+
+### Login con cookie (para pruebas en navegador / mismo host)
+POST {{PrivateBlog.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "adminuser@yopmail.com",
+  "password": "1234",
+  "rememberMe": true,
+  "useCookie": true
+}
+
+### Usuario autenticado (JWT)
+GET {{PrivateBlog.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Cerrar sesión
+POST {{PrivateBlog.Api_HostAddress}}/api/auth/logout
+Authorization: Bearer {{token}}
+
+### Listar secciones (JWT)
+GET {{PrivateBlog.Api_HostAddress}}/api/sections?page=1&pageSize=10
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Obtener sección por id
+GET {{PrivateBlog.Api_HostAddress}}/api/sections/{{sectionId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Crear sección
+POST {{PrivateBlog.Api_HostAddress}}/api/sections
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Nueva sección"
+}
+
+### Actualizar sección
+PUT {{PrivateBlog.Api_HostAddress}}/api/sections/{{sectionId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Sección actualizada",
+  "isActive": true
+}
+
+### Eliminar sección
+DELETE {{PrivateBlog.Api_HostAddress}}/api/sections/{{sectionId}}
+Authorization: Bearer {{token}}
+
+### Activar sección
+POST {{PrivateBlog.Api_HostAddress}}/api/sections/{{sectionId}}/activate
+Authorization: Bearer {{token}}
+
+### Desactivar sección
+POST {{PrivateBlog.Api_HostAddress}}/api/sections/{{sectionId}}/deactivate
+Authorization: Bearer {{token}}

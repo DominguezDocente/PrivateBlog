@@ -17,7 +17,11 @@ namespace PrivateBlog.Application.UseCases.Account.Commands.Login
 
         public Task<AccountSignInResult> Handle(LoginCommand request)
         {
-            return _accountRepository.SignInAsync(request.UserName, request.Password, request.RememberMe);
+            return _accountRepository.SignInAsync(
+                request.UserName,
+                request.Password,
+                request.RememberMe,
+                request.UseCookieAuth);
         }
     }
 }

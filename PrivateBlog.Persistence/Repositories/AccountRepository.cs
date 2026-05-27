@@ -78,11 +78,16 @@ namespace PrivateBlog.Persistence.Repositories
             };
         }
 
-        public async Task<AccountSignInResult> SignInAsync(string userName, string password, bool rememberMe, CancellationToken cancellationToken = default)
+        public async Task<AccountSignInResult> SignInAsync(
+            string userName,
+            string password,
+            bool rememberMe,
+            bool useCookieAuth = true,
+            CancellationToken cancellationToken = default)
         {
             ApplicationUser? user = await _userManager.FindByNameAsync(userName);
 
-            if (user is null) 
+            if (user is null)
             {
                 return new AccountSignInResult
                 {
@@ -91,12 +96,15 @@ namespace PrivateBlog.Persistence.Repositories
                 };
             }
 
-            SignInResult result = await _signinManager.PasswordSignInAsync(user, password, rememberMe, lockoutOnFailure: true);
+            SignInResult result = useCookieAuth
+                ? await _signinManager.PasswordSignInAsync(user, password, rememberMe, lockoutOnFailure: true)
+                : await _signinManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
 
             return new AccountSignInResult
             {
                 Succeeded = result.Succeeded,
-                IsLockedOut = result.IsLockedOut
+                IsLockedOut = result.IsLockedOut,
+                UserId = result.Succeeded ? user.Id : null
             };
         }
 

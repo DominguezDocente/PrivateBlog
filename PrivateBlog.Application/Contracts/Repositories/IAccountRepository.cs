@@ -12,7 +12,7 @@ namespace PrivateBlog.Application.Contracts.Repositories
 {
     public interface IAccountRepository
     {
-        Task<AccountSignInResult> SignInAsync(string userName, string password, bool rememberMe, CancellationToken cancellationToken = default);
+        Task<AccountSignInResult> SignInAsync(string userName, string password, bool rememberMe, bool useCookieAuth = true, CancellationToken cancellationToken = default);
 
         Task SignOutAsync(CancellationToken cancellationToken = default);
 

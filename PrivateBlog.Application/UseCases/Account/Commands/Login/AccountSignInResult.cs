@@ -8,6 +8,7 @@ namespace PrivateBlog.Application.UseCases.Account.Commands.Login
     {
         public required bool Succeeded { get; set; }
         public required bool IsLockedOut { get; set; }
+        public string? UserId { get; set; }
 
         public bool InvalidCredentials => !Succeeded && !IsLockedOut;
     }

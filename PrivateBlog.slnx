@@ -7,6 +7,7 @@
     <Project Path="PrivateBlog.Persistence/PrivateBlog.Persistence.csproj" />
   </Folder>
   <Folder Name="/Presenters/">
+    <Project Path="PrivateBlog.Api/PrivateBlog.Api.csproj" Id="97bf9f33-663d-4a34-b7b4-7b8eb78d9888" />
     <Project Path="PrivateBlog.Web/PrivateBlog.Web.csproj" />
   </Folder>
   <Folder Name="/Tests/">

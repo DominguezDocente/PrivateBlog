@@ -10,5 +10,6 @@ namespace PrivateBlog.Application.UseCases.Account.Commands.Login
         public required string UserName { get; set; }
         public required string Password { get; set; }
         public bool RememberMe { get; set; }
+        public bool UseCookieAuth { get; set; } = true;
     }
 }
