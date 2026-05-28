@@ -1,0 +1,6 @@
+@PrivateBlog.Api_HostAddress = http://localhost:5220
+
+GET {{PrivateBlog.Api_HostAddress}}/api/sections/
+Accept: application/json
+
+###
