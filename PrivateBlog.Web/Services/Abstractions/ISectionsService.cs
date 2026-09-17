@@ -10,7 +10,7 @@ namespace PrivateBlog.Web.Services.Abstractions
         public Task<Response<object>> DeleteAsync(Guid id);
         public Task<Response<SectionDTO>> GetOneAsync(Guid id);
         public Task<Response<PaginationResponse<SectionDTO>>> GetPaginationAsync(PaginationRequest request);
-        public Task<Response<SectionDTO>> UpdateAsync(UpdateSectionDTO dto);
+        public Task<Response<SectionDTO>> UpdateAsync(SectionDTO dto);
         public Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto);
     }
 }

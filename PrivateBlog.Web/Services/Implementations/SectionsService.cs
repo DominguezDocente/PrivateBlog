@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.Data;
@@ -24,29 +25,47 @@ namespace PrivateBlog.Web.Services.Implementations
             return await CreateAsync<CreateSectionDTO, Section>(dto);
         }
 
-        public Task<Response<object>> DeleteAsync(Guid id)
+        public async Task<Response<object>> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+           return await DeleteAsync<Section>(id);
         }
 
-        public Task<Response<SectionDTO>> GetOneAsync(Guid id)
+        public async Task<Response<SectionDTO>> GetOneAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await GetOneAsync<SectionDTO, Section>(id);
         }
 
-        public Task<Response<PaginationResponse<SectionDTO>>> GetPaginationAsync(PaginationRequest request)
+        public async Task<Response<PaginationResponse<SectionDTO>>> GetPaginationAsync(PaginationRequest request)
         {
-            throw new NotImplementedException();
+            return await GetPagedListAsync<SectionDTO, Section>(request);
         }
 
-        public Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto)
+        public async Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == dto.Id);
+
+                if (section is null)
+                {
+                    return Response<object>.Failure($"No existe sección con id: {dto.Id}");
+                }
+
+                section.IsHidden = dto.Hide;
+                _context.Sections.Update(section);
+                await _context.SaveChangesAsync();
+
+                return Response<object>.Success("Sección actualizada con éxito");
+            }
+            catch(Exception ex)
+            {
+                return Response<object>.Failure(ex);
+            }
         }
 
-        public Task<Response<SectionDTO>> UpdateAsync(UpdateSectionDTO dto)
+        public async Task<Response<SectionDTO>> UpdateAsync(SectionDTO dto)
         {
-            throw new NotImplementedException();
+            return await UpdateAsync<SectionDTO, Section>(dto, dto.Id);
         }
     }
 }
