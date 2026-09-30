@@ -10,7 +10,7 @@ WebApplication app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Errors/Error");
+    app.UseExceptionHandler("/Home1/Error");
     app.UseHsts();
 }
 
@@ -23,7 +23,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Home1}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.AddCustomWebApplicationConfiguration();
