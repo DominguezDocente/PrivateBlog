@@ -10,6 +10,8 @@ namespace PrivateBlog.Web.Core
         {
             CreateMap<Section, SectionDTO>().ForMember(dto => dto.Name, entity => entity.MapFrom(s => s.Name))
                                             .ReverseMap();
+
+            CreateMap<Section, CreateSectionDTO>().ReverseMap();
         }
     }
 }

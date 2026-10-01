@@ -37,5 +37,26 @@ namespace PrivateBlog.Web.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromForm] CreateSectionDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notyfService.Error("Debe ajustar los errores de validación");
+                return View(dto);
+            }
+
+            Response<CreateSectionDTO> response = await _sectionsService.CreateAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return View(dto);
+            }
+
+            _notyfService.Success(response.Message);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
