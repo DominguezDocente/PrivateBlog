@@ -19,9 +19,8 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
-            PaginationRequest request = PaginationRequest.Default;
             Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginationAsync(request);
 
             if (!response.IsSuccess)

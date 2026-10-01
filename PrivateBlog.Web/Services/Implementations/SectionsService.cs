@@ -37,7 +37,16 @@ namespace PrivateBlog.Web.Services.Implementations
 
         public async Task<Response<PaginationResponse<SectionDTO>>> GetPaginationAsync(PaginationRequest request)
         {
-            return await GetPagedListAsync<SectionDTO, Section>(request);
+            IQueryable<Section> query = _context.Sections.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(request.Filter))
+            {
+                // SELECT * FROM Sections WHERE LOW(Name) LIKE '%LOW(FILTER)%'
+                query = query.Where(s => s.Name.ToLower().Contains(request.Filter.ToLower())
+                                      || s.Description.ToLower().Contains(request.Filter.ToLower()));
+            }
+
+            return await GetPagedListAsync<SectionDTO, Section>(request, query);
         }
 
         public async Task<Response<object>> ToggleAsync(ToggleSectionStatusDTO dto)
