@@ -53,11 +53,11 @@ namespace PrivateBlog.Web.Services.Implementations
         {
             try
             {
-                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == dto.Id);
+                Section? section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == dto.SectionId);
 
                 if (section is null)
                 {
-                    return Response<object>.Failure($"No existe sección con id: {dto.Id}");
+                    return Response<object>.Failure($"No existe sección con id: {dto.SectionId}");
                 }
 
                 section.IsHidden = dto.Hide;
@@ -72,9 +72,19 @@ namespace PrivateBlog.Web.Services.Implementations
             }
         }
 
-        public async Task<Response<SectionDTO>> UpdateAsync(SectionDTO dto)
+        public async Task<Response<SectionDTO>> UpdateAsync(UpdateSectionDTO dto)
         {
-            return await UpdateAsync<SectionDTO, Section>(dto, dto.Id);
+            Response<UpdateSectionDTO> result = await UpdateAsync<UpdateSectionDTO, Section>(dto, dto.Id);
+
+            SectionDTO dtoResponse = new SectionDTO
+            {
+                Id = result.Result.Id,
+                Name = result.Result.Name,
+                Description = result.Result.Description,
+                IsHidden = result.Result.IsHidden
+            };
+
+            return  Response<SectionDTO>.Success(dtoResponse, result.Message);
         }
     }
 }

@@ -12,6 +12,8 @@ namespace PrivateBlog.Web.Core
                                             .ReverseMap();
 
             CreateMap<Section, CreateSectionDTO>().ReverseMap();
+
+            CreateMap<Section, UpdateSectionDTO>().ReverseMap();
         }
     }
 }

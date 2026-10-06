@@ -58,5 +58,82 @@ namespace PrivateBlog.Web.Controllers
             _notyfService.Success(response.Message);
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public  async Task<IActionResult> Edit([FromRoute] Guid id)
+        {
+            Response<SectionDTO> response = await _sectionsService.GetOneAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return RedirectToAction(nameof(Index));
+            }
+
+            UpdateSectionDTO dto = new UpdateSectionDTO
+            {
+                Id = response.Result.Id,
+                Name = response.Result.Name,
+                Description = response.Result.Description,
+                IsHidden = response.Result.IsHidden
+            };
+
+            return View(dto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromForm] UpdateSectionDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notyfService.Error("Debe ajustar los errores de validación");
+                return View(dto);
+            }
+
+            Response<SectionDTO> response = await _sectionsService.UpdateAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return View(dto);
+            }
+
+            _notyfService.Success(response.Message);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            Response<object> response = await _sectionsService.DeleteAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+            }
+            else
+            {
+                _notyfService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Toggle(ToggleSectionStatusDTO dto)
+        {
+            Response<object> response = await _sectionsService.ToggleAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+            }
+            else
+            {
+                _notyfService.Success(response.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

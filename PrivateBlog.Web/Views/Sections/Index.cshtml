@@ -79,17 +79,50 @@
                 <tbody>
                     @foreach(SectionDTO item in Model.List)
                     {
-                        <tr>
+                        string rowClass = item.IsHidden ? "table-secondary" : "";
+                        
+                        <tr class="@rowClass">
                             <td>@item.Name</td>
                             <td>@item.Description</td>
                             <td>
-                                <a class="btn btn-sm btn-warning" asp-route-id="@item.Id">
+                                <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>
 
-                                <a class="btn btn-sm btn-danger" asp-route-id="@item.Id">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
+                                @if (item.IsHidden)
+                                {
+                                    <form asp-action="Toggle" method="POST" style="display: contents;">
+                                        <input type="hidden" name="SectionId" value="@item.Id" />
+                                        <input type="hidden" name="Hide" value="false" />
+
+                                        <button class="btn btn-sm btn-secondary"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-original-title="Desocultar">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Toggle" method="POST" style="display: contents;">
+                                        <input type="hidden" name="SectionId" value="@item.Id" />
+                                        <input type="hidden" name="Hide" value="true" />
+
+                                        <button class="btn btn-sm btn-info"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                data-bs-original-title="Ocultar">
+                                            <i class="bi bi-eye-slash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                <form asp-action="Delete" method="POST" style="display: contents;" asp-route-Id="@item.Id">
+                                    <button type="submit" class="btn btn-sm btn-danger btnDelete">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }
@@ -164,3 +197,36 @@
     </div>
 
 </section>
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function() {
+
+            $('.btnDelete').click(function(event) {
+
+                event.preventDefault();
+
+                Swal.fire({
+                    icon: 'question',
+                    title: '¿Delea eliminar la sección?',
+                    text: "¡No podrás revertir esto!",
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        const form = $(this).closest('form');
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+    </script>
+
+}
