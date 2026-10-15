@@ -22,6 +22,31 @@ namespace PrivateBlog.Web.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Blog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(MAX)");
+
+                    b.Property<Guid>("SectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("Blogs");
+                });
+
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Section", b =>
                 {
                     b.Property<Guid>("Id")
@@ -43,6 +68,17 @@ namespace PrivateBlog.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Sections");
+                });
+
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Blog", b =>
+                {
+                    b.HasOne("PrivateBlog.Web.Data.Entities.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Section");
                 });
 #pragma warning restore 612, 618
         }

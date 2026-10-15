@@ -1,6 +1,8 @@
-﻿namespace PrivateBlog.Web.Core.Pagination
+﻿using PrivateBlog.Web.Core.Pagination.Abstractions;
+
+namespace PrivateBlog.Web.Core.Pagination
 {
-    public class PaginationResponse<T>
+    public class PaginationResponse<T> : IPagination
     {
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }

@@ -39,7 +39,7 @@ namespace PrivateBlog.Web.Services
             }
         }
 
-        public async Task<Response<object>> DeleteAsync<TEntity>(Guid id) where TEntity : class, IId
+        public async Task<Response> DeleteAsync<TEntity>(Guid id) where TEntity : class, IId
         {
             try
             {
@@ -47,17 +47,17 @@ namespace PrivateBlog.Web.Services
 
                 if (entity is null)
                 {
-                    return Response<object>.Failure($"No existe registro con id {id}");
+                    return Response.Failure($"No existe registro con id {id}");
                 }
 
                 _context.Remove(entity);
                 await _context.SaveChangesAsync();
 
-                return Response<object>.Success("Registro eliminado con éxito");
+                return Response.Success("Registro eliminado con éxito");
             }
             catch (Exception ex)
             {
-                return Response<object>.Failure(ex);
+                return Response.Failure(ex);
             }
         }
 

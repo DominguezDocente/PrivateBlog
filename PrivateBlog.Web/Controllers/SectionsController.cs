@@ -105,7 +105,7 @@ namespace PrivateBlog.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            Response<object> response = await _sectionsService.DeleteAsync(id);
+            Response response = await _sectionsService.DeleteAsync(id);
 
             if (!response.IsSuccess)
             {
