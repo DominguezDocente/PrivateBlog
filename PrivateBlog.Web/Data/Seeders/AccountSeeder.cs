@@ -8,12 +8,14 @@ namespace PrivateBlog.Web.Data.Seeders
     public class AccountSeeder
     {
         private readonly IUsersService _usersService;
+        private readonly IAccountService _accountService;
         private readonly DataContext _context;
 
-        public AccountSeeder(IUsersService usersService, DataContext context)
+        public AccountSeeder(IUsersService usersService, DataContext context, IAccountService accountService)
         {
             _usersService = usersService;
             _context = context;
+            _accountService = accountService;
         }
 
         public async Task SeedAsync()
@@ -66,9 +68,9 @@ namespace PrivateBlog.Web.Data.Seeders
 
                 await _usersService.AddUserAsync(user, "1234");
 
-                string token = (await _usersService.GenerateConfirmationTokenAsync(user)).Result;
+                string token = (await _accountService.GenerateConfirmationTokenAsync(user)).Result;
 
-                await _usersService.ConfirmUserAsync(user, token);
+                await _accountService.ConfirmUserAsync(user, token);
             }
         }
     }
