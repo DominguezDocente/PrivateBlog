@@ -27,6 +27,8 @@ namespace PrivateBlog.Web
             builder.Services.AddAutoMapper(typeof(Program));
 
             // Services
+
+            builder.Services.AddHttpContextAccessor();
             AddServices(builder);
 
             // Toast Notifications

@@ -18,6 +18,7 @@ namespace PrivateBlog.Web.Data.Seeders
         public async Task SeedAsync()
         {
             await new SectionsSeeder(_context).SeedAsync();
+            await new PermissionsSeeder(_context).SeedAsync();
             await new AccountSeeder(_usersService, _context, _accountService).SeedAsync();
         }
     }

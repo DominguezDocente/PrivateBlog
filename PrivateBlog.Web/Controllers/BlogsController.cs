@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Core.Attributes;
 using PrivateBlog.Web.Core.Pagination;
 using PrivateBlog.Web.DTOs.Blog;
 using PrivateBlog.Web.DTOs.Section;
@@ -26,6 +27,7 @@ namespace PrivateBlog.Web.Controllers
 
 
         [HttpGet]
+        [CustomAuthorize(permissionCode: "blogs.show")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<BlogDTO>> response = await _blogsService.GetPaginationAsync(request);
@@ -40,6 +42,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permissionCode: "blogs.create")]
         public async Task<IActionResult> Create()
         {
             CreateBlogDTO dto = new CreateBlogDTO
@@ -51,6 +54,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permissionCode: "blogs.create")]
         public async Task<IActionResult> Create([FromForm] CreateBlogDTO dto)
         {
             if (!ModelState.IsValid)
@@ -74,6 +78,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpGet]
+        [CustomAuthorize(permissionCode: "blogs.update")]
         public async Task<IActionResult> Edit([FromRoute] Guid id)
         {
             Response<BlogDTO> response = await _blogsService.GetOneAsync(id);
@@ -97,6 +102,7 @@ namespace PrivateBlog.Web.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize(permissionCode: "blogs.update")]
         public async Task<IActionResult> Edit([FromForm] UpdateBlogDTO dto)
         {
             if (!ModelState.IsValid)
@@ -121,6 +127,7 @@ namespace PrivateBlog.Web.Controllers
 
 
         [HttpPost]
+        [CustomAuthorize(permissionCode: "blogs.delete")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             Response response = await _blogsService.DeleteAsync(id);

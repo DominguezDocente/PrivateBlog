@@ -12,5 +12,8 @@ namespace PrivateBlog.Web.Services.Abstractions
         public Task<Response<SignInResult>> LoginAsync(LoginDTO dto);
         public Task LogoutAsync();
         public Task<Response<AccountUserDTO>> UpdateAccountUserAsync(AccountUserDTO dto);
+        public bool AccountUserIsAuthenticated();
+        public Task<bool> AccountUserIsAuthorizedAsync(string code);
+        public Task<bool> AccountUserIsSuperAdminAsync();
     }
 }

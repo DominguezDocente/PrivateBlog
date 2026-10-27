@@ -1,29 +1,35 @@
-﻿<aside id="sidebar" class="sidebar">
+﻿@inject PrivateBlog.Web.Services.Abstractions.IAccountService _accountService;
+
+<aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link " href="index.html">
+            <a class="nav-link " asp-controller="Home" asp-action="Index">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
         </li>
 
+        @if (await _accountService.AccountUserIsAuthorizedAsync("sections.show"))
+        {
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Sections" asp-action="Index">
+                    <i class="bi bi-bounding-box"></i>
+                    <span>Secciones</span>
+                </a>
+            </li>            
+        }
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="Sections" asp-action="Index">
-                <i class="bi bi-bounding-box"></i>
-                <span>Secciones</span>
-            </a>
-        </li>
-
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="Blogs" asp-action="Index">
-                <i class="bi bi-bounding-box"></i>
-                <span>Blogs</span>
-            </a>
-        </li>
+        @if (await _accountService.AccountUserIsAuthorizedAsync("blogs.show"))
+        {
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-controller="Blogs" asp-action="Index">
+                    <i class="bi bi-bounding-box"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>            
+        }
 
     </ul>
 

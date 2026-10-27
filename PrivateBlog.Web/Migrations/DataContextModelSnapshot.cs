@@ -180,6 +180,35 @@ namespace PrivateBlog.Web.Migrations
                     b.ToTable("Blogs");
                 });
 
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.PrivateBlogRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -193,7 +222,25 @@ namespace PrivateBlog.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("PrivateBlogRoles");
+                });
+
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("PrivateBlogRoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PrivateBlogRoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Section", b =>
@@ -215,6 +262,9 @@ namespace PrivateBlog.Web.Migrations
                         .HasColumnType("nvarchar(32)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Sections");
                 });
@@ -294,6 +344,9 @@ namespace PrivateBlog.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Document")
+                        .IsUnique();
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -369,6 +422,25 @@ namespace PrivateBlog.Web.Migrations
                     b.Navigation("Section");
                 });
 
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.RolePermission", b =>
+                {
+                    b.HasOne("PrivateBlog.Web.Data.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PrivateBlog.Web.Data.Entities.PrivateBlogRole", "PrivateBlogRole")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PrivateBlogRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("PrivateBlogRole");
+                });
+
             modelBuilder.Entity("PrivateBlog.Web.Data.Entities.User", b =>
                 {
                     b.HasOne("PrivateBlog.Web.Data.Entities.PrivateBlogRole", "PrivateBlogRole")
@@ -378,6 +450,16 @@ namespace PrivateBlog.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("PrivateBlogRole");
+                });
+
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("PrivateBlog.Web.Data.Entities.PrivateBlogRole", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 #pragma warning restore 612, 618
         }

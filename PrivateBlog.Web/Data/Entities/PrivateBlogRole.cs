@@ -10,5 +10,7 @@ namespace PrivateBlog.Web.Data.Entities
         [Required]
         [MaxLength(32)]
         public required string Name { get; set; }
+
+        public IEnumerable<RolePermission>? RolePermissions { get; set; }
     }
 }

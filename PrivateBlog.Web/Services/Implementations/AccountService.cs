@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrivateBlog.Web.Core;
+using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs.Account;
 using PrivateBlog.Web.DTOs.User;
 using PrivateBlog.Web.Services.Abstractions;
+using System.Security.Claims;
 
 namespace PrivateBlog.Web.Services.Implementations
 {
@@ -13,13 +15,83 @@ namespace PrivateBlog.Web.Services.Implementations
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUsersService _usersService;
+        private readonly IHttpContextAccessor _httpContextAccesor;
+        private readonly DataContext _context;
 
-        public AccountService(UserManager<User> userManager, SignInManager<User> signInManager, IUsersService usersService)
+        public AccountService(UserManager<User> userManager, 
+                              SignInManager<User> signInManager, 
+                              IUsersService usersService, 
+                              IHttpContextAccessor httpContextAccesor, 
+                              DataContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _usersService = usersService;
+            _httpContextAccesor = httpContextAccesor;
+            _context = context;
         }
+
+        public bool AccountUserIsAuthenticated()
+        {
+            ClaimsPrincipal? user = _httpContextAccesor.HttpContext?.User;
+            return user?.Identity is not null && user.Identity.IsAuthenticated;
+        }
+
+        public async Task<bool> AccountUserIsAuthorizedAsync(string code)
+        {
+            ClaimsPrincipal? claimUser = _httpContextAccesor.HttpContext?.User;
+
+            // Check identity (session)
+            if (claimUser is null)
+            {
+                return false;
+            }
+
+            string email = claimUser.Identity!.Name!;
+
+            Response<User> response = await _usersService.GetUserByEmailAsync(email);
+
+            if (!response.IsSuccess || response.Result is null)
+            {
+                return false;
+            }
+
+            User user = response.Result;
+
+            if (user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME)
+            {
+                return true;
+            }
+
+            return await _context.Permissions.Include(p => p.RolePermissions)
+                                             .AnyAsync(p => p.Code == code
+                                                         && p.RolePermissions.Any(rp => rp.PrivateBlogRoleId == user.PrivateBlogRoleId));
+        }
+
+        public async Task<bool> AccountUserIsSuperAdminAsync()
+        {
+            ClaimsPrincipal? claimUser = _httpContextAccesor.HttpContext?.User;
+
+            // Check identity (session)
+            if (claimUser is null)
+            {
+                return false;
+            }
+
+            string email = claimUser.Identity!.Name!;
+
+            Response<User> response = await _usersService.GetUserByEmailAsync(email);
+
+            if (!response.IsSuccess || response.Result is null)
+            {
+                return false;
+            }
+
+            User user = response.Result;
+
+            return user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME;
+        }
+
         public async Task<Response<IdentityResult>> ConfirmUserAsync(User user, string token)
         {
             IdentityResult result = await _userManager.ConfirmEmailAsync(user, token);
@@ -58,7 +130,29 @@ namespace PrivateBlog.Web.Services.Implementations
         {
             try
             {
-                // TODO: Validar usuario en sesión
+                ClaimsPrincipal? claimUser = _httpContextAccesor.HttpContext?.User;
+
+                // Check identity (session)
+                if (claimUser is null)
+                {
+                    return Response<AccountUserDTO>.Failure();
+                }
+
+                string email = claimUser.Identity!.Name!;
+
+                Response<User> response = await _usersService.GetUserByEmailAsync(email);
+
+                if (!response.IsSuccess || response.Result is null)
+                {
+                    return Response<AccountUserDTO>.Failure();
+                }
+
+                User accountUser = response.Result;
+
+                if (accountUser.Id != dto.Id.ToString())
+                {
+                    return Response<AccountUserDTO>.Failure();
+                }
 
                 UserDTO userDto = new UserDTO
                 {
