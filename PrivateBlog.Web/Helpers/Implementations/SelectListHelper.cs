@@ -14,6 +14,15 @@ namespace PrivateBlog.Web.Helpers.Implementations
             _context = context;
         }
 
+        public async Task<List<SelectListItem>> GetRolesSelectListAsync()
+        {
+            return await _context.PrivateBlogRoles.Select(s => new SelectListItem
+            {
+                Text = s.Name,
+                Value = s.Id.ToString()
+            }).ToListAsync();
+        }
+
         public async Task<List<SelectListItem>> GetSectionsSelectListAsync()
         {
             return await _context.Sections.Select(s => new SelectListItem

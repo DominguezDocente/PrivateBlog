@@ -6,7 +6,7 @@ namespace PrivateBlog.Web.DTOs.User
 {
     public class UserDTO
     {
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [MaxLength(32, ErrorMessage = "El campo {0} debe tener máximo {1} caractéres")]
@@ -24,7 +24,7 @@ namespace PrivateBlog.Web.DTOs.User
         public required string LastName { get; set; }
 
         [MaxLength(64, ErrorMessage = "El campo {0} debe tener máximo {1} caractéres")]
-        [Display(Name = "Apellidos")]
+        [Display(Name = "Correo")]
         [EmailAddress(ErrorMessage = "El campo {0} debe ser un Email válido")]
         public string Email { get; set; }
 

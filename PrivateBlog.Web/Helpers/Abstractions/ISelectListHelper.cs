@@ -5,5 +5,6 @@ namespace PrivateBlog.Web.Helpers.Abstractions
     public interface ISelectListHelper
     {
         Task<List<SelectListItem>> GetSectionsSelectListAsync();
+        Task<List<SelectListItem>> GetRolesSelectListAsync();
     }
 }

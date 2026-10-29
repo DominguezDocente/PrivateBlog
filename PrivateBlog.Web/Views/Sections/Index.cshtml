@@ -1,4 +1,5 @@
-﻿@model PaginationResponse<SectionDTO>
+﻿@inject IAccountService _accountService;
+@model PaginationResponse<SectionDTO>
 
 @{
     ViewData["Title"] = "Secciones";
@@ -23,10 +24,13 @@
             <div class="row">
 
                 <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
-
-                <div class="col-md-1">
-                    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
-                </div>
+                    
+                @if (await _accountService.AccountUserIsAuthorizedAsync("sections.create"))
+                {
+                    <div class="col-md-1">
+                        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i></a>
+                    </div>
+                }
 
             </div>
 
@@ -85,44 +89,49 @@
                             <td>@item.Name</td>
                             <td>@item.Description</td>
                             <td>
-                                <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </a>
-
-                                @if (item.IsHidden)
+                                @if (await _accountService.AccountUserIsAuthorizedAsync("sections.update"))
                                 {
-                                    <form asp-action="Toggle" method="POST" style="display: contents;">
-                                        <input type="hidden" name="SectionId" value="@item.Id" />
-                                        <input type="hidden" name="Hide" value="false" />
+                                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
 
-                                        <button class="btn btn-sm btn-secondary"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                data-bs-original-title="Desocultar">
-                                            <i class="bi bi-eye"></i>
+                                    @if (item.IsHidden)
+                                    {
+                                        <form asp-action="Toggle" method="POST" style="display: contents;">
+                                            <input type="hidden" name="SectionId" value="@item.Id" />
+                                            <input type="hidden" name="Hide" value="false" />
+
+                                            <button class="btn btn-sm btn-secondary"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            data-bs-original-title="Desocultar">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Toggle" method="POST" style="display: contents;">
+                                            <input type="hidden" name="SectionId" value="@item.Id" />
+                                            <input type="hidden" name="Hide" value="true" />
+
+                                            <button class="btn btn-sm btn-info"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            data-bs-original-title="Ocultar">
+                                                <i class="bi bi-eye-slash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                                @if (await _accountService.AccountUserIsAuthorizedAsync("sections.delete"))
+                                {
+                                    <form asp-action="Delete" method="POST" style="display: contents;" asp-route-Id="@item.Id">
+                                        <button type="submit" class="btn btn-sm btn-danger btnDelete">
+                                            <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </form>
                                 }
-                                else
-                                {
-                                    <form asp-action="Toggle" method="POST" style="display: contents;">
-                                        <input type="hidden" name="SectionId" value="@item.Id" />
-                                        <input type="hidden" name="Hide" value="true" />
-
-                                        <button class="btn btn-sm btn-info"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                data-bs-original-title="Ocultar">
-                                            <i class="bi bi-eye-slash"></i>
-                                        </button>
-                                    </form>
-                                }
-                                
-                                <form asp-action="Delete" method="POST" style="display: contents;" asp-route-Id="@item.Id">
-                                    <button type="submit" class="btn btn-sm btn-danger btnDelete">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     }
