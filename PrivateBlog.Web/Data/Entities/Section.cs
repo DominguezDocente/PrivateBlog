@@ -15,5 +15,7 @@ namespace PrivateBlog.Web.Data.Entities
         public string? Description { get; set; }
 
         public bool IsHidden { get; set; } = false;
+
+        public IEnumerable<RoleSection>? RoleSections { get; set; }
     }
 }

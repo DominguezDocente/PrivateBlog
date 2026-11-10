@@ -52,6 +52,8 @@ namespace PrivateBlog.Web
             builder.Services.AddScoped<IBlogsService, BlogsService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IRolesService, RolesService>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
 
             builder.Services.AddTransient<SeedDb>();
 

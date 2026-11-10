@@ -1,0 +1,92 @@
+﻿@model RoleDTO
+
+@{
+    ViewData["Title"] = "Editar Rol";
+}
+
+<div class="pagetitle">
+    <h1>@ViewData["Title"]</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Roles</a></li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section dashboard">
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="row">
+
+                <h3 class="m-0 font-weight-bold text-primary col-md-11">@ViewData["Title"]</h3>
+
+            </div>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Edit" method="POST" class="row g-3 mt-2" id="frmEditRole">
+
+                <input type="hidden" asp-for="Id" />
+                @await Html.PartialAsync("_Role", Model)
+
+            </form>
+
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Sections", Model)
+    @await Html.PartialAsync("_Permissions", Model);
+
+    <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary" form="frmEditRole" id="btnEditRole">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
+
+</section>
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        $(document).ready(function() {
+
+            $("#btnEditRole").click(function(event) {
+
+                const permissions = $('.permission:checked');
+
+                let permissionIds = [];
+
+                permissions.each(function() {
+
+                    const permissionId = $(this).data('permission-id');
+                    permissionIds.push(permissionId);
+                });
+
+                const sections = $('.section:checked');
+
+                let sectionIds = [];
+
+                    sections.each(function() {
+
+                    const sectionId = $(this).data('section-id');
+                    sectionIds.push(sectionId);
+                });
+
+                $('#permissionIds').val(JSON.stringify(permissionIds));
+                $('#sectionIds').val(JSON.stringify(sectionIds));
+            });
+        });
+
+    </script>
+}

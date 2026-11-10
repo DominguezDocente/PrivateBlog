@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrivateBlog.Web.Data.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace PrivateBlog.Web.Data.Entities
 {
-    public class PrivateBlogRole
+    public class PrivateBlogRole : IId
     {
         [Key]
         public Guid Id { get; set; }
@@ -12,5 +13,6 @@ namespace PrivateBlog.Web.Data.Entities
         public required string Name { get; set; }
 
         public IEnumerable<RolePermission>? RolePermissions { get; set; }
+        public IEnumerable<RoleSection>? RoleSections { get; set; }
     }
 }

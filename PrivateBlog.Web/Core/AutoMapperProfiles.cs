@@ -2,6 +2,7 @@
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs.Account;
 using PrivateBlog.Web.DTOs.Blog;
+using PrivateBlog.Web.DTOs.Role;
 using PrivateBlog.Web.DTOs.Section;
 using PrivateBlog.Web.DTOs.User;
 
@@ -33,6 +34,11 @@ namespace PrivateBlog.Web.Core
             CreateMap<User, UpdateUserDTO>().ForMember(dto => dto.Phone, entity => entity.MapFrom(e => e.PhoneNumber))
                                             .ForMember(dto => dto.Id, entity => entity.MapFrom(e => Guid.Parse(e.Id)))
                                             .ReverseMap();
+
+            CreateMap<PrivateBlogRole, RoleDTO>().ReverseMap();
+
+            CreateMap<Permission, PermissionDTO>().ReverseMap();
+
         }
     }
 }

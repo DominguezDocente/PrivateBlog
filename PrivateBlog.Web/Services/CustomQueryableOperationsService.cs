@@ -144,5 +144,26 @@ namespace PrivateBlog.Web.Services
                 return Response<PaginationResponse<TDto>>.Failure(ex);
             }
         }
+
+        public async Task<Response<List<TDto>>> GetCompleteListAsync<TDto, TEntity>(IQueryable<TEntity>? query = null)
+        where TEntity : class, IId
+        {
+            try
+            {
+                if (query is null)
+                {
+                    query = _context.Set<TEntity>().AsNoTracking();
+                }
+
+                List<TEntity> entities = await query.ToListAsync();
+                List<TDto> dtos = _mapper.Map<List<TDto>>(entities);
+
+                return Response<List<TDto>>.Success(dtos);
+            }
+            catch (Exception ex)
+            {
+                return Response<List<TDto>>.Failure(ex);
+            }
+        }
     }
 }
