@@ -16,5 +16,8 @@ namespace PrivateBlog.Web.Services.Abstractions
         public Task<Response<UserDTO>> CreateAsync(CreateUserDTO dto);
         public Task<Response<PaginationResponse<UserDTO>>> GetPaginationAsync(PaginationRequest request);
         public Task<Response<UserDTO>> GetOneAsync(Guid id);
+        public Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword);
+        public Task<bool> CheckPasswordAsync(User accountUser, string currentPassword);
+        public Task<string> GeneratePasswordResetTokenAsync(User accountUser);
     }
 }

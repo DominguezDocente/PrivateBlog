@@ -15,5 +15,6 @@ namespace PrivateBlog.Web.Services.Abstractions
         public bool AccountUserIsAuthenticated();
         public Task<bool> AccountUserIsAuthorizedAsync(string code);
         public Task<bool> AccountUserIsSuperAdminAsync();
+        public Task<Response> ChangePasswordAsync(ChangePasswordDTO dto);
     }
 }

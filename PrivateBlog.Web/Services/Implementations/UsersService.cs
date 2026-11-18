@@ -205,5 +205,20 @@ namespace PrivateBlog.Web.Services.Implementations
 
             return Response<string>.Success(result);
         }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
+        }
+
+        public async Task<bool> CheckPasswordAsync(User user, string password)
+        {
+            return await _userManager.CheckPasswordAsync(user, password);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
     }
 }

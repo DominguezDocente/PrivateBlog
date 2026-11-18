@@ -109,5 +109,36 @@ namespace PrivateBlog.Web.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _notyfService.Error("Debe ajustar los errores de validación");
+                return View();
+            }
+
+            Response response = await _accountService.ChangePasswordAsync(dto);
+
+            if (!response.IsSuccess)
+            {
+                _notyfService.Error(response.Message);
+                return View();
+            }
+
+            _notyfService.Success(response.Message);
+            return RedirectToAction("Index", "Home");
+        }
+
+
     }
 }

@@ -92,6 +92,43 @@ namespace PrivateBlog.Web.Services.Implementations
             return user.PrivateBlogRole.Name == Env.SUPER_ADMIN_ROLE_NAME;
         }
 
+        public async Task<Response> ChangePasswordAsync(ChangePasswordDTO dto)
+        {
+            ClaimsPrincipal? claimUser = _httpContextAccesor.HttpContext?.User;
+
+            if (claimUser is null)
+            {
+                return Response.Failure("NO existe sesión");
+            }
+
+            string email = claimUser.Identity!.Name!;
+
+            Response<User> response = await _usersService.GetUserByEmailAsync(email);
+            if (!response.IsSuccess || response.Result is null)
+            {
+                return Response.Failure("NO existe usuario");
+            }
+
+            User accountUser = response.Result;
+
+            bool isCorrectPassword = await _usersService.CheckPasswordAsync(accountUser, dto.CurrentPassword);
+
+            if (!isCorrectPassword)
+            {
+                return Response.Failure("La contraseña actual es incorrecta");
+            }
+
+            string resetToken = await _usersService.GeneratePasswordResetTokenAsync(accountUser);
+            IdentityResult result = await _usersService.ResetPasswordAsync(accountUser, resetToken, dto.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return Response.Failure("Ha ocurrido un error al intentar actualizar la contraseña");
+            }
+
+            return Response.Success("Contraseña actualizada con éxito");
+        }
+
         public async Task<Response<IdentityResult>> ConfirmUserAsync(User user, string token)
         {
             IdentityResult result = await _userManager.ConfirmEmailAsync(user, token);
