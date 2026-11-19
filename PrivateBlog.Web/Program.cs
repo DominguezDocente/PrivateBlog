@@ -23,11 +23,20 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
 
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}")
+        .WithStaticAssets();
+
+    endpoints.MapGet("/api/health", () => 
+    {
+        return "API is Working!";
+    });
+});
 app.AddCustomWebApplicationConfiguration();
 
 app.Run();

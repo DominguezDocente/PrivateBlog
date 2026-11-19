@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using PrivateBlog.Web.Core;
 using PrivateBlog.Web.Data;
 using PrivateBlog.Web.Data.Entities;
 using PrivateBlog.Web.DTOs.Account;
 using PrivateBlog.Web.DTOs.User;
 using PrivateBlog.Web.Services.Abstractions;
+using System.Diagnostics.SymbolStore;
 using System.Security.Claims;
+using System.Text;
 
 namespace PrivateBlog.Web.Services.Implementations
 {
@@ -17,18 +21,21 @@ namespace PrivateBlog.Web.Services.Implementations
         private readonly IUsersService _usersService;
         private readonly IHttpContextAccessor _httpContextAccesor;
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AccountService(UserManager<User> userManager, 
-                              SignInManager<User> signInManager, 
-                              IUsersService usersService, 
-                              IHttpContextAccessor httpContextAccesor, 
-                              DataContext context)
+        public AccountService(UserManager<User> userManager,
+                              SignInManager<User> signInManager,
+                              IUsersService usersService,
+                              IHttpContextAccessor httpContextAccesor,
+                              DataContext context,
+                              IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _usersService = usersService;
             _httpContextAccesor = httpContextAccesor;
             _context = context;
+            _configuration = configuration;
         }
 
         public bool AccountUserIsAuthenticated()
@@ -145,6 +152,34 @@ namespace PrivateBlog.Web.Services.Implementations
             string result = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             return Response<string>.Success(result);
+        }
+
+        public async Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto)
+        {
+            SignInResult result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
+
+            if (result.Succeeded)
+            {
+                User user = await _userManager.FindByEmailAsync(dto.Email);
+                UserTokenDTO token = await BuildTokenAsync(dto.Email, user);
+
+                return Response<UserTokenDTO>.Success(token);
+            }
+
+            return Response<UserTokenDTO>.Failure("Usuario o contraseña incorrectos");
+        }
+
+        private async Task<UserTokenDTO> BuildTokenAsync(string email, User user)
+        {
+            List<Claim> claims = [
+            
+                new Claim(ClaimTypes.Email, email),    
+                new Claim(ClaimTypes.Name, email),    
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim("userId", user.Id)
+            ];
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SignKey"]));
         }
 
         public async Task<Response<SignInResult>> LoginAsync(LoginDTO dto)

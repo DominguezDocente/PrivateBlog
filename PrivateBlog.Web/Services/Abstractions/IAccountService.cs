@@ -10,6 +10,7 @@ namespace PrivateBlog.Web.Services.Abstractions
         public Task<Response<IdentityResult>> ConfirmUserAsync(User user, string token);
         public Task<Response<string>> GenerateConfirmationTokenAsync(User user);
         public Task<Response<SignInResult>> LoginAsync(LoginDTO dto);
+        public Task<Response<UserTokenDTO>> LoginApiAsync(LoginDTO dto);
         public Task LogoutAsync();
         public Task<Response<AccountUserDTO>> UpdateAccountUserAsync(AccountUserDTO dto);
         public bool AccountUserIsAuthenticated();
