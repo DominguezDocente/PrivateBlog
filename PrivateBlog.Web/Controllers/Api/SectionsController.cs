@@ -1,4 +1,6 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web.Core;
@@ -11,6 +13,7 @@ namespace PrivateBlog.Web.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SectionsController : ApiController
     {
         private readonly ISectionsService _sectionsService;
@@ -21,6 +24,7 @@ namespace PrivateBlog.Web.Controllers.Api
         }
 
         [HttpGet]
+        [ApiAuthorize("sections.show")]
         public async Task<IActionResult> Index([FromQuery] PaginationRequest request)
         {
             Response<PaginationResponse<SectionDTO>> response = await _sectionsService.GetPaginationAsync(request);
@@ -28,6 +32,7 @@ namespace PrivateBlog.Web.Controllers.Api
         }
 
         [HttpPost]
+        [ApiAuthorize("sections.create")]
         public async Task<IActionResult> Create([FromBody] CreateSectionDTO dto)
         {
             Response<CreateSectionDTO> response = await _sectionsService.CreateAsync(dto);
@@ -35,6 +40,7 @@ namespace PrivateBlog.Web.Controllers.Api
         }
 
         [HttpPut]
+        [ApiAuthorize("sections.edit")]
         public async Task<IActionResult> Edit([FromBody] UpdateSectionDTO dto)
         {
             Response<SectionDTO> response = await _sectionsService.UpdateAsync(dto);
@@ -42,6 +48,7 @@ namespace PrivateBlog.Web.Controllers.Api
         }
 
         [HttpDelete("{id}")]
+        [ApiAuthorize("sections.delete")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             Response response = await _sectionsService.DeleteAsync(id);

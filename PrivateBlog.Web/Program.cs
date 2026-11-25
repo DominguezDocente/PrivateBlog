@@ -1,8 +1,14 @@
+using Microsoft.AspNetCore.Mvc;
 using PrivateBlog.Web;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.AddCustomConfiguration();
 

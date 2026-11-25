@@ -9,6 +9,7 @@ using PrivateBlog.Web.DTOs.Account;
 using PrivateBlog.Web.DTOs.User;
 using PrivateBlog.Web.Services.Abstractions;
 using System.Diagnostics.SymbolStore;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -180,6 +181,21 @@ namespace PrivateBlog.Web.Services.Implementations
             ];
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SignKey"]));
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            DateTime expiration = DateTime.UtcNow.AddYears(100);
+
+            JwtSecurityToken token = new JwtSecurityToken(issuer: _configuration["JWT:Issuer"],
+                                                          audience: _configuration["JWT:Audience"],
+                                                          claims: claims,
+                                                          expires: expiration,
+                                                          signingCredentials: creds);
+
+            return new UserTokenDTO
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                ExpiresAt = expiration
+            };
         }
 
         public async Task<Response<SignInResult>> LoginAsync(LoginDTO dto)

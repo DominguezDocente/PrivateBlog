@@ -15,14 +15,15 @@ namespace PrivateBlog.Web.Controllers.Api
         {
             if (modelState is not null && !modelState.IsValid)
             {
-                List<string> errors = modelState.Values.SelectMany(v => v.Errors)
-                                                       .Select(e => e.ErrorMessage)
-                                                       .ToList();
+                (bool isValid, List<string> errors)  = ValidateModelState(modelState);
 
-                return new ObjectResult(Response<T>.Failure("Debe ajustar los errores de validación"))
+                if (!isValid)
                 {
-                    StatusCode = StatusCodes.Status422UnprocessableEntity
-                };
+                    return new ObjectResult(Response<T>.Failure("Debe ajustar los errores de validación", errors))
+                    {
+                        StatusCode = StatusCodes.Status422UnprocessableEntity
+                    };
+                }
             }
 
             if (statusCode is not null && statusCode >= 100 && statusCode <= 599)
@@ -51,16 +52,17 @@ namespace PrivateBlog.Web.Controllers.Api
                                                                 ModelStateDictionary? modelState = null,
                                                                 int? statusCode = null)
         {
-            if (modelState is not null && !modelState.IsValid)
+            if (modelState is not null)
             {
-                List<string> errors = modelState.Values.SelectMany(v => v.Errors)
-                                                       .Select(e => e.ErrorMessage)
-                                                       .ToList();
+                (bool isValid, List<string> errors) = ValidateModelState(modelState);
 
-                return new ObjectResult(Core.Response.Failure("Debe ajustar los errores de validación"))
+                if (!isValid)
                 {
-                    StatusCode = StatusCodes.Status422UnprocessableEntity
-                };
+                    return new ObjectResult(Core.Response.Failure("Debe ajustar los errores de validación", errors))
+                    {
+                        StatusCode = StatusCodes.Status422UnprocessableEntity
+                    };
+                }
             }
 
             if (statusCode is not null && statusCode >= 100 && statusCode <= 599)
@@ -83,6 +85,20 @@ namespace PrivateBlog.Web.Controllers.Api
             {
                 StatusCode = StatusCodes.Status200OK
             };
+        }
+
+        public static (bool, List<string>) ValidateModelState(ModelStateDictionary modelState)
+        {
+            if (modelState is not null && !modelState.IsValid)
+            {
+                List<string> errors = modelState.Values.SelectMany(v => v.Errors)
+                                                       .Select(e => e.ErrorMessage)
+                                                       .ToList();
+
+                return (false, errors);
+            }
+
+            return (true, null);
         }
     }
 }
